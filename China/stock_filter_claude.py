@@ -19,7 +19,7 @@ industry_stock_mapping_df = get_industry_stock_mapping_data()
 # Global variable - stock market data filtered
 # 总市值 < 200 亿, 0 < 动态市盈率 < 50
 stock_market_df_filtered = stock_zh_a_spot_em_df[
-    (stock_zh_a_spot_em_df["总市值"] < 200 * 10e8)
+    (stock_zh_a_spot_em_df["总市值"] < 200 * 1e8)
     & (stock_zh_a_spot_em_df["市盈率-动态"] > 0)
     & (stock_zh_a_spot_em_df["市盈率-动态"] < 50)
 ]
@@ -234,6 +234,8 @@ async def process_all_industries_async(days=29):
             "年初至今涨跌幅(%)",
         ]
     )
+    # Avoide stock_code starts with 0
+    stock_filter_df["代码"] = stock_filter_df["代码"].astype(str)
 
     # Process industries with some concurrency but not too much to avoid overwhelming the API
     batch_size = 3  # Process 3 industries at a time
@@ -289,8 +291,8 @@ async def main():
         (stock_filter_df[f"{days}日主力净流入-总净额(亿)"] > 1)
         & (stock_filter_df[f"{days}日涨跌幅(%)"] < 10)
     ]
-    # Sort the DataFrame by industry and average change percentage
-    df.sort_values(by=["行业", f"{days}日涨跌幅(%)"], inplace=True)
+    # Sort the DataFrame by pe and {days} change percentage
+    df.sort_values(by=["市盈率-动态", f"{days}日涨跌幅(%)"], inplace=True)
     # Reset index
     df.reset_index(inplace=True, drop=True)
     # Output the filtered DataFrame to a CSV file
