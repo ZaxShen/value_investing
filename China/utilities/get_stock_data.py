@@ -3,8 +3,10 @@ import glob
 import pandas as pd
 import akshare as ak
 from datetime import datetime
+from .tools import timer
 
 
+@timer
 def get_stock_market_data(data_dir="data/stocks"):
     """
     Fetch stock market data with caching.
@@ -28,6 +30,7 @@ def get_stock_market_data(data_dir="data/stocks"):
     return stock_df
 
 
+@timer
 def get_industry_stock_mapping_data(data_dir="data/stocks"):
     """
     Fetch industry-stock mapping data with caching.
