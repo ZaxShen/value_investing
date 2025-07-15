@@ -16,7 +16,7 @@ def get_stock_market_data(data_dir="data/stocks"):
     file_path = f"{data_dir}/stock_zh_a_spot_em_df-{today}.csv"
 
     if os.path.exists(file_path):
-        return pd.read_csv(file_path, dtype={"代码": str}, index_col=0)
+        return pd.read_csv(file_path, dtype={"代码": str})
 
     # Delete outdated files
     for f in glob.glob(f"{data_dir}/stock_zh_a_spot_em_df-*.csv"):
@@ -40,7 +40,7 @@ def get_industry_stock_mapping_data(data_dir="data/stocks"):
     file_path = f"{data_dir}/industry_stock_mapping_df-{today}.csv"
 
     if os.path.exists(file_path):
-        return pd.read_csv(file_path, dtype={"代码": str}, index_col=0)
+        return pd.read_csv(file_path, dtype={"代码": str})
 
     # Delete outdated files
     for f in glob.glob(f"{data_dir}/industry_stock_mapping_df-*.csv"):
