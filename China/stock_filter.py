@@ -1,5 +1,4 @@
 import asyncio
-import time
 import functools
 import akshare as ak
 import pandas as pd
@@ -7,6 +6,7 @@ from utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
 )
+from utilities.tools import timer
 
 
 def prepare_stock_data():
@@ -22,39 +22,8 @@ def prepare_stock_data():
     stock_zh_a_spot_em_df = get_stock_market_data()
     industry_stock_mapping_df = get_industry_stock_mapping_data()
 
-    # Filter stock market data
-    # 总市值 < 200 亿, 0 < 动态市盈率 < 50
-    stock_market_df_filtered = stock_zh_a_spot_em_df[
-        (stock_zh_a_spot_em_df["总市值"] < 200 * 1e8)
-        & (stock_zh_a_spot_em_df["市盈率-动态"] > 0)
-        & (stock_zh_a_spot_em_df["市盈率-动态"] < 50)
-    ]
-
-    # Release memory early
-    del stock_zh_a_spot_em_df
-
-    # Inner join industry_stock_mapping_df with stock_market_df_filtered
-    stock_market_df_filtered = pd.merge(
-        industry_stock_mapping_df,
-        stock_market_df_filtered[
-            [
-                "代码",
-                "名称",
-                "总市值",
-                "流通市值",
-                "市盈率-动态",
-                "市净率",
-                "60日涨跌幅",
-                "年初至今涨跌幅",
-            ]
-        ],
-        on="代码",
-        how="inner",
-    )
-
-    # Organize the columns
-    stock_market_df_filtered.columns = [
-        "行业",
+    # Define required COLS
+    COLS = [
         "代码",
         "名称",
         "总市值",
@@ -65,11 +34,26 @@ def prepare_stock_data():
         "年初至今涨跌幅",
     ]
 
+    # Filter stock market data
+    # 总市值 < 200 亿, 0 < 动态市盈率 < 50
+    stock_market_df_filtered = stock_zh_a_spot_em_df[
+        (stock_zh_a_spot_em_df["总市值"] < 200 * 1e8)
+        & (stock_zh_a_spot_em_df["市盈率-动态"] > 0)
+        & (stock_zh_a_spot_em_df["市盈率-动态"] < 50)
+    ]
+    # Extract required data
+    stock_market_df_filtered = stock_market_df_filtered[COLS]
+
+    # Inner join industry_stock_mapping_df with stock_market_df_filtered
+    stock_market_df_filtered = pd.merge(
+        industry_stock_mapping_df, stock_market_df_filtered, on="代码", how="inner"
+    )
+
+    # Organize the columns
+    stock_market_df_filtered.columns = ["行业"] + COLS
+
     # Get unique industry names
     industry_arr = stock_market_df_filtered["行业"].unique()
-
-    # Release memory
-    del industry_stock_mapping_df
 
     print(
         f"Loaded {len(stock_market_df_filtered)} stocks across {len(industry_arr)} industries"
@@ -237,6 +221,7 @@ async def process_single_industry_async(
     return df
 
 
+@timer
 async def process_all_industries_async(stock_market_df_filtered, industry_arr, days=29):
     """
     Process all industries concurrently
@@ -300,9 +285,6 @@ async def main():
     """Main async function"""
     days = 29
 
-    print("Starting async stock analysis...")
-    start_time = time.time()
-
     # Prepare data
     stock_market_df_filtered, industry_arr = prepare_stock_data()
 
@@ -310,10 +292,6 @@ async def main():
     all_industries_df = await process_all_industries_async(
         stock_market_df_filtered, industry_arr, days
     )
-
-    end_time = time.time()
-    print(f"Analysis completed in {end_time - start_time:.2f} seconds")
-    print("=" * 100)
 
     # Define the report date
     last_date = ak.stock_sector_fund_flow_hist(symbol="证券").iloc[-1]["日期"]
@@ -335,7 +313,7 @@ async def main():
     ]
 
     # Sort the DataFrame by pe and {days} change percentage
-    df.sort_values(by=["市盈率-动态", f"{days}日涨跌幅(%)"], inplace=True)
+    df = df.sort_values(by=["市盈率-动态", f"{days}日涨跌幅(%)"])
     df.reset_index(inplace=True, drop=True)
 
     # Output the filtered DataFrame to a CSV file
