@@ -3,12 +3,14 @@ import pandas as pd
 import akshare as ak
 import glob
 import json
+import asyncio
+import functools
 from datetime import datetime
-from utilities.get_stock_data import (
+from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
 )
-from utilities.tools import timer
+from src.utilities.tools import timer
 
 
 stock_zh_a_spot_em_df = get_stock_market_data()
@@ -26,8 +28,30 @@ def validate_stock_name(stock_code, stock_name, df):
         raise ValueError(f"Stock code {stock_code} not found")
 
 
-# TODO: Concurrent processing of multiple stocks in an industry
-def stock_analysis(industry_name, stock_code, stock_name, days=29):
+def run_in_executor(func):
+    """Decorator to run blocking functions in thread pool executor"""
+
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, func, *args, **kwargs)
+
+    return wrapper
+
+
+@run_in_executor
+def fetch_stock_individual_fund_flow(stock_code, market):
+    """Fetch stock individual fund flow data - wrapped for async execution"""
+    return ak.stock_individual_fund_flow(stock=stock_code, market=market)
+
+
+@run_in_executor
+def fetch_stock_sector_fund_flow_hist(symbol):
+    """Fetch stock sector fund flow history - wrapped for async execution"""
+    return ak.stock_sector_fund_flow_hist(symbol=symbol)
+
+
+async def stock_analysis(industry_name, stock_code, stock_name, days=29):
 
     print(f"Processing {stock_name} ({stock_code}) in {industry_name} industry...")
     # Determine the market based on the stock code
@@ -66,9 +90,9 @@ def stock_analysis(industry_name, stock_code, stock_name, days=29):
         stock_zh_a_spot_em_df["代码"] == stock_code
     ]["年初至今涨跌幅"].values[0]
 
-    # Extract the historical data of the stock
-    stock_individual_fund_flow_df = ak.stock_individual_fund_flow(
-        stock=stock_code, market=market
+    # Extract the historical data of the stock (async)
+    stock_individual_fund_flow_df = await fetch_stock_individual_fund_flow(
+        stock_code, market
     )
     if len(stock_individual_fund_flow_df) < days:
         print(
@@ -104,7 +128,7 @@ def stock_analysis(industry_name, stock_code, stock_name, days=29):
 
 
 @timer
-def main():
+async def main():
     DIR_PATH = "data/holding_stocks"
     days = 29
     # Initialize a pandas Dataframe to hold industry names, industry main net flow, and industry index change percentage
@@ -135,7 +159,7 @@ def main():
                 industry_name = industry_stock_mapping_df[
                     industry_stock_mapping_df["代码"] == stock_code
                 ]["行业"].values[0]
-                result = stock_analysis(
+                result = await stock_analysis(
                     industry_name=industry_name,
                     stock_code=stock_code,
                     stock_name=stock_name,
@@ -144,8 +168,9 @@ def main():
                 if result is not None:
                     df.loc[len(df)] = [f"{account_name}"] + result
 
-    # Define the report date
-    last_date = ak.stock_sector_fund_flow_hist(symbol="证券").iloc[-1]["日期"]
+    # Define the report date (async)
+    stock_sector_data = await fetch_stock_sector_fund_flow_hist("证券")
+    last_date = stock_sector_data.iloc[-1]["日期"]
     last_date_str = last_date.strftime("%Y%m%d")
     # Output the df to a CSV file
     df.to_csv(f"{DIR_PATH}/reports/持股报告-{last_date_str}.csv", index=True)
@@ -153,4 +178,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
