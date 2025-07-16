@@ -2,11 +2,11 @@ import asyncio
 import functools
 import akshare as ak
 import pandas as pd
-from utilities.get_stock_data import (
+from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
 )
-from utilities.tools import timer
+from src.utilities.tools import timer
 
 
 def prepare_stock_data():
