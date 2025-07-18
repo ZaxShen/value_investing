@@ -1,0 +1,694 @@
+2025-07-17 21:52:04 - stock_analysis.test - INFO - <module>:7 - Testing logging system
+2025-07-17 21:52:04 - stock_analysis.test - WARNING - <module>:8 - This is a warning
+2025-07-17 21:52:04 - stock_analysis.test - ERROR - <module>:9 - This is an error
+2025-07-17 22:03:23 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: sync_function
+2025-07-17 22:03:23 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'sync_function' runtime: 0.0129 s
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: sync_function
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'sync_function' runtime: 0.0127 s
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - async_wrapper:20 - Starting async function: async_function
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - async_wrapper:30 - ⏱️  Function 'async_function' runtime: 0.0111 s
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: failing_function
+2025-07-17 22:03:31 - stock_analysis.timer - ERROR - sync_wrapper:44 - Error in failing_function: Test error
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'failing_function' runtime: 0.0001 s
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - async_wrapper:20 - Starting async function: failing_async_function
+2025-07-17 22:03:31 - stock_analysis.timer - ERROR - async_wrapper:25 - Error in failing_async_function: Async test error
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - async_wrapper:30 - ⏱️  Function 'failing_async_function' runtime: 0.0013 s
+2025-07-17 22:03:31 - stock_analysis.function_tracker - ERROR - sync_wrapper:93 - ✗ Exception in failing_function: Function failed
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: combined_function
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'combined_function' runtime: 0.0126 s
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - async_wrapper:20 - Starting async function: async_combined_function
+2025-07-17 22:03:31 - stock_analysis.timer - INFO - async_wrapper:30 - ⏱️  Function 'async_combined_function' runtime: 0.0102 s
+2025-07-17 22:05:12 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering simple_function(1, 2)
+2025-07-17 22:05:12 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting simple_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: sync_function
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'sync_function' runtime: 0.0127 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - async_wrapper:20 - Starting async function: async_function
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - async_wrapper:30 - ⏱️  Function 'async_function' runtime: 0.0111 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: failing_function
+2025-07-17 22:05:19 - stock_analysis.timer - ERROR - sync_wrapper:44 - Error in failing_function: Test error
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'failing_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - async_wrapper:20 - Starting async function: failing_async_function
+2025-07-17 22:05:19 - stock_analysis.timer - ERROR - async_wrapper:25 - Error in failing_async_function: Async test error
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - async_wrapper:30 - ⏱️  Function 'failing_async_function' runtime: 0.0013 s
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering simple_function(1, 2)
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting simple_function successfully
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - async_wrapper:68 - → Entering async_simple_function(5)
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - async_wrapper:72 - ← Exiting async_simple_function successfully
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering function_with_args(test, keyword_arg=value)
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting function_with_args successfully
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering failing_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - ERROR - sync_wrapper:93 - ✗ Exception in failing_function: Function failed
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering function_with_long_args(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...)
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting function_with_long_args successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: combined_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering combined_function(10)
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting combined_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'combined_function' runtime: 0.0117 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - async_wrapper:20 - Starting async function: async_combined_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - async_wrapper:68 - → Entering async_combined_function(15)
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - async_wrapper:72 - ← Exiting async_combined_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - async_wrapper:30 - ⏱️  Function 'async_combined_function' runtime: 0.0113 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: multi_decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering multi_decorated_function(3, 7)
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting multi_decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'multi_decorated_function' runtime: 0.0125 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: decorated_function
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:05:19 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:05:19 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-17 22:06:40 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: test_workflow_function
+2025-07-17 22:06:40 - stock_analysis.test_module - INFO - test_workflow_function:38 - Processing data: test_data
+2025-07-17 22:06:40 - stock_analysis.test_module - WARNING - test_workflow_function:40 - Warning message
+2025-07-17 22:06:40 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'test_workflow_function' runtime: 0.0005 s
+2025-07-17 22:06:40 - stock_analysis.timer - INFO - async_wrapper:20 - Starting async function: async_workflow
+2025-07-17 22:06:40 - stock_analysis.async_test - INFO - async_workflow:77 - Starting async processing of 3 items
+2025-07-17 22:06:40 - stock_analysis.async_test - INFO - async_workflow:85 - Async processing completed
+2025-07-17 22:06:40 - stock_analysis.timer - INFO - async_wrapper:30 - ⏱️  Function 'async_workflow' runtime: 0.0037 s
+2025-07-17 22:06:40 - stock_analysis.stock_filter - INFO - stock_processing:116 - Processing stock data
+2025-07-17 22:06:40 - stock_analysis.stock_analysis - INFO - analysis_processing:122 - Running stock analysis
+2025-07-17 22:06:40 - stock_analysis.stock_analysis - WARNING - analysis_processing:123 - Low data quality detected
+2025-07-17 22:06:40 - stock_analysis.timer - INFO - sync_wrapper:39 - Starting sync function: industry_processing
+2025-07-17 22:06:40 - stock_analysis.industry_filter - INFO - industry_processing:128 - Processing industry data
+2025-07-17 22:06:40 - stock_analysis.industry_filter - ERROR - industry_processing:129 - Industry data incomplete
+2025-07-17 22:06:40 - stock_analysis.timer - INFO - sync_wrapper:49 - ⏱️  Function 'industry_processing' runtime: 0.0001 s
+2025-07-17 22:06:40 - stock_analysis.runtime_test - INFO - test_log_level_changes_during_runtime:149 - Info message 1
+2025-07-17 22:06:40 - stock_analysis.runtime_test - INFO - test_log_level_changes_during_runtime:155 - Info message 2
+2025-07-17 22:06:40 - stock_analysis.runtime_test - DEBUG - test_log_level_changes_during_runtime:156 - Debug message 2 - should appear
+2025-07-17 22:06:40 - stock_analysis.runtime_test - WARNING - test_log_level_changes_during_runtime:162 - Warning message 1
+2025-07-17 22:06:40 - stock_analysis.exception_test - ERROR - function_that_fails:184 - About to raise exception
+2025-07-17 22:06:40 - stock_analysis.function_tracker - ERROR - sync_wrapper:93 - ✗ Exception in function_that_fails: Intentional test failure
+2025-07-17 22:06:40 - stock_analysis.timer - ERROR - sync_wrapper:44 - Error in function_that_fails: Intentional test failure
+2025-07-17 22:06:40 - stock_analysis.timer - ERROR - sync_wrapper:44 - Error in failing_function: Test error
+2025-07-17 22:06:40 - stock_analysis.timer - ERROR - async_wrapper:25 - Error in failing_async_function: Async test error
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering simple_function(1, 2)
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting simple_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - async_wrapper:68 - → Entering async_simple_function(5)
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - async_wrapper:72 - ← Exiting async_simple_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering function_with_args(test, keyword_arg=value)
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting function_with_args successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering failing_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - ERROR - sync_wrapper:93 - ✗ Exception in failing_function: Function failed
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering function_with_long_args(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...)
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting function_with_long_args successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering combined_function(10)
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting combined_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - async_wrapper:68 - → Entering async_combined_function(15)
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - async_wrapper:72 - ← Exiting async_combined_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering multi_decorated_function(3, 7)
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting multi_decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:86 - → Entering decorated_function()
+2025-07-17 22:06:40 - stock_analysis.function_tracker - DEBUG - sync_wrapper:90 - ← Exiting decorated_function successfully
