@@ -10,7 +10,11 @@ from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
 )
-from src.utilities.tools import timer
+from src.utilities.tools import timer, verbose
+from src.utilities.logger import get_logger
+
+# Initialize logger for this module
+logger = get_logger("stock_analysis")
 
 
 stock_zh_a_spot_em_df = get_stock_market_data()
@@ -52,8 +56,7 @@ def fetch_stock_sector_fund_flow_hist(symbol):
 
 
 async def stock_analysis(industry_name, stock_code, stock_name, days=29):
-
-    print(f"Processing {stock_name} ({stock_code}) in {industry_name} industry...")
+    logger.debug(f"Processing {stock_name} ({stock_code}) in {industry_name} industry")
     # Determine the market based on the stock code
     if stock_code.startswith("6"):
         market = "sh"
@@ -95,9 +98,7 @@ async def stock_analysis(industry_name, stock_code, stock_name, days=29):
         stock_code, market
     )
     if len(stock_individual_fund_flow_df) < days:
-        print(
-            f"Skipping {stock_name} ({stock_code}) due to insufficient data for the last {days} days."
-        )
+        logger.warning(f"Skipping {stock_name} ({stock_code}) due to insufficient data for the last {days} days")
         return None
     stock_individual_fund_flow_df = stock_individual_fund_flow_df.iloc[-days:]
     # Get the main net inflow data
@@ -174,7 +175,7 @@ async def main():
     last_date_str = last_date.strftime("%Y%m%d")
     # Output the df to a CSV file
     df.to_csv(f"{DIR_PATH}/reports/持股报告-{last_date_str}.csv", index=True)
-    print(f"Report saved to {DIR_PATH}/reports/持股报告-{last_date_str}.csv")
+    logger.info(f"Report saved to {DIR_PATH}/reports/持股报告-{last_date_str}.csv")
 
 
 if __name__ == "__main__":
