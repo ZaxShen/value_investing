@@ -24,17 +24,17 @@ def timer(func: Callable) -> Callable:
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs) -> Any:
             start_time = time.perf_counter()
-            logger.info(f"Starting async function: {func.__name__}")
+            logger.info("Starting async function: %s", func.__name__)
             try:
                 result = await func(*args, **kwargs)
                 return result
             except Exception as e:
-                logger.error(f"Error in {func.__name__}: {str(e)}")
+                logger.error("Error in %s: %s", func.__name__, str(e))
                 raise
             finally:
                 end_time = time.perf_counter()
                 exec_time = end_time - start_time
-                logger.info(f"⏱️  Function '{func.__name__}' runtime: {exec_time:.4f} s")
+                logger.info("⏱️  Function '%s' runtime: %.4f s", func.__name__, exec_time)
 
         return async_wrapper
     else:
@@ -42,17 +42,17 @@ def timer(func: Callable) -> Callable:
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs) -> Any:
             start_time = time.perf_counter()
-            logger.info(f"Starting sync function: {func.__name__}")
+            logger.info("Starting sync function: %s", func.__name__)
             try:
                 result = func(*args, **kwargs)
                 return result
             except Exception as e:
-                logger.error(f"Error in {func.__name__}: {str(e)}")
+                logger.error("Error in %s: %s", func.__name__, str(e))
                 raise
             finally:
                 end_time = time.perf_counter()
                 exec_time = end_time - start_time
-                logger.info(f"⏱️  Function '{func.__name__}' runtime: {exec_time:.4f} s")
+                logger.info("⏱️  Function '%s' runtime: %.4f s", func.__name__, exec_time)
 
         return sync_wrapper
 
@@ -69,10 +69,7 @@ def logged(func: Callable) -> Callable:
         async def async_wrapper(*args, **kwargs) -> Any:
             # Log function entry with arguments
             args_str = ", ".join(
-                [
-                    str(arg)[:50] + "..." if len(str(arg)) > 50 else str(arg)
-                    for arg in args
-                ]
+                [str(arg)[:50] + "..." if len(str(arg)) > 50 else str(arg) for arg in args]
             )
             kwargs_str = ", ".join(
                 [
@@ -81,15 +78,18 @@ def logged(func: Callable) -> Callable:
                 ]
             )
             logger.debug(
-                f"→ Entering {func.__name__}({args_str}{', ' + kwargs_str if kwargs_str else ''})"
+                "→ Entering %s(%s%s)",
+                func.__name__,
+                args_str,
+                ', ' + kwargs_str if kwargs_str else '',
             )
 
             try:
                 result = await func(*args, **kwargs)
-                logger.debug(f"← Exiting {func.__name__} successfully")
+                logger.debug("← Exiting %s successfully", func.__name__)
                 return result
             except Exception as e:
-                logger.error(f"✗ Exception in {func.__name__}: {str(e)}")
+                logger.error("✗ Exception in %s: %s", func.__name__, str(e))
                 raise
 
         return async_wrapper
@@ -99,10 +99,7 @@ def logged(func: Callable) -> Callable:
         def sync_wrapper(*args, **kwargs) -> Any:
             # Log function entry with arguments
             args_str = ", ".join(
-                [
-                    str(arg)[:50] + "..." if len(str(arg)) > 50 else str(arg)
-                    for arg in args
-                ]
+                [str(arg)[:50] + "..." if len(str(arg)) > 50 else str(arg) for arg in args]
             )
             kwargs_str = ", ".join(
                 [
@@ -111,15 +108,18 @@ def logged(func: Callable) -> Callable:
                 ]
             )
             logger.debug(
-                f"→ Entering {func.__name__}({args_str}{', ' + kwargs_str if kwargs_str else ''})"
+                "→ Entering %s(%s%s)",
+                func.__name__,
+                args_str,
+                ', ' + kwargs_str if kwargs_str else '',
             )
 
             try:
                 result = func(*args, **kwargs)
-                logger.debug(f"← Exiting {func.__name__} successfully")
+                logger.debug("← Exiting %s successfully", func.__name__)
                 return result
             except Exception as e:
-                logger.error(f"✗ Exception in {func.__name__}: {str(e)}")
+                logger.error("✗ Exception in %s: %s", func.__name__, str(e))
                 raise
 
         return sync_wrapper

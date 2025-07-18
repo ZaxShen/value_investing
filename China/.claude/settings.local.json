@@ -3,7 +3,9 @@
     "allow": [
       "Bash(uv sync:*)",
       "Bash(find:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(python -m black:*)"
     ],
     "deny": []
   }
