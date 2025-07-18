@@ -1,22 +1,38 @@
+"""
+Industry analysis and filtering for Chinese equity markets.
+
+This module provides comprehensive analysis of industry sectors including
+fund flow analysis, index performance tracking, and industry-level filtering.
+It generates detailed reports on industry performance and capital flows.
+"""
+
 import asyncio
 import functools
 import akshare as ak
 import pandas as pd
 from datetime import datetime, timedelta
-from src.utilities.tools import timer, verbose
+from typing import Tuple, Optional, List, Any, Callable
+from src.utilities.tools import timer
 from src.utilities.logger import get_logger
 
 # Initialize logger for this module
 logger = get_logger("industry_filter")
 
 
-def get_dates():
+def get_dates() -> Tuple[pd.Series, str, str, str]:
     """
-    returns:
-        - industry_arr: arr
-        - first_date_str: %Y%m%d
-        - last_date_str: %Y%m%d
-        - first_trading_date_str: %Y-%m-%d
+    Get industry names and date ranges for analysis.
+
+    This function retrieves the list of industry names and calculates
+    appropriate date ranges for industry analysis, ensuring sufficient
+    trading days for meaningful analysis.
+
+    Returns:
+        Tuple containing:
+            - industry_arr: Series of industry names
+            - first_date_str: Start date in %Y%m%d format
+            - last_date_str: End date in %Y%m%d format
+            - first_trading_date_str: First trading date in %Y-%m-%d format
     """
     # Get the list of industry names
     industry_arr = ak.stock_board_industry_name_em()["板块名称"]
@@ -58,8 +74,19 @@ def get_dates():
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 
 
-def run_in_executor(func):
-    """Decorator to run blocking functions in thread pool executor"""
+def run_in_executor(func: Callable) -> Callable:
+    """
+    Decorator to run blocking functions in thread pool executor.
+
+    This decorator converts synchronous blocking functions into asynchronous
+    functions by running them in a thread pool executor.
+
+    Args:
+        func: The synchronous function to be executed in a thread pool
+
+    Returns:
+        Async wrapper function that executes the original function in a thread pool
+    """
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
@@ -70,16 +97,37 @@ def run_in_executor(func):
 
 
 @run_in_executor
-def fetch_indsutry_capital_flow_data(industry_name, days):
+def fetch_industry_capital_flow_data(industry_name: str, days: int) -> pd.DataFrame:
+    """
+    Fetch industry capital flow data - wrapped for async execution.
+
+    Args:
+        industry_name: Name of the industry to analyze
+        days: Number of recent days to fetch data for
+
+    Returns:
+        DataFrame containing recent capital flow data for the industry
+    """
     return ak.stock_sector_fund_flow_hist(symbol=industry_name).iloc[-days:]
 
 
 @run_in_executor
 def fetch_industry_index_data(
-    industry_name,
-    first_date_str,
-    last_date_str,
-):
+    industry_name: str,
+    first_date_str: str,
+    last_date_str: str,
+) -> pd.DataFrame:
+    """
+    Fetch industry index historical data - wrapped for async execution.
+
+    Args:
+        industry_name: Name of the industry to analyze
+        first_date_str: Start date in %Y%m%d format
+        last_date_str: End date in %Y%m%d format
+
+    Returns:
+        DataFrame containing historical index data for the industry
+    """
     stock_board_industry_hist_em = ak.stock_board_industry_hist_em(
         symbol=industry_name,
         start_date=first_date_str,
@@ -91,17 +139,33 @@ def fetch_industry_index_data(
 
 
 async def process_single_industry_async(
-    industry_name,
-    first_date_str,
-    last_date_str,
-    first_trading_date_str,
-    days=29,
-):
+    industry_name: str,
+    first_date_str: str,
+    last_date_str: str,
+    first_trading_date_str: str,
+    days: int = 29,
+) -> Optional[List[Any]]:
+    """
+    Process a single industry asynchronously to calculate performance metrics.
+
+    This function analyzes an industry's capital flow, index performance,
+    and calculates key metrics for different time periods.
+
+    Args:
+        industry_name: Name of the industry to analyze
+        first_date_str: Start date in %Y%m%d format
+        last_date_str: End date in %Y%m%d format
+        first_trading_date_str: First trading date in %Y-%m-%d format
+        days: Number of days to analyze (default: 29)
+
+    Returns:
+        List containing industry analysis results, or None if analysis fails
+    """
 
     async with REQUEST_SEMAPHORE:
         try:
             # Fetch industry capital flow data
-            stock_sector_fund_flow_hist_df = await fetch_indsutry_capital_flow_data(
+            stock_sector_fund_flow_hist_df = await fetch_industry_capital_flow_data(
                 industry_name, days
             )
             # Calculate main net flow
@@ -146,7 +210,9 @@ async def process_single_industry_async(
             )
             industry_index_change_perc_ytd = round(industry_index_change_perc_ytd, 2)
             # Log the results
-            logger.debug(f"{industry_name}: {industry_main_net_flow}, {industry_index_change_perc_days}%, {industry_index_change_perc_60}%, {industry_index_change_perc_ytd}%")
+            logger.debug(
+                f"{industry_name}: {industry_main_net_flow}, {industry_index_change_perc_days}%, {industry_index_change_perc_60}%, {industry_index_change_perc_ytd}%"
+            )
             return [
                 industry_name,
                 industry_main_net_flow,
@@ -162,12 +228,29 @@ async def process_single_industry_async(
 
 @timer
 async def process_all_industries_async(
-    industry_arr,
-    first_date_str,
-    last_date_str,
-    first_trading_date_str,
-    days=29,
-):
+    industry_arr: pd.Series,
+    first_date_str: str,
+    last_date_str: str,
+    first_trading_date_str: str,
+    days: int = 29,
+) -> pd.DataFrame:
+    """
+    Process all industries concurrently with batch processing.
+
+    This function orchestrates the analysis of all industries using
+    batch processing to avoid overwhelming the API while maintaining
+    good performance.
+
+    Args:
+        industry_arr: Series containing industry names
+        first_date_str: Start date in %Y%m%d format
+        last_date_str: End date in %Y%m%d format
+        first_trading_date_str: First trading date in %Y-%m-%d format
+        days: Number of days to analyze (default: 29)
+
+    Returns:
+        DataFrame containing analysis results for all industries
+    """
     # Define columns for consistency
     columns = [
         "行业",
@@ -184,7 +267,9 @@ async def process_all_industries_async(
 
     for i in range(0, len(industry_arr), batch_size):
         batch = industry_arr[i : i + batch_size]
-        logger.info(f"Processing industry batch {i//batch_size + 1}/{(len(industry_arr) + batch_size - 1)//batch_size}")
+        logger.info(
+            f"Processing industry batch {i//batch_size + 1}/{(len(industry_arr) + batch_size - 1)//batch_size}"
+        )
 
         # Create tasks for the current batch
         tasks = [
@@ -209,8 +294,13 @@ async def process_all_industries_async(
     return all_industries_df
 
 
-async def main():
-    """Main async function"""
+async def main() -> None:
+    """
+    Main function to execute the complete industry filtering pipeline.
+
+    This function orchestrates the entire industry analysis process including
+    data preparation, industry analysis, result filtering, and report generation.
+    """
     days = 29
 
     industry_arr, first_date_str, last_date_str, first_trading_date_str = get_dates()
@@ -254,7 +344,9 @@ async def main():
 
     # Output the filtered DataFrame to a CSV file
     df.to_csv(f"{REPORT_DIR}/行业筛选报告-{last_date_str}.csv", index=True)
-    logger.info(f"Filtered report saved to {REPORT_DIR}/行业筛选报告-{last_date_str}.csv")
+    logger.info(
+        f"Filtered report saved to {REPORT_DIR}/行业筛选报告-{last_date_str}.csv"
+    )
 
 
 if __name__ == "__main__":

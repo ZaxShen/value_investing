@@ -1,16 +1,31 @@
+"""
+Data fetching and caching utilities for Chinese stock market data.
+
+This module provides functions to fetch and cache stock market data and
+industry-stock mapping data using the akshare library. It implements
+intelligent caching to avoid repeated API calls and improve performance.
+"""
+
 import os
 import glob
 import pandas as pd
 import akshare as ak
 from datetime import datetime
+from typing import Optional
 from .tools import timer
 
 
 @timer
-def get_stock_market_data(data_dir="data/stocks"):
+def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     """
     Fetch stock market data with caching.
-    Returns cached data if available for today, otherwise fetches new data.
+
+    Args:
+        data_dir: Directory to store cached data files
+
+    Returns:
+        DataFrame containing stock market data with columns including
+        stock codes, names, prices, and financial metrics
     """
     today = datetime.now().strftime("%Y%m%d")
     file_path = f"{data_dir}/stock_zh_a_spot_em_df-{today}.csv"
@@ -31,10 +46,16 @@ def get_stock_market_data(data_dir="data/stocks"):
 
 
 @timer
-def get_industry_stock_mapping_data(data_dir="data/stocks"):
+def get_industry_stock_mapping_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     """
     Fetch industry-stock mapping data with caching.
-    Returns cached data if available for today, otherwise fetches new data.
+
+    Args:
+        data_dir: Directory to store cached data files
+
+    Returns:
+        DataFrame containing industry-stock mapping with columns for
+        industry names and corresponding stock codes
     """
     today = datetime.now().strftime("%Y%m%d")
     file_path = f"{data_dir}/industry_stock_mapping_df-{today}.csv"
