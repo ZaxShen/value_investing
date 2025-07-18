@@ -6,9 +6,13 @@ from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
 )
-from src.utilities.tools import timer
+from src.utilities.tools import timer, logged
+from src.utilities.logger import get_logger
 
+# Initialize logger for this module
+logger = get_logger("stock_filter")
 
+@logged
 def prepare_stock_data():
     """
     Prepare and filter stock market data.
@@ -18,6 +22,7 @@ def prepare_stock_data():
             - stock_market_df_filtered: DataFrame with filtered stock data
             - industry_arr: Array of unique industry names
     """
+    logger.info("Loading stock market data...")
     print("Loading stock market data...")
     stock_zh_a_spot_em_df = get_stock_market_data()
     industry_stock_mapping_df = get_industry_stock_mapping_data()
