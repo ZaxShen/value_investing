@@ -7,13 +7,13 @@ from src.stock_filter import main as stock_filter_main
 from src.stock_analysis import main as stock_analysis_main
 from src.industry_filter import main as industry_filter_main
 from src.utilities.logger import get_logger, set_log_level
-from src.utilities.tools import logged
+from src.utilities.tools import logged, verbose, verbose_tracker, enable_verbose_tracking, print_verbose_summary
 
 
 # Initialize logger
 logger = get_logger("main")
 
-@logged
+@verbose
 def get_latest_file(pattern):
     """Get the latest file matching the pattern based on date in filename"""
     import re
@@ -36,11 +36,10 @@ def get_latest_file(pattern):
     return latest_file
 
 
-@logged
+@verbose
 async def copy_latest_reports():
     """Copy the latest reports to data/today directory"""
     logger.info("Starting report copying process")
-    print("\n=== Copying latest reports to data/today ===")
 
     # Create data/today directory if it doesn't exist
     today_dir = "data/today"
@@ -70,47 +69,52 @@ async def copy_latest_reports():
             target_path = os.path.join(today_dir, original_filename)
             shutil.copy2(latest_file, target_path)
             logger.info(f"Successfully copied {report_info['description']}: {original_filename}")
-            print(f"✅ Copied {report_info['description']}: {original_filename}")
         else:
             logger.warning(f"No {report_info['description']} found matching pattern: {report_info['pattern']}")
-            print(
-                f"❌ No {report_info['description']} found matching pattern: {report_info['pattern']}"
-            )
 
-    print(f"📁 All latest reports copied to {today_dir}/")
+    logger.info(f"All latest reports copied to {today_dir}/")
 
 
-@logged
+@verbose
 async def run_all_scripts():
     """Run all async scripts sequentially"""
     logger.info("Starting sequential execution of all scripts")
-    print("Starting stock analysis pipeline...")
+
+    # Start process tracking
+    verbose_tracker.start_process("sequential_analysis", "Sequential Stock Analysis Pipeline", 4)
 
     # Run stock_filter.py
-    print("\n=== Running stock_filter.py ===")
+    verbose_tracker.update_process("sequential_analysis", "Running stock filter")
     await stock_filter_main()
 
     # Run stock_analysis.py
-    print("\n=== Running stock_analysis.py ===")
+    verbose_tracker.update_process("sequential_analysis", "Running stock analysis")
     await stock_analysis_main()  # Now this is an async function
 
     # Run industry_filter.py
-    print("\n=== Running industry_filter.py ===")
+    verbose_tracker.update_process("sequential_analysis", "Running industry filter")
     await industry_filter_main()
 
-    print("\nAll scripts completed!")
+    logger.info("All scripts completed!")
 
     # Copy latest reports to data/today
+    verbose_tracker.update_process("sequential_analysis", "Copying latest reports")
     await copy_latest_reports()
+    
+    # Complete process tracking
+    verbose_tracker.complete_process("sequential_analysis", True)
 
 
-@logged
+@verbose
 async def run_all_scripts_parallel():
     """Run all async scripts in parallel (if they don't depend on each other)"""
     logger.info("Starting parallel execution of all scripts")
-    print("Starting stock analysis pipeline in parallel...")
+
+    # Start process tracking
+    verbose_tracker.start_process("parallel_analysis", "Parallel Stock Analysis Pipeline", 2)
 
     # Run all async scripts in parallel
+    verbose_tracker.update_process("parallel_analysis", "Running all analysis scripts in parallel")
     tasks = [
         stock_filter_main(),
         stock_analysis_main(),
@@ -118,33 +122,57 @@ async def run_all_scripts_parallel():
     ]
 
     await asyncio.gather(*tasks)
-    print("All scripts completed!")
+    logger.info("All scripts completed!")
 
     # Copy latest reports to data/today
+    verbose_tracker.update_process("parallel_analysis", "Copying latest reports")
     await copy_latest_reports()
+    
+    # Complete process tracking
+    verbose_tracker.complete_process("parallel_analysis", True)
 
 
-@logged 
+@verbose
 def main():
     """Main entry point for the stock analysis pipeline"""
     logger.info("=== Starting China Stock Analysis Pipeline ===")
-    print("Hello from china!")
+
+    # Enable verbose tracking for detailed progress monitoring
+    enable_verbose_tracking()
 
     # Option to set log level dynamically
     # set_log_level("DEBUG")  # Uncomment for verbose logging
 
-    # Choose one of these approaches:
+    # Start overall pipeline tracking
+    verbose_tracker.start_process("main_pipeline", "China Stock Analysis Pipeline", 3)
 
-    # Option 1: Run sequentially
-    # asyncio.run(run_all_scripts())
+    try:
+        # Choose one of these approaches:
+        verbose_tracker.update_process("main_pipeline", "Initializing analysis pipeline")
 
-    # Option 2: Run in parallel (current default)
-    asyncio.run(run_all_scripts_parallel())
-    
-    logger.info("=== China Stock Analysis Pipeline Completed ===")
-    
-    # Log completion message
-    print("\n🎉 All analysis completed! Check logs/ directory for detailed logs.")
+        # Option 1: Run sequentially
+        # asyncio.run(run_all_scripts())
+
+        # Option 2: Run in parallel (current default)
+        verbose_tracker.update_process("main_pipeline", "Running analysis scripts")
+        asyncio.run(run_all_scripts_parallel())
+        
+        verbose_tracker.update_process("main_pipeline", "Generating summary report")
+        logger.info("=== China Stock Analysis Pipeline Completed ===")
+        
+        # Complete main pipeline
+        verbose_tracker.complete_process("main_pipeline", True)
+        
+        # Print comprehensive summary
+        print_verbose_summary()
+        
+        # Log completion message
+        logger.info("🎉 All analysis completed! Check logs/ directory for detailed logs.")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        verbose_tracker.complete_process("main_pipeline", False)
+        raise
 
 
 if __name__ == "__main__":
