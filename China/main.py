@@ -13,6 +13,7 @@ import asyncio
 import os
 import shutil
 import glob
+import re
 from typing import Optional
 from rich.progress import (
     Progress,
@@ -45,8 +46,6 @@ def get_latest_file(pattern: str) -> Optional[str]:
     Returns:
         Path to the latest file matching the pattern, or None if no files found
     """
-    import re
-
     files = glob.glob(pattern)
     if not files:
         return None
@@ -102,7 +101,11 @@ async def copy_latest_reports() -> None:
             original_filename = os.path.basename(latest_file)
             target_path = os.path.join(today_dir, original_filename)
             shutil.copy2(latest_file, target_path)
-            logger.info("Successfully copied %s: %s", report_info["description"], original_filename)
+            logger.info(
+                "Successfully copied %s: %s",
+                report_info["description"],
+                original_filename,
+            )
         else:
             logger.warning(
                 "No %s found matching pattern: %s",
@@ -182,7 +185,9 @@ async def run_all_scripts_parallel() -> None:
         main_task = progress.add_task("Parallel Stock Analysis Pipeline", total=2)
 
         # Run all async scripts in parallel
-        progress.update(main_task, description="Running all analysis scripts in parallel")
+        progress.update(
+            main_task, description="Running all analysis scripts in parallel"
+        )
 
         # Create individual tasks for each script
         stock_filter_task = progress.add_task("Stock Filter", total=1)
@@ -198,8 +203,12 @@ async def run_all_scripts_parallel() -> None:
 
         await asyncio.gather(
             run_with_progress(stock_filter_main(), stock_filter_task, "Stock Filter"),
-            run_with_progress(stock_analysis_main(), stock_analysis_task, "Stock Analysis"),
-            run_with_progress(industry_filter_main(), industry_filter_task, "Industry Filter"),
+            run_with_progress(
+                stock_analysis_main(), stock_analysis_task, "Stock Analysis"
+            ),
+            run_with_progress(
+                industry_filter_main(), industry_filter_task, "Industry Filter"
+            ),
         )
 
         progress.advance(main_task)
