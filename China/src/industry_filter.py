@@ -3,7 +3,11 @@ import functools
 import akshare as ak
 import pandas as pd
 from datetime import datetime, timedelta
-from src.utilities.tools import timer
+from src.utilities.tools import timer, verbose
+from src.utilities.logger import get_logger
+
+# Initialize logger for this module
+logger = get_logger("industry_filter")
 
 
 def get_dates():
@@ -141,10 +145,8 @@ async def process_single_industry_async(
                 * 100
             )
             industry_index_change_perc_ytd = round(industry_index_change_perc_ytd, 2)
-            # Print the results
-            print(
-                f"{industry_name}: {industry_main_net_flow}, {industry_index_change_perc_days}%, {industry_index_change_perc_60}%, {industry_index_change_perc_ytd}%"
-            )
+            # Log the results
+            logger.debug(f"{industry_name}: {industry_main_net_flow}, {industry_index_change_perc_days}%, {industry_index_change_perc_60}%, {industry_index_change_perc_ytd}%")
             return [
                 industry_name,
                 industry_main_net_flow,
@@ -154,7 +156,7 @@ async def process_single_industry_async(
             ]
 
         except Exception as e:
-            print(f"Error processing {industry_name}: {str(e)}")
+            logger.error(f"Error processing {industry_name}: {str(e)}")
             return None
 
 
@@ -182,9 +184,7 @@ async def process_all_industries_async(
 
     for i in range(0, len(industry_arr), batch_size):
         batch = industry_arr[i : i + batch_size]
-        print(
-            f"Processing industry batch {i//batch_size + 1}/{(len(industry_arr) + batch_size - 1)//batch_size}"
-        )
+        logger.info(f"Processing industry batch {i//batch_size + 1}/{(len(industry_arr) + batch_size - 1)//batch_size}")
 
         # Create tasks for the current batch
         tasks = [
@@ -237,7 +237,7 @@ async def main():
     all_industries_df.to_csv(
         f"{REPORT_DIR}/行业筛选报告-raw-{last_date_str}.csv", index=True
     )
-    print(f"Report saved to {REPORT_DIR}/行业筛选报告-raw-{last_date_str}.csv")
+    logger.info(f"Report saved to {REPORT_DIR}/行业筛选报告-raw-{last_date_str}.csv")
 
     # Apply additional filters to all_industries_df
     df = all_industries_df[
@@ -254,7 +254,7 @@ async def main():
 
     # Output the filtered DataFrame to a CSV file
     df.to_csv(f"{REPORT_DIR}/行业筛选报告-{last_date_str}.csv", index=True)
-    print(f"Filtered report saved to {REPORT_DIR}/行业筛选报告-{last_date_str}.csv")
+    logger.info(f"Filtered report saved to {REPORT_DIR}/行业筛选报告-{last_date_str}.csv")
 
 
 if __name__ == "__main__":
