@@ -169,12 +169,8 @@ async def process_single_industry_async(
                 industry_name, days
             )
             # Calculate main net flow
-            industry_main_net_flow = stock_sector_fund_flow_hist_df[
-                "主力净流入-净额"
-            ].sum()
-            industry_main_net_flow = round(
-                industry_main_net_flow / 1e8, 1
-            )  # Convert to 100M
+            industry_main_net_flow = stock_sector_fund_flow_hist_df["主力净流入-净额"].sum()
+            industry_main_net_flow = round(industry_main_net_flow / 1e8, 1)  # Convert to 100M
 
             # Fetch industry index data
             stock_board_industry_hist_em = await fetch_industry_index_data(
@@ -211,7 +207,12 @@ async def process_single_industry_async(
             industry_index_change_perc_ytd = round(industry_index_change_perc_ytd, 2)
             # Log the results
             logger.debug(
-                f"{industry_name}: {industry_main_net_flow}, {industry_index_change_perc_days}%, {industry_index_change_perc_60}%, {industry_index_change_perc_ytd}%"
+                "%s: %s, %s%%, %s%%, %s%%",
+                industry_name,
+                industry_main_net_flow,
+                industry_index_change_perc_days,
+                industry_index_change_perc_60,
+                industry_index_change_perc_ytd,
             )
             return [
                 industry_name,
@@ -222,7 +223,7 @@ async def process_single_industry_async(
             ]
 
         except Exception as e:
-            logger.error(f"Error processing {industry_name}: {str(e)}")
+            logger.error("Error processing %s: %s", industry_name, str(e))
             return None
 
 
@@ -268,7 +269,9 @@ async def process_all_industries_async(
     for i in range(0, len(industry_arr), batch_size):
         batch = industry_arr[i : i + batch_size]
         logger.info(
-            f"Processing industry batch {i//batch_size + 1}/{(len(industry_arr) + batch_size - 1)//batch_size}"
+            "Processing industry batch %d/%d",
+            i//batch_size + 1,
+            (len(industry_arr) + batch_size - 1)//batch_size,
         )
 
         # Create tasks for the current batch
@@ -324,10 +327,8 @@ async def main() -> None:
     )
     all_industries_df.reset_index(inplace=True, drop=True)
     # Output the all_industries_df to a CSV file
-    all_industries_df.to_csv(
-        f"{REPORT_DIR}/行业筛选报告-raw-{last_date_str}.csv", index=True
-    )
-    logger.info(f"Report saved to {REPORT_DIR}/行业筛选报告-raw-{last_date_str}.csv")
+    all_industries_df.to_csv(f"{REPORT_DIR}/行业筛选报告-raw-{last_date_str}.csv", index=True)
+    logger.info("Report saved to %s/行业筛选报告-raw-%s.csv", REPORT_DIR, last_date_str)
 
     # Apply additional filters to all_industries_df
     df = all_industries_df[
@@ -344,9 +345,7 @@ async def main() -> None:
 
     # Output the filtered DataFrame to a CSV file
     df.to_csv(f"{REPORT_DIR}/行业筛选报告-{last_date_str}.csv", index=True)
-    logger.info(
-        f"Filtered report saved to {REPORT_DIR}/行业筛选报告-{last_date_str}.csv"
-    )
+    logger.info("Filtered report saved to %s/行业筛选报告-%s.csv", REPORT_DIR, last_date_str)
 
 
 if __name__ == "__main__":

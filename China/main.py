@@ -102,15 +102,15 @@ async def copy_latest_reports() -> None:
             original_filename = os.path.basename(latest_file)
             target_path = os.path.join(today_dir, original_filename)
             shutil.copy2(latest_file, target_path)
-            logger.info(
-                f"Successfully copied {report_info['description']}: {original_filename}"
-            )
+            logger.info("Successfully copied %s: %s", report_info["description"], original_filename)
         else:
             logger.warning(
-                f"No {report_info['description']} found matching pattern: {report_info['pattern']}"
+                "No %s found matching pattern: %s",
+                report_info["description"],
+                report_info["pattern"],
             )
 
-    logger.info(f"All latest reports copied to {today_dir}/")
+    logger.info("All latest reports copied to %s/", today_dir)
 
 
 @timer
@@ -182,9 +182,7 @@ async def run_all_scripts_parallel() -> None:
         main_task = progress.add_task("Parallel Stock Analysis Pipeline", total=2)
 
         # Run all async scripts in parallel
-        progress.update(
-            main_task, description="Running all analysis scripts in parallel"
-        )
+        progress.update(main_task, description="Running all analysis scripts in parallel")
 
         # Create individual tasks for each script
         stock_filter_task = progress.add_task("Stock Filter", total=1)
@@ -200,12 +198,8 @@ async def run_all_scripts_parallel() -> None:
 
         await asyncio.gather(
             run_with_progress(stock_filter_main(), stock_filter_task, "Stock Filter"),
-            run_with_progress(
-                stock_analysis_main(), stock_analysis_task, "Stock Analysis"
-            ),
-            run_with_progress(
-                industry_filter_main(), industry_filter_task, "Industry Filter"
-            ),
+            run_with_progress(stock_analysis_main(), stock_analysis_task, "Stock Analysis"),
+            run_with_progress(industry_filter_main(), industry_filter_task, "Industry Filter"),
         )
 
         progress.advance(main_task)
@@ -254,7 +248,7 @@ def main() -> None:
         )
 
     except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
+        logger.error("Pipeline failed: %s", str(e))
         console.print(f"[bold red]❌ Pipeline failed: {str(e)}[/bold red]")
         raise
 
