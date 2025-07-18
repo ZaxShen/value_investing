@@ -1,16 +1,25 @@
-import os
-import pandas as pd
-import akshare as ak
-import glob
-import json
+"""
+Stock analysis and holding report generation for Chinese equity markets.
+
+This module provides comprehensive analysis of individual stocks and generates
+detailed holding reports. It analyzes stock performance, fund flows, and
+calculates key financial metrics for investment decision making.
+"""
+
 import asyncio
 import functools
-from datetime import datetime
+import glob
+import json
+import os
+from typing import Optional, List, Any, Callable
+
+import akshare as ak
+import pandas as pd
 from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
 )
-from src.utilities.tools import timer, verbose
+from src.utilities.tools import timer
 from src.utilities.logger import get_logger
 
 # Initialize logger for this module
@@ -21,19 +30,39 @@ stock_zh_a_spot_em_df = get_stock_market_data()
 industry_stock_mapping_df = get_industry_stock_mapping_data()
 
 
-def validate_stock_name(stock_code, stock_name, df):
+def validate_stock_name(stock_code: str, stock_name: str, df: pd.DataFrame) -> None:
+    """
+    Validate that the stock name matches the stock code in the dataset.
+
+    Args:
+        stock_code: Stock code to validate (e.g., "000001")
+        stock_name: Expected stock name
+        df: DataFrame containing stock data with "代码" and "名称" columns
+
+    Raises:
+        ValueError: If stock name doesn't match or stock code not found
+    """
     try:
         actual_name = df[df["代码"] == stock_code]["名称"].values[0]
         if actual_name != stock_name:
-            raise ValueError(
-                f"Stock name mismatch for {stock_code}: {stock_name} != {actual_name}"
-            )
+            raise ValueError(f"Stock name mismatch for {stock_code}: {stock_name} != {actual_name}")
     except (IndexError, KeyError):
         raise ValueError(f"Stock code {stock_code} not found")
 
 
-def run_in_executor(func):
-    """Decorator to run blocking functions in thread pool executor"""
+def run_in_executor(func: Callable) -> Callable:
+    """
+    Decorator to run blocking functions in thread pool executor.
+
+    This decorator converts synchronous blocking functions into asynchronous
+    functions by running them in a thread pool executor.
+
+    Args:
+        func: The synchronous function to be executed in a thread pool
+
+    Returns:
+        Async wrapper function that executes the original function in a thread pool
+    """
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
@@ -44,19 +73,54 @@ def run_in_executor(func):
 
 
 @run_in_executor
-def fetch_stock_individual_fund_flow(stock_code, market):
-    """Fetch stock individual fund flow data - wrapped for async execution"""
+def fetch_stock_individual_fund_flow(stock_code: str, market: str) -> pd.DataFrame:
+    """
+    Fetch stock individual fund flow data - wrapped for async execution.
+
+    Args:
+        stock_code: Stock code (e.g., "000001")
+        market: Market identifier (e.g., "sz", "sh", "bj")
+
+    Returns:
+        DataFrame containing historical fund flow data for the specified stock
+    """
     return ak.stock_individual_fund_flow(stock=stock_code, market=market)
 
 
 @run_in_executor
-def fetch_stock_sector_fund_flow_hist(symbol):
-    """Fetch stock sector fund flow history - wrapped for async execution"""
+def fetch_stock_sector_fund_flow_hist(symbol: str) -> pd.DataFrame:
+    """
+    Fetch stock sector fund flow historical data - wrapped for async execution.
+
+    Args:
+        symbol: Sector symbol identifier
+
+    Returns:
+        DataFrame containing historical sector fund flow data
+    """
     return ak.stock_sector_fund_flow_hist(symbol=symbol)
 
 
-async def stock_analysis(industry_name, stock_code, stock_name, days=29):
-    logger.debug(f"Processing {stock_name} ({stock_code}) in {industry_name} industry")
+async def stock_analysis(
+    industry_name: str, stock_code: str, stock_name: str, days: int = 29
+) -> Optional[List[Any]]:
+    """
+    Perform comprehensive analysis of a single stock including fund flow and performance metrics.
+
+    This function analyzes a stock's financial performance, fund flow patterns,
+    and calculates key metrics for investment decision making.
+
+    Args:
+        industry_name: Industry classification of the stock
+        stock_code: Stock code (e.g., "000001")
+        stock_name: Stock name for validation and display
+        days: Number of days to analyze (default: 29)
+
+    Returns:
+        List containing analysis results with financial metrics, or None if
+        analysis fails or stock doesn't meet criteria
+    """
+    logger.debug("Processing %s (%s) in %s industry", stock_name, stock_code, industry_name)
     # Determine the market based on the stock code
     if stock_code.startswith("6"):
         market = "sh"
@@ -67,38 +131,36 @@ async def stock_analysis(industry_name, stock_code, stock_name, days=29):
 
     # Extract the stock's market data
     stock_total_market_value = (
-        stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code][
-            "总市值"
-        ].values[0]
-        / 1e8
+        stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code]["总市值"].values[0] / 1e8
     )  # Convert to 100M
     stock_total_market_value = round(stock_total_market_value, 0)
     stock_circulating_market_value = (
-        stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code][
-            "流通市值"
-        ].values[0]
+        stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code]["流通市值"].values[0]
         / 1e8
     )  # Convert to 100M
     stock_circulating_market_value = round(stock_circulating_market_value, 0)
-    stock_pe_dynamic = stock_zh_a_spot_em_df[
-        stock_zh_a_spot_em_df["代码"] == stock_code
-    ]["市盈率-动态"].values[0]
-    stock_pb = stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code][
-        "市净率"
+    stock_pe_dynamic = stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code][
+        "市盈率-动态"
     ].values[0]
-    stock_60d_change = stock_zh_a_spot_em_df[
-        stock_zh_a_spot_em_df["代码"] == stock_code
-    ]["60日涨跌幅"].values[0]
-    stock_ytd_change = stock_zh_a_spot_em_df[
-        stock_zh_a_spot_em_df["代码"] == stock_code
-    ]["年初至今涨跌幅"].values[0]
+    stock_pb = stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code]["市净率"].values[
+        0
+    ]
+    stock_60d_change = stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code][
+        "60日涨跌幅"
+    ].values[0]
+    stock_ytd_change = stock_zh_a_spot_em_df[stock_zh_a_spot_em_df["代码"] == stock_code][
+        "年初至今涨跌幅"
+    ].values[0]
 
     # Extract the historical data of the stock (async)
-    stock_individual_fund_flow_df = await fetch_stock_individual_fund_flow(
-        stock_code, market
-    )
+    stock_individual_fund_flow_df = await fetch_stock_individual_fund_flow(stock_code, market)
     if len(stock_individual_fund_flow_df) < days:
-        logger.warning(f"Skipping {stock_name} ({stock_code}) due to insufficient data for the last {days} days")
+        logger.warning(
+            "Skipping %s (%s) due to insufficient data for the last %d days",
+            stock_name,
+            stock_code,
+            days,
+        )
         return None
     stock_individual_fund_flow_df = stock_individual_fund_flow_df.iloc[-days:]
     # Get the main net inflow data
@@ -107,9 +169,7 @@ async def stock_analysis(industry_name, stock_code, stock_name, days=29):
     # Calculate change percentage
     stock_1st_price = stock_individual_fund_flow_df.iloc[-days]["收盘价"]
     stock_last_price = stock_individual_fund_flow_df.iloc[-1]["收盘价"]
-    stock_price_change_percentage = (
-        (stock_last_price - stock_1st_price) / stock_1st_price * 100
-    )
+    stock_price_change_percentage = (stock_last_price - stock_1st_price) / stock_1st_price * 100
     stock_price_change_percentage = round(stock_price_change_percentage, 2)
 
     return [
@@ -129,8 +189,15 @@ async def stock_analysis(industry_name, stock_code, stock_name, days=29):
 
 
 @timer
-async def main():
-    DIR_PATH = "data/holding_stocks"
+async def main() -> None:
+    """
+    Main function to execute stock analysis and generate holding reports.
+
+    This function reads stock holding data from JSON files, performs comprehensive
+    analysis on each stock, and generates detailed reports with financial metrics
+    and performance indicators.
+    """
+    dir_path = "data/holding_stocks"
     days = 29
     # Initialize a pandas Dataframe to hold industry names, industry main net flow, and industry index change percentage
     df = pd.DataFrame(
@@ -151,8 +218,8 @@ async def main():
         ]
     )
 
-    for file in glob.glob(os.path.join(DIR_PATH, "*.json")):
-        with open(file, "r") as f:
+    for file in glob.glob(os.path.join(dir_path, "*.json")):
+        with open(file, "r", encoding="utf-8") as f:
             account_name = os.path.splitext(os.path.basename(file))[0]
             holding_stocks = json.load(f)
             for stock_code, stock_name in holding_stocks.items():
@@ -174,8 +241,8 @@ async def main():
     last_date = stock_sector_data.iloc[-1]["日期"]
     last_date_str = last_date.strftime("%Y%m%d")
     # Output the df to a CSV file
-    df.to_csv(f"{DIR_PATH}/reports/持股报告-{last_date_str}.csv", index=True)
-    logger.info(f"Report saved to {DIR_PATH}/reports/持股报告-{last_date_str}.csv")
+    df.to_csv(f"{dir_path}/reports/持股报告-{last_date_str}.csv", index=True)
+    logger.info("Report saved to %s/reports/持股报告-%s.csv", dir_path, last_date_str)
 
 
 if __name__ == "__main__":
