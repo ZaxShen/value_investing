@@ -6,13 +6,14 @@ from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
 )
-from src.utilities.tools import timer, logged
+from src.utilities.tools import timer, logged, verbose
 from src.utilities.logger import get_logger
 
 # Initialize logger for this module
 logger = get_logger("stock_filter")
 
-@logged
+
+@verbose
 def prepare_stock_data():
     """
     Prepare and filter stock market data.
@@ -23,7 +24,6 @@ def prepare_stock_data():
             - industry_arr: Array of unique industry names
     """
     logger.info("Loading stock market data...")
-    print("Loading stock market data...")
     stock_zh_a_spot_em_df = get_stock_market_data()
     industry_stock_mapping_df = get_industry_stock_mapping_data()
 
@@ -60,7 +60,7 @@ def prepare_stock_data():
     # Get unique industry names
     industry_arr = stock_market_df_filtered["行业"].unique()
 
-    print(
+    logger.info(
         f"Loaded {len(stock_market_df_filtered)} stocks across {len(industry_arr)} industries"
     )
     return stock_market_df_filtered, industry_arr
@@ -101,7 +101,9 @@ async def process_single_stock_async(
         days: Number of days to analyze
     """
     async with REQUEST_SEMAPHORE:
-        print(f"Processing {stock_name} ({stock_code}) in {industry_name} industry...")
+        logger.debug(
+            f"Processing {stock_name} ({stock_code}) in {industry_name} industry"
+        )
 
         # Determine the market based on the stock code
         if stock_code.startswith("6"):
@@ -130,8 +132,8 @@ async def process_single_stock_async(
             stock_individual_fund_flow_df = await fetch_stock_data(stock_code, market)
 
             if len(stock_individual_fund_flow_df) < days:
-                print(
-                    f"Skipping {stock_name} ({stock_code}) due to insufficient data for the last {days} days."
+                logger.warning(
+                    f"Skipping {stock_name} ({stock_code}) due to insufficient data for the last {days} days"
                 )
                 return None
 
@@ -165,7 +167,7 @@ async def process_single_stock_async(
             ]
 
         except Exception as e:
-            print(f"Error processing {stock_name} ({stock_code}): {str(e)}")
+            logger.error(f"Error processing {stock_name} ({stock_code}): {str(e)}")
             return None
 
 
@@ -263,7 +265,7 @@ async def process_all_industries_async(stock_market_df_filtered, industry_arr, d
 
     for i in range(0, len(industry_arr), batch_size):
         batch = industry_arr[i : i + batch_size]
-        print(
+        logger.info(
             f"Processing industry batch {i//batch_size + 1}/{(len(industry_arr) + batch_size - 1)//batch_size}"
         )
 
@@ -309,7 +311,7 @@ async def main():
     all_industries_df.to_csv(
         f"{REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv", index=True
     )
-    print(f"Report saved to {REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv")
+    logger.info(f"Report saved to {REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv")
 
     # Apply additional filters to all_industries_df
     df = all_industries_df[
@@ -323,7 +325,9 @@ async def main():
 
     # Output the filtered DataFrame to a CSV file
     df.to_csv(f"{REPORT_DIR}/股票筛选报告-{last_date_str}.csv", index=True)
-    print(f"Filtered report saved to {REPORT_DIR}/股票筛选报告-{last_date_str}.csv")
+    logger.info(
+        f"Filtered report saved to {REPORT_DIR}/股票筛选报告-{last_date_str}.csv"
+    )
 
 
 if __name__ == "__main__":
