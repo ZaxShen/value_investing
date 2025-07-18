@@ -1,29 +1,57 @@
+"""
+Main entry point for the China stock analysis pipeline.
+
+This module orchestrates the execution of all analysis components including
+stock filtering, stock analysis, and industry analysis. It provides both
+sequential and parallel execution modes with beautiful progress bars.
+"""
+
+# Configure environment settings before importing any other modules
+import src.settings  # This configures the environment
+
 import asyncio
 import os
 import shutil
 import glob
-from datetime import datetime
+import re
+from typing import Optional
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    BarColumn,
+    TimeElapsedColumn,
+)
+from rich.console import Console
 from src.stock_filter import main as stock_filter_main
 from src.stock_analysis import main as stock_analysis_main
 from src.industry_filter import main as industry_filter_main
-from src.utilities.logger import get_logger, set_log_level
-from src.utilities.tools import logged, verbose, verbose_tracker, enable_verbose_tracking, print_verbose_summary
+from src.utilities.logger import get_logger, set_console_log_level
+from src.utilities.tools import timer
 
 
-# Initialize logger
+# Initialize logger and console
 logger = get_logger("main")
+console = Console()
 
-@verbose
-def get_latest_file(pattern):
-    """Get the latest file matching the pattern based on date in filename"""
-    import re
 
+@timer
+def get_latest_file(pattern: str) -> Optional[str]:
+    """
+    Get the latest file matching the pattern based on date in filename.
+
+    Args:
+        pattern: Glob pattern to match files (e.g., "data/stocks/report-*.csv")
+
+    Returns:
+        Path to the latest file matching the pattern, or None if no files found
+    """
     files = glob.glob(pattern)
     if not files:
         return None
 
     # Extract date from filename (format: YYYYMMDD)
-    def extract_date(filename):
+    def extract_date(filename: str) -> str:
         # Look for 8-digit date pattern (YYYYMMDD)
         match = re.search(r"(\d{8})", os.path.basename(filename))
         if match:
@@ -36,9 +64,14 @@ def get_latest_file(pattern):
     return latest_file
 
 
-@verbose
-async def copy_latest_reports():
-    """Copy the latest reports to data/today directory"""
+@timer
+async def copy_latest_reports() -> None:
+    """
+    Copy the latest reports to data/today directory.
+
+    This function finds the most recent report files and copies them to a
+    standardized 'today' directory for easy access.
+    """
     logger.info("Starting report copying process")
 
     # Create data/today directory if it doesn't exist
@@ -68,110 +101,164 @@ async def copy_latest_reports():
             original_filename = os.path.basename(latest_file)
             target_path = os.path.join(today_dir, original_filename)
             shutil.copy2(latest_file, target_path)
-            logger.info(f"Successfully copied {report_info['description']}: {original_filename}")
+            logger.info(
+                "Successfully copied %s: %s",
+                report_info["description"],
+                original_filename,
+            )
         else:
-            logger.warning(f"No {report_info['description']} found matching pattern: {report_info['pattern']}")
+            logger.warning(
+                "No %s found matching pattern: %s",
+                report_info["description"],
+                report_info["pattern"],
+            )
 
-    logger.info(f"All latest reports copied to {today_dir}/")
+    logger.info("All latest reports copied to %s/", today_dir)
 
 
-@verbose
-async def run_all_scripts():
-    """Run all async scripts sequentially"""
+@timer
+async def run_all_scripts() -> None:
+    """
+    Run all analysis scripts sequentially with progress tracking.
+
+    This function executes stock filtering, stock analysis, and industry
+    analysis in sequence, providing detailed progress feedback.
+    """
     logger.info("Starting sequential execution of all scripts")
 
-    # Start process tracking
-    verbose_tracker.start_process("sequential_analysis", "Sequential Stock Analysis Pipeline", 4)
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
 
-    # Run stock_filter.py
-    verbose_tracker.update_process("sequential_analysis", "Running stock filter")
-    await stock_filter_main()
+        task = progress.add_task("Sequential Stock Analysis Pipeline", total=4)
 
-    # Run stock_analysis.py
-    verbose_tracker.update_process("sequential_analysis", "Running stock analysis")
-    await stock_analysis_main()  # Now this is an async function
+        # Run stock_filter.py
+        progress.update(task, description="Running stock filter")
+        await stock_filter_main()
+        progress.advance(task)
 
-    # Run industry_filter.py
-    verbose_tracker.update_process("sequential_analysis", "Running industry filter")
-    await industry_filter_main()
+        # Run stock_analysis.py
+        progress.update(task, description="Running stock analysis")
+        await stock_analysis_main()
+        progress.advance(task)
+
+        # Run industry_filter.py
+        progress.update(task, description="Running industry filter")
+        await industry_filter_main()
+        progress.advance(task)
+
+        # Copy latest reports to data/today
+        progress.update(task, description="Copying latest reports")
+        await copy_latest_reports()
+        progress.advance(task)
+
+        progress.update(task, description="Sequential analysis completed!")
 
     logger.info("All scripts completed!")
 
-    # Copy latest reports to data/today
-    verbose_tracker.update_process("sequential_analysis", "Copying latest reports")
-    await copy_latest_reports()
-    
-    # Complete process tracking
-    verbose_tracker.complete_process("sequential_analysis", True)
 
+@timer
+async def run_all_scripts_parallel() -> None:
+    """
+    Run all analysis scripts in parallel with progress tracking.
 
-@verbose
-async def run_all_scripts_parallel():
-    """Run all async scripts in parallel (if they don't depend on each other)"""
+    This function executes stock filtering, stock analysis, and industry
+    analysis concurrently for better performance, providing real-time
+    progress feedback for each component.
+    """
     logger.info("Starting parallel execution of all scripts")
 
-    # Start process tracking
-    verbose_tracker.start_process("parallel_analysis", "Parallel Stock Analysis Pipeline", 2)
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
 
-    # Run all async scripts in parallel
-    verbose_tracker.update_process("parallel_analysis", "Running all analysis scripts in parallel")
-    tasks = [
-        stock_filter_main(),
-        stock_analysis_main(),
-        industry_filter_main(),
-    ]
+        main_task = progress.add_task("Parallel Stock Analysis Pipeline", total=2)
 
-    await asyncio.gather(*tasks)
+        # Run all async scripts in parallel
+        progress.update(
+            main_task, description="Running all analysis scripts in parallel"
+        )
+
+        # Create individual tasks for each script
+        stock_filter_task = progress.add_task("Stock Filter", total=1)
+        stock_analysis_task = progress.add_task("Stock Analysis", total=1)
+        industry_filter_task = progress.add_task("Industry Filter", total=1)
+
+        # Run tasks in parallel
+        async def run_with_progress(coro, task_id, name):
+            progress.update(task_id, description=f"Running {name}")
+            await coro
+            progress.advance(task_id)
+            progress.update(task_id, description=f"{name} completed")
+
+        await asyncio.gather(
+            run_with_progress(stock_filter_main(), stock_filter_task, "Stock Filter"),
+            run_with_progress(
+                stock_analysis_main(), stock_analysis_task, "Stock Analysis"
+            ),
+            run_with_progress(
+                industry_filter_main(), industry_filter_task, "Industry Filter"
+            ),
+        )
+
+        progress.advance(main_task)
+
+        # Copy latest reports to data/today
+        progress.update(main_task, description="Copying latest reports")
+        await copy_latest_reports()
+        progress.advance(main_task)
+
+        progress.update(main_task, description="Parallel analysis completed!")
+
     logger.info("All scripts completed!")
 
-    # Copy latest reports to data/today
-    verbose_tracker.update_process("parallel_analysis", "Copying latest reports")
-    await copy_latest_reports()
-    
-    # Complete process tracking
-    verbose_tracker.complete_process("parallel_analysis", True)
 
+@timer
+def main() -> None:
+    """
+    Main entry point for the stock analysis pipeline.
 
-@verbose
-def main():
-    """Main entry point for the stock analysis pipeline"""
+    This function configures logging, initializes the progress display,
+    and orchestrates the execution of all analysis components. It provides
+    error handling and completion notifications.
+    """
     logger.info("=== Starting China Stock Analysis Pipeline ===")
 
-    # Enable verbose tracking for detailed progress monitoring
-    enable_verbose_tracking()
+    # Set console logging to only show errors to avoid interfering with progress bars
+    set_console_log_level("ERROR")
 
-    # Option to set log level dynamically
+    # Option to set log level dynamically for detailed file logging
     # set_log_level("DEBUG")  # Uncomment for verbose logging
 
-    # Start overall pipeline tracking
-    verbose_tracker.start_process("main_pipeline", "China Stock Analysis Pipeline", 3)
+    console.print("[bold green]🚀 Starting China Stock Analysis Pipeline[/bold green]")
 
     try:
         # Choose one of these approaches:
-        verbose_tracker.update_process("main_pipeline", "Initializing analysis pipeline")
 
         # Option 1: Run sequentially
         # asyncio.run(run_all_scripts())
 
         # Option 2: Run in parallel (current default)
-        verbose_tracker.update_process("main_pipeline", "Running analysis scripts")
         asyncio.run(run_all_scripts_parallel())
-        
-        verbose_tracker.update_process("main_pipeline", "Generating summary report")
+
         logger.info("=== China Stock Analysis Pipeline Completed ===")
-        
-        # Complete main pipeline
-        verbose_tracker.complete_process("main_pipeline", True)
-        
-        # Print comprehensive summary
-        print_verbose_summary()
-        
-        # Log completion message
-        logger.info("🎉 All analysis completed! Check logs/ directory for detailed logs.")
-        
+        console.print(
+            "[bold green]✅ All analysis completed! Check logs/ directory for detailed logs.[/bold green]"
+        )
+
     except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
-        verbose_tracker.complete_process("main_pipeline", False)
+        logger.error("Pipeline failed: %s", str(e))
+        console.print(f"[bold red]❌ Pipeline failed: {str(e)}[/bold red]")
         raise
 
 
