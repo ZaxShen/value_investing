@@ -151,7 +151,9 @@ async def process_single_stock_async(
         meet criteria or has insufficient data
     """
     async with REQUEST_SEMAPHORE:
-        logger.debug("Processing %s (%s) in %s industry", stock_name, stock_code, industry_name)
+        logger.debug(
+            "Processing %s (%s) in %s industry", stock_name, stock_code, industry_name
+        )
 
         # Determine the market based on the stock code
         if stock_code.startswith("6"):
@@ -242,9 +244,9 @@ async def process_single_industry_async(
         with columns for market cap, P/E ratio, fund flow, and price changes
     """
     # Extract all qualified stocks from stock_market_df_filtered
-    stocks = stock_market_df_filtered[stock_market_df_filtered["行业"] == industry_name][
-        ["代码", "名称"]
-    ]
+    stocks = stock_market_df_filtered[
+        stock_market_df_filtered["行业"] == industry_name
+    ][["代码", "名称"]]
 
     # Define columns for consistency
     columns = [
@@ -329,8 +331,8 @@ async def process_all_industries_async(
         batch = industry_arr[i : i + batch_size]
         logger.info(
             "Processing industry batch %d/%d",
-            i//batch_size + 1,
-            (len(industry_arr) + batch_size - 1)//batch_size,
+            i // batch_size + 1,
+            (len(industry_arr) + batch_size - 1) // batch_size,
         )
 
         # Create tasks for the current batch
@@ -344,7 +346,11 @@ async def process_all_industries_async(
 
         # Collect valid results
         for result in batch_results:
-            if result is not None and not isinstance(result, Exception) and not result.empty:
+            if (
+                result is not None
+                and not isinstance(result, Exception)
+                and not result.empty
+            ):
                 result_dfs.append(result)
 
     # Concatenate all results at once, or return empty DataFrame if no results
@@ -383,7 +389,9 @@ async def main() -> None:
     REPORT_DIR = "data/stocks/reports"
 
     # Output the all_industries_df to a CSV file
-    all_industries_df.to_csv(f"{REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv", index=True)
+    all_industries_df.to_csv(
+        f"{REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv", index=True
+    )
     logger.info("Report saved to %s/股票筛选报告-raw-%s.csv", REPORT_DIR, last_date_str)
 
     # Apply additional filters to all_industries_df
@@ -393,12 +401,14 @@ async def main() -> None:
     ]
 
     # Sort the DataFrame by pe and {days} change percentage
-    df = df.sort_values(by=["市盈率-动态", f"{days}日涨跌幅(%)"])
+    df = df.sort_values(by=[f"{days}日涨跌幅(%)"])
     df.reset_index(inplace=True, drop=True)
 
     # Output the filtered DataFrame to a CSV file
     df.to_csv(f"{REPORT_DIR}/股票筛选报告-{last_date_str}.csv", index=True)
-    logger.info("Filtered report saved to %s/股票筛选报告-%s.csv", REPORT_DIR, last_date_str)
+    logger.info(
+        "Filtered report saved to %s/股票筛选报告-%s.csv", REPORT_DIR, last_date_str
+    )
 
 
 if __name__ == "__main__":
