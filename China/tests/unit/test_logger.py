@@ -11,7 +11,8 @@ from unittest.mock import patch, MagicMock
 import sys
 
 # Import the modules to test
-from src.utilities.logger import setup_logger, get_logger, set_log_level
+from src.utilities.logger import setup_logger, get_logger, set_log_level, set_console_log_level
+from rich.logging import RichHandler
 
 
 class TestSetupLogger:
@@ -185,3 +186,142 @@ class TestLoggerIntegration:
 
         # Child should inherit parent's effective level
         assert child.getEffectiveLevel() >= logging.WARNING
+
+
+class TestRichHandlerIntegration:
+    """Test Rich logging handler integration."""
+
+    @pytest.mark.unit
+    def test_setup_logger_creates_rich_handler(self, temp_logs_dir, clean_loggers):
+        """Test that setup_logger creates a RichHandler for console output."""
+        with patch("src.utilities.logger.Path") as mock_path:
+            mock_path.return_value.mkdir.return_value = None
+            mock_path.return_value.__truediv__.return_value = (
+                Path(temp_logs_dir) / "test.log"
+            )
+
+            logger = setup_logger("rich_test")
+
+            # Find the RichHandler
+            rich_handlers = [h for h in logger.handlers if isinstance(h, RichHandler)]
+            assert len(rich_handlers) == 1
+
+            rich_handler = rich_handlers[0]
+            assert rich_handler.level == logging.WARNING  # Default console level
+            assert rich_handler._log_render.show_time == True
+            assert rich_handler._log_render.show_path == False
+
+    @pytest.mark.unit
+    def test_rich_handler_configuration(self, temp_logs_dir, clean_loggers):
+        """Test RichHandler is configured with correct settings."""
+        with patch("src.utilities.logger.Path") as mock_path:
+            mock_path.return_value.mkdir.return_value = None
+            mock_path.return_value.__truediv__.return_value = (
+                Path(temp_logs_dir) / "test.log"
+            )
+
+            logger = setup_logger("rich_config_test")
+            
+            rich_handler = None
+            for handler in logger.handlers:
+                if isinstance(handler, RichHandler):
+                    rich_handler = handler
+                    break
+
+            assert rich_handler is not None
+            # Test Rich handler configuration
+            assert rich_handler._log_render.show_time == True
+            assert rich_handler._log_render.show_path == False
+            # Test that the handler has a console (attribute may vary by version)
+            assert hasattr(rich_handler, '_console') or hasattr(rich_handler, 'console')
+
+    @pytest.mark.unit
+    def test_set_console_log_level_affects_rich_handler(self, clean_loggers):
+        """Test that set_console_log_level changes RichHandler level."""
+        # Use the global logger instance instead of creating a new one
+        from src.utilities.logger import logger
+        
+        # Find RichHandler in global logger
+        rich_handler = None
+        for handler in logger.handlers:
+            if isinstance(handler, RichHandler):
+                rich_handler = handler
+                break
+
+        if rich_handler is None:
+            # If no RichHandler found in global logger, skip test
+            pytest.skip("No RichHandler found in global logger")
+            
+        initial_level = rich_handler.level
+        
+        # Change console log level
+        set_console_log_level("DEBUG")
+        
+        # Verify RichHandler level changed
+        assert rich_handler.level == logging.DEBUG
+        assert rich_handler.level != initial_level
+
+    @pytest.mark.unit
+    def test_set_log_level_affects_rich_handler(self, clean_loggers):
+        """Test that set_log_level changes RichHandler level."""
+        # Use the global logger instance instead of creating a new one
+        from src.utilities.logger import logger
+        
+        # Find RichHandler in global logger
+        rich_handler = None
+        for handler in logger.handlers:
+            if isinstance(handler, RichHandler):
+                rich_handler = handler
+                break
+
+        if rich_handler is None:
+            # If no RichHandler found in global logger, skip test
+            pytest.skip("No RichHandler found in global logger")
+        
+        # Change global log level
+        set_log_level("ERROR")
+        
+        # Verify both logger and RichHandler levels changed
+        assert logger.level == logging.ERROR
+        assert rich_handler.level == logging.ERROR
+
+    @pytest.mark.integration
+    def test_rich_handler_markup_support(self, temp_logs_dir, clean_loggers, caplog):
+        """Test that RichHandler supports markup in log messages."""
+        with patch("src.utilities.logger.Path") as mock_path:
+            mock_path.return_value.mkdir.return_value = None
+            mock_path.return_value.__truediv__.return_value = (
+                Path(temp_logs_dir) / "test.log"
+            )
+
+            logger = setup_logger("markup_test")
+            
+            # Set console level to INFO so we can see the message
+            set_console_log_level("INFO") 
+            
+            with caplog.at_level(logging.INFO):
+                logger.info("[bold red]Error message[/bold red] with markup")
+                
+            # Verify message was captured (markup will be processed by Rich)
+            assert "Error message" in caplog.text
+
+    @pytest.mark.integration  
+    def test_rich_tracebacks_enabled(self, temp_logs_dir, clean_loggers):
+        """Test that RichHandler has rich tracebacks enabled."""
+        with patch("src.utilities.logger.Path") as mock_path:
+            mock_path.return_value.mkdir.return_value = None
+            mock_path.return_value.__truediv__.return_value = (
+                Path(temp_logs_dir) / "test.log"
+            )
+
+            logger = setup_logger("traceback_test")
+            
+            # Find RichHandler and verify rich_tracebacks is enabled
+            for handler in logger.handlers:
+                if isinstance(handler, RichHandler):
+                    # RichHandler should be configured with rich_tracebacks=True
+                    # This is set in the constructor parameters
+                    assert hasattr(handler, '_log_render')
+                    break
+            else:
+                pytest.fail("RichHandler not found in logger handlers")

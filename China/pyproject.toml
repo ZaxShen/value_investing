@@ -47,3 +47,10 @@ markers = [
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests"
 ]
+filterwarnings = [
+    # Suppress the specific RuntimeWarning about coroutines not being awaited
+    # This occurs in tests that mock asyncio.run() where the coroutine is created but not executed
+    "ignore::RuntimeWarning:unittest.mock",
+    "ignore::RuntimeWarning:rich.*",
+    "ignore:coroutine.*was never awaited:RuntimeWarning"
+]

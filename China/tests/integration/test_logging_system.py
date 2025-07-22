@@ -18,17 +18,17 @@ class TestLoggingSystemIntegration:
     """Integration tests for the complete logging system."""
 
     @pytest.mark.integration
-    def test_end_to_end_logging_workflow(self, temp_logs_dir):
+    def test_end_to_end_logging_workflow(self, caplog):
         """Test complete logging workflow from setup to file output."""
-        log_file = Path(temp_logs_dir) / "integration_test.log"
-
-        with patch("src.utilities.logger.Path") as mock_path:
-            mock_path.return_value.mkdir.return_value = None
-            mock_path.return_value.__truediv__.return_value = log_file
-
-            # Setup logger
-            logger = setup_logger("integration_workflow", "DEBUG")
-
+        # Set up both loggers to DEBUG level
+        timer_logger = logging.getLogger("stock_analysis.timer")
+        tracker_logger = logging.getLogger("stock_analysis.function_tracker")
+        test_module_logger = logging.getLogger("stock_analysis.test_module")
+        timer_logger.setLevel(logging.DEBUG)
+        tracker_logger.setLevel(logging.DEBUG)
+        test_module_logger.setLevel(logging.DEBUG)
+        
+        with caplog.at_level(logging.DEBUG):
             # Create a test function with logging
             module_logger = get_logger("test_module")
 
@@ -46,19 +46,17 @@ class TestLoggingSystemIntegration:
             # Verify result
             assert result == "Processed: test_data"
 
-            # Flush all handlers
-            for handler in logging.root.manager.loggerDict.values():
-                if hasattr(handler, "handlers"):
-                    for h in getattr(handler, "handlers", []):
-                        if hasattr(h, "flush"):
-                            h.flush()
-
-            # Check log file if it exists
-            if log_file.exists():
-                log_content = log_file.read_text()
-                assert "Processing data: test_data" in log_content
-                assert "Debug information" in log_content
-                assert "Warning message" in log_content
+            # Verify all expected log messages are captured
+            log_messages = [record.message for record in caplog.records]
+            
+            # Check that all expected messages are in the captured logs
+            has_processing = any("Processing data: test_data" in msg for msg in log_messages)
+            has_debug = any("Debug information" in msg for msg in log_messages)
+            has_warning = any("Warning message" in msg for msg in log_messages)
+            
+            assert has_processing, f"Processing message not found in: {log_messages}"
+            assert has_debug, f"Debug message not found in: {log_messages}"
+            assert has_warning, f"Warning message not found in: {log_messages}"
 
     @pytest.mark.integration
     async def test_async_logging_integration(self, temp_logs_dir):
@@ -173,6 +171,14 @@ class TestLoggingSystemIntegration:
     @pytest.mark.integration
     def test_exception_handling_across_system(self, caplog):
         """Test exception handling and logging across the system."""
+        # Set up all loggers to DEBUG level
+        timer_logger = logging.getLogger("stock_analysis.timer")
+        tracker_logger = logging.getLogger("stock_analysis.function_tracker")
+        exception_logger = logging.getLogger("stock_analysis.exception_test")
+        timer_logger.setLevel(logging.DEBUG)
+        tracker_logger.setLevel(logging.DEBUG)
+        exception_logger.setLevel(logging.DEBUG)
+        
         with caplog.at_level(logging.DEBUG):
             logger = get_logger("exception_test")
 
