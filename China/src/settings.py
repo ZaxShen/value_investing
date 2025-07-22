@@ -18,9 +18,11 @@ def configure_environment() -> Dict[str, Any]:
     """
     settings = {}
 
-    # Disable tqdm progress bars from dependencies to avoid interference with Rich progress bars
-    os.environ["TQDM_DISABLE"] = "1"
-    settings["tqdm_disabled"] = True
+    # Enable tqdm progress bars to see akshare native progress
+    # Remove TQDM_DISABLE environment variable if it exists
+    if "TQDM_DISABLE" in os.environ:
+        del os.environ["TQDM_DISABLE"]
+    settings["tqdm_enabled"] = True
 
     # Set other environment variables as needed
     # os.environ["PYTHONPATH"] = os.getcwd()
@@ -38,6 +40,6 @@ def get_config() -> Dict[str, Any]:
     return _config.copy()
 
 
-def is_tqdm_disabled() -> bool:
-    """Check if tqdm is disabled."""
-    return _config.get("tqdm_disabled", False)
+def is_tqdm_enabled() -> bool:
+    """Check if tqdm is enabled."""
+    return _config.get("tqdm_enabled", True)

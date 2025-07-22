@@ -15,24 +15,23 @@ import shutil
 import glob
 import re
 from typing import Optional
-from rich.progress import (
-    Progress,
-    SpinnerColumn,
-    TextColumn,
-    BarColumn,
-    TimeElapsedColumn,
-)
-from rich.console import Console
+from tqdm import tqdm
+import time
 from src.stock_filter import main as stock_filter_main
 from src.stock_analysis import main as stock_analysis_main
 from src.industry_filter import main as industry_filter_main
 from src.utilities.logger import get_logger, set_console_log_level
 from src.utilities.tools import timer
+from src.utilities.akshare_checker import (
+    check_akshare_connectivity,
+    get_akshare_health_status,
+    log_connectivity_status,
+    ConnectivityStatus,
+)
 
 
-# Initialize logger and console
+# Initialize logger
 logger = get_logger("main")
-console = Console()
 
 
 @timer
@@ -126,38 +125,26 @@ async def run_all_scripts() -> None:
     """
     logger.info("Starting sequential execution of all scripts")
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        TimeElapsedColumn(),
-        console=console,
-    ) as progress:
+    # Sequential execution with tqdm progress bar
+    tasks = [
+        ("Running stock filter", stock_filter_main),
+        ("Running stock analysis", stock_analysis_main),
+        ("Running industry filter", industry_filter_main),
+        ("Copying latest reports", copy_latest_reports),
+    ]
 
-        task = progress.add_task("Sequential Stock Analysis Pipeline", total=4)
+    with tqdm(
+        total=len(tasks),
+        desc="Sequential Stock Analysis Pipeline",
+        unit="task",
+        leave=True,
+    ) as pbar:
+        for desc, task_func in tasks:
+            pbar.set_description(desc)
+            await task_func()
+            pbar.update(1)
 
-        # Run stock_filter.py
-        progress.update(task, description="Running stock filter")
-        await stock_filter_main()
-        progress.advance(task)
-
-        # Run stock_analysis.py
-        progress.update(task, description="Running stock analysis")
-        await stock_analysis_main()
-        progress.advance(task)
-
-        # Run industry_filter.py
-        progress.update(task, description="Running industry filter")
-        await industry_filter_main()
-        progress.advance(task)
-
-        # Copy latest reports to data/today
-        progress.update(task, description="Copying latest reports")
-        await copy_latest_reports()
-        progress.advance(task)
-
-        progress.update(task, description="Sequential analysis completed!")
+        pbar.set_description("Sequential analysis completed!")
 
     logger.info("All scripts completed!")
 
@@ -173,54 +160,71 @@ async def run_all_scripts_parallel() -> None:
     """
     logger.info("Starting parallel execution of all scripts")
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        TimeElapsedColumn(),
-        console=console,
-    ) as progress:
+    # Parallel execution - run main scripts concurrently
+    print("🔄 Running all analysis scripts in parallel...")
 
-        main_task = progress.add_task("Parallel Stock Analysis Pipeline", total=2)
+    # Run the three main scripts concurrently
+    await asyncio.gather(
+        stock_filter_main(),
+        stock_analysis_main(),
+        industry_filter_main(),
+    )
 
-        # Run all async scripts in parallel
-        progress.update(
-            main_task, description="Running all analysis scripts in parallel"
-        )
+    print("✅ All parallel scripts completed!")
 
-        # Create individual tasks for each script
-        stock_filter_task = progress.add_task("Stock Filter", total=1)
-        stock_analysis_task = progress.add_task("Stock Analysis", total=1)
-        industry_filter_task = progress.add_task("Industry Filter", total=1)
+    # Copy latest reports
+    print("📋 Copying latest reports...")
+    await copy_latest_reports()
 
-        # Run tasks in parallel
-        async def run_with_progress(coro, task_id, name):
-            progress.update(task_id, description=f"Running {name}")
-            await coro
-            progress.advance(task_id)
-            progress.update(task_id, description=f"{name} completed")
-
-        await asyncio.gather(
-            run_with_progress(stock_filter_main(), stock_filter_task, "Stock Filter"),
-            run_with_progress(
-                stock_analysis_main(), stock_analysis_task, "Stock Analysis"
-            ),
-            run_with_progress(
-                industry_filter_main(), industry_filter_task, "Industry Filter"
-            ),
-        )
-
-        progress.advance(main_task)
-
-        # Copy latest reports to data/today
-        progress.update(main_task, description="Copying latest reports")
-        await copy_latest_reports()
-        progress.advance(main_task)
-
-        progress.update(main_task, description="Parallel analysis completed!")
+    print("🎉 Parallel analysis completed!")
 
     logger.info("All scripts completed!")
+
+
+@timer
+def startup_connectivity_check() -> None:
+    """
+    Perform initial akshare connectivity check before starting the pipeline.
+
+    This ensures that akshare services are accessible before beginning
+    any data-intensive operations.
+    """
+    logger.info("🔍 Performing startup akshare connectivity check...")
+    print("🔍 Checking akshare connectivity...")
+
+    try:
+        # Perform comprehensive health check
+        status, details = get_akshare_health_status()
+
+        # Log detailed status
+        log_connectivity_status(status, details)
+
+        # Handle different status levels
+        if status == ConnectivityStatus.UNAVAILABLE:
+            error_msg = (
+                "❌ Akshare services are completely unavailable. Cannot start pipeline."
+            )
+            logger.error(error_msg)
+            print(f"❌ {error_msg}")
+            print("Please check your internet connection and try again.")
+            raise ConnectionError("Akshare services unavailable")
+
+        elif status == ConnectivityStatus.DEGRADED:
+            warning_msg = "⚠️  Akshare services are degraded but operational."
+            logger.warning(warning_msg)
+            print(f"⚠️ {warning_msg}")
+            print("Some features may be slower than usual.")
+
+        else:  # HEALTHY
+            success_msg = "✅ Akshare connectivity verified successfully!"
+            logger.info(success_msg)
+            print(f"✅ {success_msg}")
+
+    except Exception as e:
+        error_msg = f"❌ Startup connectivity check failed: {str(e)}"
+        logger.error(error_msg)
+        print(f"❌ {error_msg}")
+        raise
 
 
 @timer
@@ -228,9 +232,9 @@ def main() -> None:
     """
     Main entry point for the stock analysis pipeline.
 
-    This function configures logging, initializes the progress display,
-    and orchestrates the execution of all analysis components. It provides
-    error handling and completion notifications.
+    This function performs startup checks, configures logging, initializes
+    the progress display, and orchestrates the execution of all analysis
+    components. It provides error handling and completion notifications.
     """
     logger.info("=== Starting China Stock Analysis Pipeline ===")
 
@@ -240,7 +244,11 @@ def main() -> None:
     # Option to set log level dynamically for detailed file logging
     # set_log_level("DEBUG")  # Uncomment for verbose logging
 
-    console.print("[bold green]🚀 Starting China Stock Analysis Pipeline[/bold green]")
+    print("🚀 Starting China Stock Analysis Pipeline")
+
+    # Perform startup connectivity check first
+    # startup_connectivity_check()  # Comment to temporarily disabled for testing
+    print("⚠️ Connectivity check disabled - proceeding with analysis")
 
     try:
         # Choose one of these approaches:
@@ -252,13 +260,11 @@ def main() -> None:
         asyncio.run(run_all_scripts_parallel())
 
         logger.info("=== China Stock Analysis Pipeline Completed ===")
-        console.print(
-            "[bold green]✅ All analysis completed! Check logs/ directory for detailed logs.[/bold green]"
-        )
+        print("✅ All analysis completed! Check logs/ directory for detailed logs.")
 
     except Exception as e:
         logger.error("Pipeline failed: %s", str(e))
-        console.print(f"[bold red]❌ Pipeline failed: {str(e)}[/bold red]")
+        print(f"❌ Pipeline failed: {str(e)}")
         raise
 
 

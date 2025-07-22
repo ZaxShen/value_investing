@@ -5,24 +5,23 @@ Unit tests for the settings configuration module.
 import pytest
 import os
 from unittest.mock import patch, MagicMock
-from src.settings import configure_environment, get_config, is_tqdm_disabled
+from src.settings import configure_environment, get_config, is_tqdm_enabled
 
 
 class TestConfigureEnvironment:
     """Test environment configuration functionality."""
 
     @pytest.mark.unit
-    def test_configure_environment_sets_tqdm_disable(self):
-        """Test that configure_environment sets TQDM_DISABLE environment variable."""
-        with patch.dict(os.environ, {}, clear=True):
-            # Clear any existing TQDM_DISABLE setting
-            if "TQDM_DISABLE" in os.environ:
-                del os.environ["TQDM_DISABLE"]
+    def test_configure_environment_enables_tqdm(self):
+        """Test that configure_environment enables tqdm by removing TQDM_DISABLE."""
+        with patch.dict(os.environ, {"TQDM_DISABLE": "1"}, clear=True):
+            # Start with TQDM_DISABLE set
+            assert "TQDM_DISABLE" in os.environ
             
             config = configure_environment()
             
-            assert config["tqdm_disabled"] == True
-            assert os.environ.get("TQDM_DISABLE") == "1"
+            assert config["tqdm_enabled"] == True
+            assert "TQDM_DISABLE" not in os.environ
 
     @pytest.mark.unit
     def test_configure_environment_returns_dict(self):
@@ -30,7 +29,7 @@ class TestConfigureEnvironment:
         config = configure_environment()
         
         assert isinstance(config, dict)
-        assert "tqdm_disabled" in config
+        assert "tqdm_enabled" in config
 
     @pytest.mark.unit
     def test_configure_environment_idempotent(self):
@@ -39,7 +38,7 @@ class TestConfigureEnvironment:
         config2 = configure_environment()
         
         assert config1 == config2
-        assert os.environ.get("TQDM_DISABLE") == "1"
+        assert "TQDM_DISABLE" not in os.environ
 
     @pytest.mark.unit
     def test_configure_environment_preserves_existing_env_vars(self):
@@ -47,13 +46,13 @@ class TestConfigureEnvironment:
         test_var = "TEST_PRESERVE_VAR"
         test_value = "preserve_me"
         
-        with patch.dict(os.environ, {test_var: test_value}):
+        with patch.dict(os.environ, {test_var: test_value, "TQDM_DISABLE": "1"}):
             configure_environment()
             
             # Original var should still be there
             assert os.environ.get(test_var) == test_value
-            # New var should be set
-            assert os.environ.get("TQDM_DISABLE") == "1"
+            # TQDM_DISABLE should be removed
+            assert "TQDM_DISABLE" not in os.environ
 
 
 class TestGetConfig:
@@ -88,33 +87,33 @@ class TestGetConfig:
         """Test that get_config returns expected configuration keys."""
         config = get_config()
         
-        assert "tqdm_disabled" in config
-        assert isinstance(config["tqdm_disabled"], bool)
+        assert "tqdm_enabled" in config
+        assert isinstance(config["tqdm_enabled"], bool)
 
 
-class TestIsTqdmDisabled:
-    """Test tqdm disabled check functionality."""
+class TestIsTqdmEnabled:
+    """Test tqdm enabled check functionality."""
 
     @pytest.mark.unit
-    def test_is_tqdm_disabled_returns_bool(self):
-        """Test that is_tqdm_disabled returns a boolean value."""
-        result = is_tqdm_disabled()
+    def test_is_tqdm_enabled_returns_bool(self):
+        """Test that is_tqdm_enabled returns a boolean value."""
+        result = is_tqdm_enabled()
         assert isinstance(result, bool)
 
     @pytest.mark.unit
-    def test_is_tqdm_disabled_reflects_config(self):
-        """Test that is_tqdm_disabled reflects the actual configuration."""
+    def test_is_tqdm_enabled_reflects_config(self):
+        """Test that is_tqdm_enabled reflects the actual configuration."""
         config = get_config()
-        result = is_tqdm_disabled()
+        result = is_tqdm_enabled()
         
-        assert result == config.get("tqdm_disabled", False)
+        assert result == config.get("tqdm_enabled", True)
 
     @pytest.mark.unit
-    def test_is_tqdm_disabled_default_false_when_missing(self):
-        """Test that is_tqdm_disabled returns False when tqdm_disabled key is missing."""
+    def test_is_tqdm_enabled_default_true_when_missing(self):
+        """Test that is_tqdm_enabled returns True when tqdm_enabled key is missing."""
         with patch("src.settings._config", {}):
-            result = is_tqdm_disabled()
-            assert result == False
+            result = is_tqdm_enabled()
+            assert result == True
 
 
 class TestSettingsIntegration:
@@ -124,23 +123,22 @@ class TestSettingsIntegration:
     def test_settings_auto_configuration_on_import(self):
         """Test that settings are automatically configured when module is imported."""
         # Since the module auto-configures on import, check that it worked
-        assert "TQDM_DISABLE" in os.environ
-        assert os.environ["TQDM_DISABLE"] == "1"
+        assert "TQDM_DISABLE" not in os.environ
         
         config = get_config()
-        assert config["tqdm_disabled"] == True
+        assert config["tqdm_enabled"] == True
 
     @pytest.mark.integration
     def test_environment_variable_persistence(self):
-        """Test that environment variables set by settings persist."""
-        # The module should have already set TQDM_DISABLE
+        """Test that TQDM_DISABLE removal persists."""
+        # The module should have already removed TQDM_DISABLE
         initial_value = os.environ.get("TQDM_DISABLE")
-        assert initial_value == "1"
+        assert initial_value is None
         
-        # Configure again - should maintain the same value
+        # Configure again - should maintain the absence
         configure_environment()
         after_config = os.environ.get("TQDM_DISABLE")
-        assert after_config == initial_value
+        assert after_config is None
 
     @pytest.mark.integration
     def test_settings_affect_tqdm_behavior(self):
@@ -149,8 +147,8 @@ class TestSettingsIntegration:
             import tqdm
             # If tqdm is available, check that it respects the setting
             # This is more of a smoke test since tqdm behavior depends on internal implementation
-            assert os.environ.get("TQDM_DISABLE") == "1"
-            assert is_tqdm_disabled() == True
+            assert "TQDM_DISABLE" not in os.environ
+            assert is_tqdm_enabled() == True
         except ImportError:
             # tqdm not available, skip this specific test
             pytest.skip("tqdm not available for testing")
@@ -163,7 +161,7 @@ class TestSettingsIntegration:
         
         # The module should be already imported and configured
         assert get_config() is not None
-        assert is_tqdm_disabled() is not None
+        assert is_tqdm_enabled() is not None
         
         # Re-importing should be safe
         import src.settings
@@ -179,9 +177,9 @@ class TestSettingsEdgeCases:
         with patch.dict(os.environ, {"TQDM_DISABLE": "0"}):
             config = configure_environment()
             
-            # Should overwrite the existing value
-            assert config["tqdm_disabled"] == True
-            assert os.environ["TQDM_DISABLE"] == "1"
+            # Should remove the existing TQDM_DISABLE
+            assert config["tqdm_enabled"] == True
+            assert "TQDM_DISABLE" not in os.environ
 
     @pytest.mark.unit
     def test_get_config_with_corrupted_internal_config(self):
@@ -192,10 +190,10 @@ class TestSettingsEdgeCases:
                 get_config()
 
     @pytest.mark.unit
-    def test_is_tqdm_disabled_with_non_bool_value(self):
-        """Test is_tqdm_disabled with non-boolean value in config."""
-        with patch("src.settings._config", {"tqdm_disabled": "true"}):
-            result = is_tqdm_disabled()
+    def test_is_tqdm_enabled_with_non_bool_value(self):
+        """Test is_tqdm_enabled with non-boolean value in config."""
+        with patch("src.settings._config", {"tqdm_enabled": "true"}):
+            result = is_tqdm_enabled()
             # Should return the actual value (string in this case)
             assert result == "true"
 
@@ -206,4 +204,4 @@ class TestSettingsEdgeCases:
         # This is more of a smoke test since the function is quite simple
         config = configure_environment()
         assert isinstance(config, dict)
-        assert "tqdm_disabled" in config
+        assert "tqdm_enabled" in config

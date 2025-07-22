@@ -2,7 +2,7 @@
 Centralized logging configuration for the China stock analysis project.
 
 This module provides a unified logging setup with both file and console handlers.
-It uses Rich for enhanced console output that integrates well with progress bars.
+It uses standard Python logging for better compatibility with tqdm progress bars.
 """
 
 import logging
@@ -10,7 +10,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from rich.logging import RichHandler
 
 
 def setup_logger(name: str = "stock_analysis", level: str = "INFO") -> logging.Logger:
@@ -52,15 +51,10 @@ def setup_logger(name: str = "stock_analysis", level: str = "INFO") -> logging.L
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(detailed_formatter)
 
-    # Rich console handler - compatible with progress bars
-    console_handler = RichHandler(
-        show_time=True,
-        show_path=False,
-        show_level=True,
-        rich_tracebacks=True,
-        markup=True,
-        level=logging.WARNING,  # Only show WARNING and above on console
-    )
+    # Standard console handler - compatible with tqdm progress bars
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.WARNING)  # Only show WARNING and above on console
+    console_handler.setFormatter(simple_formatter)
 
     # Add handlers to logger
     logger.addHandler(file_handler)
@@ -97,7 +91,7 @@ def set_log_level(level: str) -> None:
     """
     logger.setLevel(getattr(logging, level.upper()))
     for handler in logger.handlers:
-        if isinstance(handler, RichHandler):
+        if isinstance(handler, logging.StreamHandler) and handler.stream == sys.stdout:
             handler.setLevel(getattr(logging, level.upper()))
 
 
@@ -109,5 +103,5 @@ def set_console_log_level(level: str) -> None:
         level: New logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
     """
     for handler in logger.handlers:
-        if isinstance(handler, RichHandler):
+        if isinstance(handler, logging.StreamHandler) and handler.stream == sys.stdout:
             handler.setLevel(getattr(logging, level.upper()))

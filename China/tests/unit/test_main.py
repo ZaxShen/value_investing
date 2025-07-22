@@ -9,8 +9,7 @@ import tempfile
 import shutil
 from pathlib import Path
 from unittest.mock import patch, MagicMock, AsyncMock, call
-from rich.console import Console
-from rich.progress import Progress
+# Rich imports removed - using standard Python output
 
 # Import the functions to test
 from main import (
@@ -19,8 +18,7 @@ from main import (
     run_all_scripts,
     run_all_scripts_parallel,
     main,
-    logger,
-    console
+    logger
 )
 
 
@@ -238,9 +236,9 @@ class TestRunAllScripts:
             with patch('main.stock_analysis_main', new_callable=AsyncMock) as mock_stock_analysis:
                 with patch('main.industry_filter_main', new_callable=AsyncMock) as mock_industry_filter:
                     with patch('main.copy_latest_reports', new_callable=AsyncMock) as mock_copy:
-                        with patch('main.Progress') as mock_progress_cls:
+                        with patch('main.tqdm') as mock_tqdm_cls:
                             mock_progress = MagicMock()
-                            mock_progress_cls.return_value.__enter__.return_value = mock_progress
+                            mock_tqdm_cls.return_value.__enter__.return_value = mock_progress
                             
                             await run_all_scripts()
                             
@@ -250,10 +248,10 @@ class TestRunAllScripts:
                             mock_industry_filter.assert_called_once()
                             mock_copy.assert_called_once()
                             
-                            # Progress should be used
-                            mock_progress.add_task.assert_called()
+                            # tqdm progress should be used
+                            mock_tqdm_cls.assert_called_once()
+                            mock_progress.set_description.assert_called()
                             mock_progress.update.assert_called()
-                            mock_progress.advance.assert_called()
 
     @pytest.mark.unit
     @pytest.mark.asyncio
@@ -263,7 +261,7 @@ class TestRunAllScripts:
             with patch('main.stock_analysis_main', new_callable=AsyncMock, side_effect=Exception("Analysis failed")):
                 with patch('main.industry_filter_main', new_callable=AsyncMock):
                     with patch('main.copy_latest_reports', new_callable=AsyncMock):
-                        with patch('main.Progress'):
+                        with patch('main.tqdm'):
                             with pytest.raises(Exception, match="Analysis failed"):
                                 await run_all_scripts()
 
@@ -275,21 +273,24 @@ class TestRunAllScripts:
             with patch('main.stock_analysis_main', new_callable=AsyncMock):
                 with patch('main.industry_filter_main', new_callable=AsyncMock):
                     with patch('main.copy_latest_reports', new_callable=AsyncMock):
-                        with patch('main.Progress') as mock_progress_cls:
+                        with patch('main.tqdm') as mock_tqdm_cls:
                             mock_progress = MagicMock()
-                            mock_progress_cls.return_value.__enter__.return_value = mock_progress
+                            mock_tqdm_cls.return_value.__enter__.return_value = mock_progress
                             
                             await run_all_scripts()
                             
-                            # Should add task with total=4 steps
-                            mock_progress.add_task.assert_called_with("Sequential Stock Analysis Pipeline", total=4)
+                            # Should create tqdm with total=4 steps
+                            mock_tqdm_cls.assert_called_with(
+                                total=4, desc="Sequential Stock Analysis Pipeline", 
+                                unit="task", leave=True
+                            )
                             
-                            # Should advance progress 4 times (once per step)
-                            assert mock_progress.advance.call_count == 4
+                            # Should update progress 4 times (once per step)
+                            assert mock_progress.update.call_count == 4
                             
-                            # Should update progress descriptions
-                            update_calls = mock_progress.update.call_args_list
-                            descriptions = [call[1].get('description') for call in update_calls if 'description' in call[1]]
+                            # Should set progress descriptions
+                            set_description_calls = mock_progress.set_description.call_args_list
+                            descriptions = [call[0][0] for call in set_description_calls if call[0]]
                             assert "Running stock filter" in descriptions
                             assert "Running stock analysis" in descriptions
                             assert "Running industry filter" in descriptions
@@ -307,10 +308,7 @@ class TestRunAllScriptsParallel:
             with patch('main.stock_analysis_main', new_callable=AsyncMock) as mock_stock_analysis:
                 with patch('main.industry_filter_main', new_callable=AsyncMock) as mock_industry_filter:
                     with patch('main.copy_latest_reports', new_callable=AsyncMock) as mock_copy:
-                        with patch('main.Progress') as mock_progress_cls:
-                            mock_progress = MagicMock()
-                            mock_progress_cls.return_value.__enter__.return_value = mock_progress
-                            
+                        with patch('builtins.print') as mock_print:
                             # Don't mock asyncio.gather - let it execute with mocked functions
                             await run_all_scripts_parallel()
                             
@@ -320,8 +318,10 @@ class TestRunAllScriptsParallel:
                             mock_industry_filter.assert_called_once()
                             mock_copy.assert_called_once()
                             
-                            # Progress should track multiple tasks
-                            assert mock_progress.add_task.call_count >= 4  # Main + 3 individual tasks
+                            # Should print progress messages
+                            print_calls = [str(call) for call in mock_print.call_args_list]
+                            assert any("Running all analysis scripts in parallel" in msg for msg in print_calls)
+                            assert any("All parallel scripts completed" in msg for msg in print_calls)
 
     @pytest.mark.unit
     @pytest.mark.asyncio
@@ -331,7 +331,7 @@ class TestRunAllScriptsParallel:
             with patch('main.stock_analysis_main', new_callable=AsyncMock):
                 with patch('main.industry_filter_main', new_callable=AsyncMock):
                     with patch('main.copy_latest_reports', new_callable=AsyncMock):
-                        with patch('main.Progress'):
+                        with patch('builtins.print'):
                             with pytest.raises(Exception, match="Filter failed"):
                                 await run_all_scripts_parallel()
 
@@ -343,18 +343,14 @@ class TestRunAllScriptsParallel:
             with patch('main.stock_analysis_main', new_callable=AsyncMock):
                 with patch('main.industry_filter_main', new_callable=AsyncMock):
                     with patch('main.copy_latest_reports', new_callable=AsyncMock):
-                        with patch('main.Progress') as mock_progress_cls:
-                            mock_progress = MagicMock()
-                            mock_progress_cls.return_value.__enter__.return_value = mock_progress
-                            
+                        with patch('builtins.print') as mock_print:
                             await run_all_scripts_parallel()
                             
-                            # Should create tasks for each component
-                            task_names = [call[0][0] for call in mock_progress.add_task.call_args_list]
-                            assert "Parallel Stock Analysis Pipeline" in task_names
-                            assert "Stock Filter" in task_names
-                            assert "Stock Analysis" in task_names
-                            assert "Industry Filter" in task_names
+                            # Should print messages for different stages
+                            print_calls = [str(call) for call in mock_print.call_args_list]
+                            assert any("Running all analysis scripts in parallel" in msg for msg in print_calls)
+                            assert any("Copying latest reports" in msg for msg in print_calls)
+                            assert any("Parallel analysis completed" in msg for msg in print_calls)
 
 
 class TestMain:
@@ -365,62 +361,69 @@ class TestMain:
         """Test successful main execution."""
         with patch('main.set_console_log_level') as mock_set_level:
             with patch('main.asyncio.run') as mock_asyncio_run:
-                with patch('main.console.print') as mock_console_print:
-                    main()
-                    
-                    # Should set console log level to ERROR
-                    mock_set_level.assert_called_once_with("ERROR")
-                    
-                    # Should run the parallel pipeline
-                    mock_asyncio_run.assert_called_once()
-                    
-                    # Should print success message
-                    success_messages = [call[0][0] for call in mock_console_print.call_args_list]
-                    assert any("Starting China Stock Analysis Pipeline" in msg for msg in success_messages)
-                    assert any("All analysis completed" in msg for msg in success_messages)
+                with patch('builtins.print') as mock_print:
+                    with patch('main.startup_connectivity_check') as mock_connectivity:
+                        main()
+                        
+                        # Should set console log level to ERROR
+                        mock_set_level.assert_called_once_with("ERROR")
+                        
+                        # Should check connectivity
+                        mock_connectivity.assert_called_once()
+                        
+                        # Should run the parallel pipeline
+                        mock_asyncio_run.assert_called_once()
+                        
+                        # Should print success message
+                        success_messages = [str(call) for call in mock_print.call_args_list]
+                        assert any("Starting China Stock Analysis Pipeline" in msg for msg in success_messages)
+                        assert any("All analysis completed" in msg for msg in success_messages)
 
     @pytest.mark.unit
     def test_main_exception_handling(self):
         """Test main handles exceptions properly."""
         with patch('main.set_console_log_level'):
-            with patch('main.asyncio.run', side_effect=Exception("Pipeline error")):
-                with patch('main.console.print') as mock_console_print:
-                    with pytest.raises(Exception, match="Pipeline error"):
-                        main()
-                    
-                    # Should print error message
-                    error_messages = [call[0][0] for call in mock_console_print.call_args_list]
-                    assert any("Pipeline failed" in msg for msg in error_messages)
+            with patch('main.startup_connectivity_check'):
+                with patch('main.asyncio.run', side_effect=Exception("Pipeline error")):
+                    with patch('builtins.print') as mock_print:
+                        with pytest.raises(Exception, match="Pipeline error"):
+                            main()
+                        
+                        # Should print error message
+                        error_messages = [str(call) for call in mock_print.call_args_list]
+                        assert any("Pipeline failed" in msg for msg in error_messages)
 
     @pytest.mark.unit
     def test_main_logger_configuration(self):
         """Test that main properly configures logging."""
         with patch('main.set_console_log_level') as mock_set_level:
-            with patch('main.asyncio.run'):
-                with patch('main.console.print'):
-                    main()
-                    
-                    # Should set console logging to ERROR to avoid interfering with progress bars
-                    mock_set_level.assert_called_once_with("ERROR")
+            with patch('main.startup_connectivity_check'):
+                with patch('main.asyncio.run'):
+                    with patch('builtins.print'):
+                        main()
+                        
+                        # Should set console logging to ERROR to avoid interfering with progress bars
+                        mock_set_level.assert_called_once_with("ERROR")
 
     @pytest.mark.unit
     def test_main_configures_logging_properly(self):
         """Test that main properly configures logging and console settings."""
         with patch('main.set_console_log_level') as mock_set_level:
-            with patch('main.asyncio.run') as mock_asyncio_run:
-                with patch('main.console.print') as mock_print:
-                    main()
-                    
-                    # Should set console logging to ERROR to avoid interfering with progress bars
-                    mock_set_level.assert_called_once_with("ERROR")
-                    
-                    # Should call asyncio.run (indicating it's running the async pipeline)
-                    mock_asyncio_run.assert_called_once()
-                    
-                    # Should print startup and completion messages
-                    print_calls = [call[0][0] for call in mock_print.call_args_list]
-                    assert any("Starting China Stock Analysis Pipeline" in msg for msg in print_calls)
-                    assert any("All analysis completed" in msg for msg in print_calls)
+            with patch('main.startup_connectivity_check'):
+                with patch('main.asyncio.run') as mock_asyncio_run:
+                    with patch('builtins.print') as mock_print:
+                        main()
+                        
+                        # Should set console logging to ERROR to avoid interfering with progress bars
+                        mock_set_level.assert_called_once_with("ERROR")
+                        
+                        # Should call asyncio.run (indicating it's running the async pipeline)
+                        mock_asyncio_run.assert_called_once()
+                        
+                        # Should print startup and completion messages
+                        print_calls = [str(call) for call in mock_print.call_args_list]
+                        assert any("Starting China Stock Analysis Pipeline" in msg for msg in print_calls)
+                        assert any("All analysis completed" in msg for msg in print_calls)
 
 
 class TestMainIntegration:
@@ -431,8 +434,6 @@ class TestMainIntegration:
         """Test that main module imports and sets up correctly."""
         # Test that required objects are properly initialized
         assert logger is not None
-        assert console is not None
-        assert isinstance(console, Console)
 
     @pytest.mark.integration
     def test_main_timer_decorators_applied(self):
@@ -485,7 +486,8 @@ class TestMainIntegration:
         from src.settings import get_config
         config = get_config()
         assert config is not None
-        assert "tqdm_disabled" in config
+        assert "tqdm_enabled" in config
+        assert config["tqdm_enabled"] is True
 
 
 class TestMainEdgeCases:
@@ -527,11 +529,11 @@ class TestMainEdgeCases:
                     await copy_latest_reports()
 
     @pytest.mark.unit
-    def test_main_with_rich_console_error(self):
-        """Test main handles Rich console errors gracefully."""
+    def test_main_with_print_error(self):
+        """Test main handles print errors gracefully."""
         with patch('main.set_console_log_level'):
             with patch('main.asyncio.run'):
-                with patch('main.console.print', side_effect=Exception("Console error")):
-                    # Should still complete even if console printing fails
-                    with pytest.raises(Exception, match="Console error"):
+                with patch('builtins.print', side_effect=Exception("Print error")):
+                    # Should still complete even if printing fails
+                    with pytest.raises(Exception, match="Print error"):
                         main()
