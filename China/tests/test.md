@@ -6,7 +6,7 @@ This document provides comprehensive testing information for the logging functio
 
 ## Test Structure
 
-```
+```sh
 tests/
 ├── __init__.py                     # Test package initialization
 ├── conftest.py                     # Shared fixtures and configuration
@@ -23,6 +23,7 @@ tests/
 ## Quick Start
 
 ### Running All Tests
+
 ```bash
 # Run all tests with coverage
 uv run pytest
@@ -37,6 +38,7 @@ uv run pytest -m "not slow"    # Exclude slow tests
 ```
 
 ### Installing Test Dependencies
+
 ```bash
 # Dependencies are automatically installed with:
 uv sync
@@ -47,15 +49,18 @@ uv sync
 ### 1. Unit Tests (`tests/unit/`)
 
 #### Logger Tests (`test_logger.py`)
+
 **Purpose**: Test individual logger components in isolation.
 
 **Key Test Classes**:
+
 - `TestSetupLogger`: Tests logger initialization and configuration
 - `TestGetLogger`: Tests logger retrieval and module-specific loggers
 - `TestSetLogLevel`: Tests dynamic log level changes
 - `TestLoggerIntegration`: Basic integration between logger components
 
 **Example Test Cases**:
+
 ```python
 def test_setup_logger_default_params()
 def test_get_logger_with_name()
@@ -64,15 +69,18 @@ def test_logger_writes_to_file()
 ```
 
 #### Decorator Tests (`test_decorators.py`)
+
 **Purpose**: Test logging decorators (@timer, @logged, @timed_and_logged).
 
 **Key Test Classes**:
+
 - `TestTimerDecorator`: Tests function timing functionality
 - `TestLoggedDecorator`: Tests function entry/exit logging
 - `TestTimedAndLoggedDecorator`: Tests combined decorator
 - `TestDecoratorIntegration`: Tests decorator combinations
 
 **Example Test Cases**:
+
 ```python
 def test_timer_sync_function()
 async def test_timer_async_function()
@@ -83,12 +91,15 @@ def test_timed_and_logged_combines_both()
 ### 2. Integration Tests (`tests/integration/`)
 
 #### System Integration (`test_logging_system.py`)
+
 **Purpose**: Test complete logging workflow from setup to file output.
 
 **Key Test Classes**:
+
 - `TestLoggingSystemIntegration`: End-to-end logging scenarios
 
 **Example Test Cases**:
+
 ```python
 def test_end_to_end_logging_workflow()
 async def test_async_logging_integration()
@@ -99,6 +110,7 @@ def test_exception_handling_across_system()
 ## Test Configuration
 
 ### pytest Configuration (`pyproject.toml`)
+
 ```toml
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -123,6 +135,7 @@ markers = [
 ```
 
 ### Test Dependencies
+
 - `pytest>=8.0.0` - Main testing framework
 - `pytest-asyncio>=0.21.0` - Async test support
 - `pytest-cov>=4.0.0` - Code coverage reporting
@@ -133,6 +146,7 @@ markers = [
 ### Shared Fixtures (`conftest.py`)
 
 **`temp_logs_dir`**: Creates temporary directory for log files during testing
+
 ```python
 @pytest.fixture
 def temp_logs_dir():
@@ -142,6 +156,7 @@ def temp_logs_dir():
 ```
 
 **`clean_loggers`**: Prevents logger interference between tests
+
 ```python
 @pytest.fixture
 def clean_loggers():
@@ -149,6 +164,7 @@ def clean_loggers():
 ```
 
 **`sample_test_data`**: Provides consistent test data
+
 ```python
 @pytest.fixture
 def sample_test_data():
@@ -164,11 +180,14 @@ def sample_test_data():
 ### 1. Basic Test Execution
 
 #### Run All Tests
+
 ```bash
 uv run pytest
 ```
+
 **Expected Output**:
-```
+
+```sh
 ========================= test session starts =========================
 collected 45 items
 
@@ -180,6 +199,7 @@ tests/unit/test_decorators.py::TestTimerDecorator::test_timer_sync_function PASS
 ```
 
 #### Run Specific Test Files
+
 ```bash
 # Test only logger functionality
 uv run pytest tests/unit/test_logger.py
@@ -192,6 +212,7 @@ uv run pytest tests/integration/
 ```
 
 #### Run Specific Test Classes or Functions
+
 ```bash
 # Run specific test class
 uv run pytest tests/unit/test_logger.py::TestSetupLogger
@@ -203,6 +224,7 @@ uv run pytest tests/unit/test_logger.py::TestSetupLogger::test_setup_logger_defa
 ### 2. Test Categories and Markers
 
 #### Run by Test Type
+
 ```bash
 # Unit tests only (fast)
 uv run pytest -m unit
@@ -218,6 +240,7 @@ uv run pytest -m slow
 ```
 
 #### Run with Different Verbosity
+
 ```bash
 # Minimal output
 uv run pytest -q
@@ -232,6 +255,7 @@ uv run pytest -vv
 ### 3. Coverage Analysis
 
 #### Generate Coverage Report
+
 ```bash
 # Run tests with coverage (default)
 uv run pytest
@@ -244,6 +268,7 @@ open tests/coverage_html/index.html
 ```
 
 #### Coverage Interpretation
+
 - **Green lines**: Covered by tests
 - **Red lines**: Not covered by tests
 - **Target**: Aim for >90% coverage on logging components
@@ -251,6 +276,7 @@ open tests/coverage_html/index.html
 ### 4. Debugging Failed Tests
 
 #### Show Test Output
+
 ```bash
 # Show print statements and logs
 uv run pytest -s
@@ -263,6 +289,7 @@ uv run pytest --pdb
 ```
 
 #### Run Specific Failed Test
+
 ```bash
 # Re-run only failed tests
 uv run pytest --lf
@@ -274,6 +301,7 @@ uv run pytest --ff
 ## Test Examples and Expected Behaviors
 
 ### 1. Logger Setup Test
+
 ```python
 def test_setup_logger_default_params():
     logger = setup_logger()
@@ -285,6 +313,7 @@ def test_setup_logger_default_params():
 **Expected Behavior**: Creates logger with proper name, level, and handlers.
 
 ### 2. Timer Decorator Test
+
 ```python
 def test_timer_sync_function(capsys):
     @timer
@@ -302,6 +331,7 @@ def test_timer_sync_function(capsys):
 **Expected Behavior**: Function executes correctly and timing is logged.
 
 ### 3. Logged Decorator Test
+
 ```python
 def test_logged_function_entry_exit(caplog):
     with caplog.at_level(logging.DEBUG):
@@ -323,6 +353,7 @@ def test_logged_function_entry_exit(caplog):
 **Expected Behavior**: Function entry and exit are logged with arguments.
 
 ### 4. Integration Test
+
 ```python
 def test_end_to_end_logging_workflow(temp_logs_dir):
     # Setup logger with temporary directory
@@ -349,8 +380,10 @@ def test_end_to_end_logging_workflow(temp_logs_dir):
 ### Common Issues and Solutions
 
 #### 1. Import Errors
+
 **Problem**: `ModuleNotFoundError: No module named 'src'`
-**Solution**: 
+**Solution**:
+
 ```bash
 # Ensure you're in the project root directory
 cd /path/to/China/
@@ -358,16 +391,20 @@ uv run pytest
 ```
 
 #### 2. Logger Interference Between Tests
+
 **Problem**: Tests affect each other's logging
 **Solution**: Use the `clean_loggers` fixture
+
 ```python
 def test_my_logger_test(clean_loggers):
     # Test code here
 ```
 
 #### 3. Async Test Issues
+
 **Problem**: `RuntimeError: asyncio.run() cannot be called from a running event loop`
 **Solution**: Use `pytest-asyncio` markers
+
 ```python
 @pytest.mark.asyncio
 async def test_async_function():
@@ -375,8 +412,10 @@ async def test_async_function():
 ```
 
 #### 4. Coverage Issues
+
 **Problem**: Low coverage on decorated functions
 **Solution**: Test both the decorator and the decorated function:
+
 ```python
 def test_decorator_functionality():
     # Test decorator behavior
@@ -386,8 +425,10 @@ def test_decorated_function_behavior():
 ```
 
 #### 5. Log File Permissions
+
 **Problem**: `PermissionError: [Errno 13] Permission denied`
 **Solution**: Use temporary directories in tests
+
 ```python
 def test_with_temp_dir(temp_logs_dir):
     # Use temp_logs_dir instead of actual logs directory
@@ -396,11 +437,13 @@ def test_with_temp_dir(temp_logs_dir):
 ### Performance Considerations
 
 #### Test Execution Time
+
 - **Unit tests**: Should complete in <1 second each
 - **Integration tests**: May take 1-5 seconds each
 - **Slow tests**: Marked with `@pytest.mark.slow`, may take >5 seconds
 
 #### Memory Usage
+
 - Tests clean up after themselves using fixtures
 - Temporary files are automatically removed
 - Logger handlers are properly closed
@@ -408,6 +451,7 @@ def test_with_temp_dir(temp_logs_dir):
 ## Continuous Integration
 
 ### Running Tests in CI/CD
+
 ```bash
 # Install dependencies
 uv sync
@@ -420,7 +464,9 @@ uv run pytest --cov=src --cov-fail-under=85
 ```
 
 ### Test Status Badges
+
 If using CI/CD, you can add badges to your README:
+
 ```markdown
 ![Tests](https://github.com/your-repo/workflows/Tests/badge.svg)
 ![Coverage](https://codecov.io/gh/your-repo/branch/main/graph/badge.svg)
@@ -429,6 +475,7 @@ If using CI/CD, you can add badges to your README:
 ## Best Practices for Adding New Tests
 
 ### 1. Test Naming Convention
+
 ```python
 # Good test names (descriptive and specific)
 def test_setup_logger_creates_file_handler()
@@ -441,6 +488,7 @@ def test_decorator()
 ```
 
 ### 2. Test Structure (Arrange-Act-Assert)
+
 ```python
 def test_example():
     # Arrange: Set up test data and conditions
@@ -455,6 +503,7 @@ def test_example():
 ```
 
 ### 3. Use Appropriate Fixtures
+
 ```python
 def test_with_clean_environment(clean_loggers, temp_logs_dir):
     # Test that won't interfere with others
@@ -463,6 +512,7 @@ def test_with_clean_environment(clean_loggers, temp_logs_dir):
 ```
 
 ### 4. Test Both Success and Failure Cases
+
 ```python
 def test_function_success_case():
     # Test normal operation
@@ -473,6 +523,7 @@ def test_function_handles_invalid_input():
 ```
 
 ### 5. Mock External Dependencies
+
 ```python
 @patch('src.utilities.logger.logging.FileHandler')
 def test_logger_setup_with_mocked_file_handler(mock_file_handler):
@@ -493,6 +544,7 @@ The logging system test suite provides comprehensive coverage of:
 ✅ **Performance under load**  
 
 **Key Commands**:
+
 - `uv run pytest` - Run all tests
 - `uv run pytest -m unit` - Run unit tests only
 - `uv run pytest -v --cov=src` - Verbose with coverage
