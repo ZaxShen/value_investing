@@ -1,5 +1,22 @@
 """
 Unit tests for the decorator functionality (timer, logged, timed_and_logged).
+
+This module provides comprehensive unit tests for the custom decorators used
+throughout the stock analysis application. The decorators tested include:
+
+- @timer: Measures and reports function execution time
+- @logged: Provides detailed function entry/exit logging with argument capture
+- @timed_and_logged: Combines both timing and logging functionality
+
+The tests verify that decorators:
+- Work correctly with both sync and async functions
+- Preserve original function metadata and signatures
+- Handle exceptions gracefully while maintaining logging
+- Don't introduce significant performance overhead
+- Support complex function signatures and argument patterns
+
+These decorators are critical for monitoring and debugging the async
+stock analysis pipeline performance and execution flow.
 """
 
 import pytest
@@ -13,36 +30,65 @@ from src.utilities.tools import timer, logged, timed_and_logged
 
 
 class TestTimerDecorator:
-    """Test the timer decorator functionality."""
+    """
+    Test the timer decorator functionality.
+    
+    The timer decorator measures function execution time and provides
+    performance feedback through console output. It supports both
+    synchronous and asynchronous functions and is essential for
+    monitoring the performance of data-intensive stock analysis operations.
+    """
 
     @pytest.mark.unit
     def test_timer_sync_function(self, capsys):
-        """Test timer decorator with synchronous function."""
-
+        """
+        Test timer decorator with synchronous function.
+        
+        Verifies that the timer decorator correctly measures execution time
+        for synchronous functions and outputs timing information to stdout.
+        This is important for monitoring blocking operations like file I/O
+        and data processing in the stock analysis pipeline.
+        """
+        # Define a test function with artificial delay for measurable timing
         @timer
         def sync_function(x, y):
-            time.sleep(0.01)  # Small delay to measure
+            time.sleep(0.01)  # Small delay to measure (10ms)
             return x + y
 
+        # Execute the timed function
         result = sync_function(2, 3)
 
+        # Verify function result is unchanged by decorator
         assert result == 5
+        
+        # Capture and verify timing output
         captured = capsys.readouterr()
         assert "⏱️  Function 'sync_function' runtime:" in captured.out
-        assert "s" in captured.out  # Should show seconds
+        assert "s" in captured.out  # Should show seconds unit
 
     @pytest.mark.unit
     async def test_timer_async_function(self, capsys):
-        """Test timer decorator with asynchronous function."""
-
+        """
+        Test timer decorator with asynchronous function.
+        
+        Verifies that the timer decorator works correctly with async functions,
+        which are extensively used in the stock analysis pipeline for concurrent
+        API calls and data processing. The decorator should properly handle
+        await expressions and measure total async execution time.
+        """
+        # Define async test function with artificial delay
         @timer
         async def async_function(x, y):
-            await asyncio.sleep(0.01)  # Small delay to measure
+            await asyncio.sleep(0.01)  # Non-blocking delay (10ms)
             return x * y
 
+        # Execute the timed async function
         result = await async_function(3, 4)
 
+        # Verify function result is preserved
         assert result == 12
+        
+        # Verify timing output is generated for async functions
         captured = capsys.readouterr()
         assert "⏱️  Function 'async_function' runtime:" in captured.out
 
@@ -91,7 +137,15 @@ class TestTimerDecorator:
 
 
 class TestLoggedDecorator:
-    """Test the logged decorator functionality."""
+    """
+    Test the logged decorator functionality.
+    
+    The logged decorator provides comprehensive function call tracking
+    including entry/exit logging, argument capture, and exception handling.
+    This is crucial for debugging the complex async stock analysis pipeline
+    where functions may be called concurrently and errors need to be traced
+    back to specific function calls with their parameters.
+    """
 
     @pytest.mark.unit
     def test_logged_sync_function_entry_exit(self, caplog):
@@ -235,7 +289,15 @@ class TestLoggedDecorator:
 
 
 class TestTimedAndLoggedDecorator:
-    """Test the combined timed_and_logged decorator."""
+    """
+    Test the combined timed_and_logged decorator.
+    
+    This decorator combines both timing and logging functionality,
+    providing comprehensive monitoring for critical functions in the
+    stock analysis pipeline. It's particularly useful for monitoring
+    the main pipeline functions that need both performance tracking
+    and detailed execution logging.
+    """
 
     @pytest.mark.unit
     def test_timed_and_logged_combines_both(self, caplog, capsys):
@@ -303,7 +365,14 @@ class TestTimedAndLoggedDecorator:
 
 
 class TestDecoratorIntegration:
-    """Integration tests for decorators."""
+    """
+    Integration tests for decorators.
+    
+    These tests verify that decorators work correctly when used together
+    and don't interfere with each other. This is important because the
+    stock analysis codebase uses multiple decorators on the same functions
+    to provide comprehensive monitoring and debugging capabilities.
+    """
 
     @pytest.mark.integration
     def test_multiple_decorators_on_same_function(self, caplog, capsys):
