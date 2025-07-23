@@ -15,7 +15,7 @@ from typing import Optional
 from .tools import timer
 
 
-@timer
+# @timer
 def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     """
     Fetch stock market data with caching.
@@ -45,7 +45,7 @@ def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     return stock_df
 
 
-@timer
+# @timer
 def get_industry_stock_mapping_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     """
     Fetch industry-stock mapping data with caching.

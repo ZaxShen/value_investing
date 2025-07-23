@@ -448,7 +448,7 @@ async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[i
     ]
 
     # Sort the DataFrame by pe and {days} change percentage
-    df = df.sort_values(by=["市盈率-动态", f"{days}日涨跌幅(%)"])
+    df = df.sort_values(by=[f"{days}日涨跌幅(%)"])
     df.reset_index(inplace=True, drop=True)
 
     # Output the filtered DataFrame to a CSV file

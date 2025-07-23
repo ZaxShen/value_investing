@@ -343,7 +343,7 @@ async def simulate_copy_progress(progress, task_id):
         pass
 
 
-@timer
+# @timer
 def main() -> None:
     """
     Main entry point for the stock analysis pipeline.

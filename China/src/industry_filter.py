@@ -231,7 +231,7 @@ async def process_single_industry_async(
             return None
 
 
-@timer
+# @timer
 async def process_all_industries_async(
     industry_arr: pd.Series,
     first_date_str: str,

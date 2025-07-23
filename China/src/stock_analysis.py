@@ -192,7 +192,7 @@ async def stock_analysis(
     ]
 
 
-@timer
+# @timer
 async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[int] = None, batch_task_id: Optional[int] = None) -> None:
     """
     Main function to execute stock analysis and generate holding reports.
