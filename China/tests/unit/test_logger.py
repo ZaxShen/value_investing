@@ -1,5 +1,22 @@
 """
 Unit tests for the logging functionality.
+
+This module provides comprehensive unit tests for the custom logging system
+used throughout the stock analysis application. The logging system includes:
+
+- setup_logger(): Configures file and console logging with appropriate formatters
+- get_logger(): Factory function for creating module-specific loggers
+- set_log_level(): Dynamic log level adjustment during runtime
+
+The tests verify that the logging system:
+- Creates proper file and console handlers with correct formatting
+- Manages logger hierarchy and inheritance correctly
+- Prevents duplicate handler creation for the same logger
+- Supports dynamic log level changes during execution
+- Handles high-volume logging scenarios efficiently
+
+Proper logging is critical for debugging the async stock analysis pipeline,
+especially when processing thousands of stocks concurrently with API rate limiting.
 """
 
 import pytest
@@ -15,7 +32,14 @@ from src.utilities.logger import setup_logger, get_logger, set_log_level
 
 
 class TestSetupLogger:
-    """Test the setup_logger function."""
+    """
+    Test the setup_logger function.
+    
+    The setup_logger function is the core of the logging system, responsible
+    for creating properly configured loggers with both file and console output.
+    It must handle directory creation, formatter setup, and prevent duplicate
+    handler creation across multiple calls.
+    """
 
     @pytest.mark.unit
     def test_setup_logger_default_params(self, temp_logs_dir, clean_loggers):
@@ -80,7 +104,14 @@ class TestSetupLogger:
 
 
 class TestGetLogger:
-    """Test the get_logger function."""
+    """
+    Test the get_logger function.
+    
+    The get_logger function provides a convenient factory for creating
+    module-specific loggers with proper naming conventions. It supports
+    both global logger access and module-specific logger creation with
+    hierarchical naming (e.g., 'stock_analysis.stock_filter').
+    """
 
     @pytest.mark.unit
     def test_get_logger_without_name(self, clean_loggers):
@@ -106,7 +137,14 @@ class TestGetLogger:
 
 
 class TestSetLogLevel:
-    """Test the set_log_level function."""
+    """
+    Test the set_log_level function.
+    
+    The set_log_level function allows dynamic adjustment of logging levels
+    during runtime, which is crucial for debugging production issues or
+    adjusting verbosity based on execution context (e.g., more verbose
+    logging during development, less during production runs).
+    """
 
     @pytest.mark.unit
     def test_set_log_level_valid_levels(self, clean_loggers):
@@ -139,7 +177,15 @@ class TestSetLogLevel:
 
 
 class TestLoggerIntegration:
-    """Integration tests for the logger functionality."""
+    """
+    Integration tests for the logger functionality.
+    
+    These integration tests verify that the logging system works correctly
+    as a whole, including file I/O operations, logger hierarchy management,
+    and interaction between different logger instances. This is particularly
+    important for the stock analysis pipeline where multiple modules log
+    concurrently to the same files.
+    """
 
     @pytest.mark.integration
     def test_logger_writes_to_file(self, temp_logs_dir):

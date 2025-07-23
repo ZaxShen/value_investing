@@ -1,5 +1,27 @@
 """
 Integration tests for the complete logging system.
+
+This module provides comprehensive integration tests that verify the entire
+logging system works correctly in realistic scenarios similar to the actual
+stock analysis pipeline execution. The tests cover:
+
+- End-to-end logging workflow from setup to file output
+- Async function logging integration with concurrent execution
+- Multi-module logging scenarios with proper message routing
+- Dynamic log level changes during runtime execution
+- Exception handling and logging across the entire system
+- High-volume logging performance under load
+- Real-world function signature compatibility
+
+These integration tests ensure that the logging system can handle the complex
+requirements of the async stock analysis pipeline, including:
+- Concurrent logging from multiple async tasks
+- Proper message routing from different modules
+- Performance under high-volume logging scenarios
+- Exception tracking across async call stacks
+
+The tests use realistic data patterns and function signatures to ensure
+compatibility with the actual stock analysis codebase.
 """
 
 import pytest
@@ -15,13 +37,35 @@ from src.utilities.tools import timer, logged, timed_and_logged
 
 
 class TestLoggingSystemIntegration:
-    """Integration tests for the complete logging system."""
+    """
+    Integration tests for the complete logging system.
+    
+    This test class verifies that all components of the logging system
+    work together correctly in realistic scenarios. It tests the complete
+    workflow from logger setup through file output, including scenarios
+    that mirror the actual stock analysis pipeline execution patterns.
+    """
 
     @pytest.mark.integration
     def test_end_to_end_logging_workflow(self, temp_logs_dir):
-        """Test complete logging workflow from setup to file output."""
+        """
+        Test complete logging workflow from setup to file output.
+        
+        This test verifies the entire logging pipeline from initial setup
+        through final file output, simulating the workflow used in the
+        stock analysis application. It tests:
+        - Logger setup and configuration
+        - Module-specific logger creation
+        - Decorator integration (logged, timer)
+        - File output verification
+        
+        This mirrors the actual initialization and execution pattern
+        used in main.py and the analysis modules.
+        """
+        # Create test log file in temporary directory
         log_file = Path(temp_logs_dir) / "integration_test.log"
 
+        # Mock the Path operations to use our temporary directory
         with patch("src.utilities.logger.Path") as mock_path:
             mock_path.return_value.mkdir.return_value = None
             mock_path.return_value.__truediv__.return_value = log_file
@@ -62,7 +106,20 @@ class TestLoggingSystemIntegration:
 
     @pytest.mark.integration
     async def test_async_logging_integration(self, temp_logs_dir):
-        """Test logging integration with async functions."""
+        """
+        Test logging integration with async functions.
+        
+        This test verifies that the logging system works correctly with
+        async functions, which are heavily used in the stock analysis
+        pipeline for concurrent API calls and data processing. It tests:
+        - Async function logging with timed_and_logged decorator
+        - Concurrent logging operations
+        - Log message ordering and consistency
+        
+        This is critical because the stock analysis pipeline processes
+        hundreds of stocks concurrently using async/await patterns.
+        """
+        # Setup test log file for async operations
         log_file = Path(temp_logs_dir) / "async_integration.log"
 
         with patch("src.utilities.logger.Path") as mock_path:
@@ -95,7 +152,20 @@ class TestLoggingSystemIntegration:
 
     @pytest.mark.integration
     def test_multiple_modules_logging(self, temp_logs_dir):
-        """Test logging from multiple modules simultaneously."""
+        """
+        Test logging from multiple modules simultaneously.
+        
+        This test simulates the multi-module logging scenario that occurs
+        in the stock analysis pipeline where stock_filter, stock_analysis,
+        and industry_filter modules all log concurrently. It verifies:
+        - Proper message routing from different modules
+        - No message loss or duplication
+        - Correct logger hierarchy and naming
+        
+        This mirrors the actual execution pattern in main.py where
+        multiple analysis modules run in parallel.
+        """
+        # Setup test log file for multi-module scenario
         log_file = Path(temp_logs_dir) / "multi_module.log"
 
         with patch("src.utilities.logger.Path") as mock_path:
