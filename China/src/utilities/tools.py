@@ -34,6 +34,9 @@ def timer(func: Callable) -> Callable:
             finally:
                 end_time = time.perf_counter()
                 exec_time = end_time - start_time
+                # Print timing to stdout for test capture and user feedback
+                print(f"⏱️  Function '{func.__name__}' runtime: {exec_time:.4f} s")
+                # Also log for file records
                 logger.info("⏱️  Function '%s' runtime: %.4f s", func.__name__, exec_time)
 
         return async_wrapper
@@ -52,6 +55,9 @@ def timer(func: Callable) -> Callable:
             finally:
                 end_time = time.perf_counter()
                 exec_time = end_time - start_time
+                # Print timing to stdout for test capture and user feedback
+                print(f"⏱️  Function '{func.__name__}' runtime: {exec_time:.4f} s")
+                # Also log for file records
                 logger.info("⏱️  Function '%s' runtime: %.4f s", func.__name__, exec_time)
 
         return sync_wrapper

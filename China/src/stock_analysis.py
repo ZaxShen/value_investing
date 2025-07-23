@@ -21,6 +21,10 @@ from src.utilities.get_stock_data import (
 )
 from src.utilities.tools import timer
 from src.utilities.logger import get_logger
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rich.progress import Progress
 
 # Initialize logger for this module
 logger = get_logger("stock_analysis")
@@ -189,13 +193,17 @@ async def stock_analysis(
 
 
 @timer
-async def main() -> None:
+async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[int] = None) -> None:
     """
     Main function to execute stock analysis and generate holding reports.
 
     This function reads stock holding data from JSON files, performs comprehensive
     analysis on each stock, and generates detailed reports with financial metrics
     and performance indicators.
+    
+    Args:
+        progress: Optional Rich Progress instance for hierarchical progress tracking
+        parent_task_id: Optional parent task ID for hierarchical progress structure
     """
     dir_path = "data/holding_stocks"
     days = 29
