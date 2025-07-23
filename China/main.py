@@ -38,7 +38,7 @@ logger = get_logger("main")
 console = Console()
 
 
-@timer
+# @timer
 def get_latest_file(pattern: str) -> Optional[str]:
     """
     Get the latest file matching the pattern based on date in filename.
@@ -67,7 +67,7 @@ def get_latest_file(pattern: str) -> Optional[str]:
     return latest_file
 
 
-@timer
+# @timer
 async def copy_latest_reports() -> None:
     """
     Copy the latest reports to data/today directory.
@@ -119,7 +119,7 @@ async def copy_latest_reports() -> None:
     logger.info("All latest reports copied to %s/", today_dir)
 
 
-@timer
+# @timer
 async def run_all_scripts() -> None:
     """
     Run all analysis scripts sequentially with progress tracking.
@@ -165,7 +165,7 @@ async def run_all_scripts() -> None:
     logger.info("All scripts completed!")
 
 
-@timer
+# @timer
 async def run_all_scripts_parallel() -> None:
     """
     Run all analysis scripts in parallel with detailed hierarchical progress tracking.
@@ -225,10 +225,11 @@ async def run_all_scripts_parallel() -> None:
         # Enhanced progress wrapper that provides detailed progress updates
         # This function wraps each main script and provides progress feedback
         # It implements the tqdm-like behavior requested by the user:
-        # - Detailed low-level task progress bars
-        # - Progress bars that disappear when finished (like tqdm's leave=False)
-        # - Realistic progress simulation for operations without native progress reporting
-        async def run_with_detailed_progress(coro, task_id, name, progress_instance):
+        # - Detailed low-level task progress bars for batch processing
+        # - Hierarchical progress structure with subtasks under main tasks
+        # - Subtask progress bars that disappear when finished
+        # - Top-level tasks remain visible (don't disappear)
+        async def run_with_detailed_progress(script_func, task_id, name, progress_instance):
             """
             Execute a coroutine with detailed progress tracking and cleanup.
             
@@ -248,26 +249,14 @@ async def run_all_scripts_parallel() -> None:
                 # Mark task as starting with dynamic description
                 progress_instance.update(task_id, description=f"🔄 Starting {name}...")
                 
-                # Create a task to simulate progress during execution
-                # Since we can't get real progress from the scripts, we simulate it
-                progress_task = asyncio.create_task(simulate_script_progress(progress_instance, task_id, name))
-                
-                # Execute the actual script
-                script_task = asyncio.create_task(coro)
-                
-                # Wait for script completion
-                await script_task
-                
-                # Cancel progress simulation and mark as complete
-                progress_task.cancel()
+                # Execute the actual script with progress tracking
+                # Pass progress instance and task_id to enable hierarchical progress
+                await script_func(progress=progress_instance, parent_task_id=task_id)
+                # Mark top-level task as completed but DON'T remove it
+                # According to TODO.md: "Don't make the progress bar disappear for the top level tasks"
                 progress_instance.update(task_id, completed=100, description=f"✅ {name} completed")
                 
-                # Wait a moment to show completion, then remove the task
-                # This implements the "disappear when finished" behavior like tqdm's leave=False
-                await asyncio.sleep(0.5)
-                progress_instance.remove_task(task_id)  # Remove completed task to reduce clutter
-                
-                logger.info(f"✅ {name} completed and progress bar removed")
+                logger.info(f"✅ {name} completed (top-level task kept visible)")
                 
             except Exception as e:
                 # Handle errors and update progress accordingly
@@ -275,12 +264,12 @@ async def run_all_scripts_parallel() -> None:
                 logger.error(f"❌ Error in {name}: {str(e)}")
                 raise
 
-        # Execute all scripts in parallel with individual progress tracking
-        logger.info("🚀 Launching parallel script execution with detailed progress tracking")
+        # Execute all scripts in parallel with hierarchical progress tracking
+        logger.info("🚀 Launching parallel script execution with hierarchical progress tracking")
         await asyncio.gather(
-            run_with_detailed_progress(stock_filter_main(), stock_filter_task, "Stock Filter", progress),
-            run_with_detailed_progress(stock_analysis_main(), stock_analysis_task, "Stock Analysis", progress),
-            run_with_detailed_progress(industry_filter_main(), industry_filter_task, "Industry Filter", progress),
+            run_with_detailed_progress(stock_filter_main, stock_filter_task, "Stock Filter", progress),
+            run_with_detailed_progress(stock_analysis_main, stock_analysis_task, "Stock Analysis", progress),
+            run_with_detailed_progress(industry_filter_main, industry_filter_task, "Industry Filter", progress),
         )
 
         # Update main progress after parallel execution
@@ -297,57 +286,21 @@ async def run_all_scripts_parallel() -> None:
         # Execute actual report copying
         await copy_latest_reports()
         
-        # Complete copy progress
+        # Complete copy progress - this is a subtask so it can disappear
         copy_progress_task.cancel()
         progress.update(copy_task, completed=100, description="✅ Report copying completed")
         await asyncio.sleep(0.5)
-        progress.remove_task(copy_task)
+        progress.remove_task(copy_task)  # Subtask disappears when finished
 
-        # Complete main pipeline
+        # Complete main pipeline - top-level task stays visible
         progress.advance(main_task)
         progress.update(main_task, description="🎉 Parallel analysis pipeline completed successfully!")
+        # Note: main_task is NOT removed - it stays visible as per TODO.md requirements
 
     logger.info("🎉 All parallel scripts completed successfully!")
 
 
-async def simulate_script_progress(progress, task_id, name):
-    """
-    Simulate progress updates for script execution.
-    
-    Since the individual scripts don't report their internal progress,
-    this function provides estimated progress updates to give users
-    detailed low-level feedback during execution. This creates the
-    tqdm-like detailed progress bars requested by the user.
-    
-    The simulation provides realistic progress stages that match the
-    actual operations performed by each script (data loading, processing,
-    analysis, etc.) to give users meaningful feedback about execution state.
-    
-    Args:
-        progress: Rich Progress instance for updating progress bars
-        task_id: Task ID to update with progress information
-        name: Name of the script for logging and progress descriptions
-    """
-    try:
-        stages = [
-            "Loading data...",
-            "Processing industries...", 
-            "Analyzing stocks...",
-            "Calculating metrics...",
-            "Generating results...",
-            "Finalizing output..."
-        ]
-        
-        # Update progress through each stage to provide detailed feedback
-        # Each stage represents a realistic phase of the stock analysis process
-        for i, stage in enumerate(stages):
-            # Calculate incremental progress (15% per stage for 6 stages = 90% total)
-            progress.update(task_id, completed=(i + 1) * 15, description=f"🔄 {name}: {stage}")
-            await asyncio.sleep(2)  # Wait between progress updates to show realistic timing
-            
-    except asyncio.CancelledError:
-        # Expected when script completes
-        pass
+# simulate_script_progress function removed - now using real progress from batch processing
 
 
 async def simulate_copy_progress(progress, task_id):
