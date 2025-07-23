@@ -14,6 +14,10 @@ from datetime import datetime, timedelta
 from typing import Tuple, Optional, List, Any, Callable
 from src.utilities.tools import timer
 from src.utilities.logger import get_logger
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rich.progress import Progress
 
 # Initialize logger for this module
 logger = get_logger("industry_filter")
@@ -234,6 +238,9 @@ async def process_all_industries_async(
     last_date_str: str,
     first_trading_date_str: str,
     days: int = 29,
+    progress: Optional["Progress"] = None,
+    parent_task_id: Optional[int] = None,
+    batch_task_id: Optional[int] = None
 ) -> pd.DataFrame:
     """
     Process all industries concurrently with batch processing.
@@ -265,14 +272,42 @@ async def process_all_industries_async(
 
     # Process industries with some concurrency but not too much to avoid overwhelming the API
     batch_size = 3
+    total_batches = (len(industry_arr) + batch_size - 1) // batch_size
+    
+    # Use pre-created batch task if provided, otherwise create new one
+    if progress is not None and batch_task_id is not None:
+        # Make the pre-created batch task visible and configure it
+        progress.update(
+            batch_task_id,
+            total=total_batches,
+            visible=True,
+            description="    🏢 Industry Filter: Processing batches"
+        )
+    elif progress is not None:
+        # Fallback: create new batch task (will appear at bottom)
+        batch_task_id = progress.add_task(
+            "🏢 Processing industry analysis batches", 
+            total=total_batches,
+            visible=True
+        )
 
     for i in range(0, len(industry_arr), batch_size):
         batch = industry_arr[i : i + batch_size]
+        batch_num = i//batch_size + 1
+        
         logger.info(
             "Processing industry batch %d/%d",
-            i//batch_size + 1,
-            (len(industry_arr) + batch_size - 1)//batch_size,
+            batch_num,
+            total_batches,
         )
+        
+        # Update batch progress if available
+        if progress is not None and batch_task_id is not None:
+            progress.update(
+                batch_task_id, 
+                completed=batch_num-1,
+                description=f"    🏢 Industry Filter: Processing batch {batch_num}/{total_batches} ({len(batch)} industries)"
+            )
 
         # Create tasks for the current batch
         tasks = [
@@ -293,28 +328,49 @@ async def process_all_industries_async(
         for result in batch_results:
             if result is not None and not isinstance(result, Exception):
                 all_industries_df.loc[len(all_industries_df)] = result
+        
+        # Update batch progress after completion
+        if progress is not None and batch_task_id is not None:
+            progress.advance(batch_task_id)
+    
+    # Remove batch progress bar when finished (subtask cleanup)
+    if progress is not None and batch_task_id is not None:
+        progress.update(
+            batch_task_id,
+            description="    ✅ Industry Filter: All batches completed"
+        )
+        await asyncio.sleep(0.5)  # Brief display of completion
+        progress.remove_task(batch_task_id)
 
     return all_industries_df
 
 
-async def main() -> None:
+async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[int] = None, batch_task_id: Optional[int] = None) -> None:
     """
     Main function to execute the complete industry filtering pipeline.
 
     This function orchestrates the entire industry analysis process including
     data preparation, industry analysis, result filtering, and report generation.
+    
+    Args:
+        progress: Optional Rich Progress instance for hierarchical progress tracking
+        parent_task_id: Optional parent task ID for hierarchical progress structure
+        batch_task_id: Optional pre-created batch task ID for proper hierarchy display
     """
     days = 29
 
     industry_arr, first_date_str, last_date_str, first_trading_date_str = get_dates()
 
-    # Process all industries
+    # Process all industries with progress tracking
     all_industries_df = await process_all_industries_async(
         industry_arr,
         first_date_str,
         last_date_str,
         first_trading_date_str,
         days=29,
+        progress=progress,
+        parent_task_id=parent_task_id,
+        batch_task_id=batch_task_id
     )
 
     # Define the directory for reports
