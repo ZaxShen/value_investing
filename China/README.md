@@ -1,3 +1,7 @@
+# README
+
+## rich.progress
+
 Perfect! All logger tests are passing. Now let me create
   a summary of what was implemented:
 
@@ -47,7 +51,7 @@ Perfect! All logger tests are passing. Now let me create
 
   Function Signature Updates
 
-# All main functions now accept progress parameters for
+### All main functions now accept progress parameters for
 
   hierarchical tracking
   async def main(progress: Optional["Progress"] = None,
@@ -55,7 +59,7 @@ Perfect! All logger tests are passing. Now let me create
 
   Batch Processing Enhancement
 
-# Example from stock_filter.py
+### Example from stock_filter.py
 
   batch_task_id = progress.add_task(
       "📊 Processing industry batches",
@@ -63,7 +67,7 @@ Perfect! All logger tests are passing. Now let me create
       visible=True
   )
 
-# ... processing logic
+### ... processing logic
 
   progress.remove_task(batch_task_id)  # Subtask disappears
    when finished
