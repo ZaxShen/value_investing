@@ -15,6 +15,7 @@ from typing import Optional, List, Any, Callable
 
 import akshare as ak
 import pandas as pd
+from tqdm import tqdm
 from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
@@ -56,40 +57,48 @@ class StockDataManager:
         """Ensure akshare connectivity is verified before data operations."""
         if not self._connectivity_checked:
             logger.info("🔍 Verifying akshare connectivity before data operations...")
-            
+
             # First, check if we have cached data available
             cached_data = check_cached_data_availability()
             all_cached = all(cached_data.values())
-            
+
             if all_cached:
-                logger.info("📁 All required data is cached locally - skipping network connectivity check")
+                logger.info(
+                    "📁 All required data is cached locally - skipping network connectivity check"
+                )
                 self._connectivity_checked = True
                 self._connectivity_status = ConnectivityStatus.HEALTHY
                 return
-            
+
             try:
-                logger.info("🌐 Cached data not available - performing network connectivity check...")
-                
+                logger.info(
+                    "🌐 Cached data not available - performing network connectivity check..."
+                )
+
                 # Perform comprehensive health check
                 status, details = get_akshare_health_status()
                 self._connectivity_status = status
                 self._connectivity_checked = True
-                
+
                 # Log the connectivity status
                 log_connectivity_status(status, details)
-                
+
                 # Handle different status levels
                 if status == ConnectivityStatus.UNAVAILABLE:
                     error_msg = "Akshare services are completely unavailable. Cannot proceed with data operations."
                     logger.error(f"❌ {error_msg}")
                     raise ConnectionError(error_msg)
-                
+
                 elif status == ConnectivityStatus.DEGRADED:
-                    logger.warning("⚠️  Akshare services are degraded but operational. Proceeding with caution...")
-                
+                    logger.warning(
+                        "⚠️  Akshare services are degraded but operational. Proceeding with caution..."
+                    )
+
                 else:  # HEALTHY
-                    logger.info("✅ Akshare services are healthy. Proceeding with data operations...")
-            
+                    logger.info(
+                        "✅ Akshare services are healthy. Proceeding with data operations..."
+                    )
+
             except Exception as e:
                 # Mark as checked to avoid repeated failures during testing
                 self._connectivity_checked = True
@@ -97,40 +106,44 @@ class StockDataManager:
                 error_msg = f"Connectivity check failed: {str(e)}"
                 logger.error(error_msg)
                 # Don't raise the error during testing - let the data fetching handle it
-                if not getattr(__builtins__, '__TESTING__', False):
+                if not getattr(__builtins__, "__TESTING__", False):
                     raise ConnectionError(error_msg)
 
     @property
     def stock_market_data(self) -> pd.DataFrame:
         """Get stock market data, loading it if necessary after connectivity check."""
         self._ensure_connectivity()
-        
+
         if self._stock_market_data is None:
             logger.debug("Loading stock market data")
             self._stock_market_data = get_stock_market_data()
-        
+
         # Ensure we have valid data before returning
-        assert self._stock_market_data is not None, "Stock market data should not be None after loading"
+        assert (
+            self._stock_market_data is not None
+        ), "Stock market data should not be None after loading"
         return self._stock_market_data
 
     @property
     def industry_mapping_data(self) -> pd.DataFrame:
         """Get industry mapping data, loading it if necessary after connectivity check."""
         self._ensure_connectivity()
-        
+
         if self._industry_mapping_data is None:
             logger.debug("Loading industry mapping data")
             self._industry_mapping_data = get_industry_stock_mapping_data()
-        
+
         # Ensure we have valid data before returning
-        assert self._industry_mapping_data is not None, "Industry mapping data should not be None after loading"
+        assert (
+            self._industry_mapping_data is not None
+        ), "Industry mapping data should not be None after loading"
         return self._industry_mapping_data
-    
+
     @property
     def connectivity_status(self) -> Optional[ConnectivityStatus]:
         """Get the current akshare connectivity status."""
         return self._connectivity_status
-    
+
     def reset_connectivity_check(self) -> None:
         """Reset connectivity check to force re-verification on next data access."""
         logger.info("🔄 Resetting akshare connectivity check...")
@@ -312,6 +325,7 @@ async def main() -> None:
     """
     dir_path = "data/holding_stocks"
     days = 29
+
     # Initialize a pandas Dataframe to hold industry names,
     # industry main net flow, and industry index change percentage
     df = pd.DataFrame(
@@ -332,35 +346,135 @@ async def main() -> None:
         ]
     )
 
-    for file in glob.glob(os.path.join(dir_path, "*.json")):
+    # Count total stocks for progress tracking
+    total_stocks = 0
+    account_files = list(glob.glob(os.path.join(dir_path, "*.json")))
+
+    logger.info("📊 Scanning holding stock files...")
+    for file in account_files:
         with open(file, "r", encoding="utf-8") as f:
-            account_name = os.path.splitext(os.path.basename(file))[0]
             holding_stocks = json.load(f)
-            for stock_code, stock_name in holding_stocks.items():
-                # Get data through data manager
-                stock_data = _data_manager.stock_market_data
-                industry_data = _data_manager.industry_mapping_data
+            total_stocks += len(holding_stocks)
 
-                validate_stock_name(stock_code, stock_name, stock_data)
-                industry_name = industry_data[industry_data["代码"] == stock_code][
-                    "行业"
-                ].values[0]
-                result = await stock_analysis(
-                    industry_name=industry_name,
-                    stock_code=stock_code,
-                    stock_name=stock_name,
-                    days=days,
-                )
-                if result is not None:
-                    df.loc[len(df)] = [f"{account_name}"] + result
+    logger.info(
+        "📈 Found %d accounts with %d total holdings to analyze",
+        len(account_files),
+        total_stocks,
+    )
 
-    # Define the report date (async)
-    stock_sector_data = await fetch_stock_sector_fund_flow_hist("证券")
-    last_date = stock_sector_data.iloc[-1]["日期"]
-    last_date_str = last_date.strftime("%Y%m%d")
-    # Output the df to a CSV file
-    df.to_csv(f"{dir_path}/reports/持股报告-{last_date_str}.csv", index=True)
-    logger.info("Report saved to %s/reports/持股报告-%s.csv", dir_path, last_date_str)
+    # Main pipeline stages
+    pipeline_stages = [
+        "📊 Loading market data",
+        "🔍 Processing holdings",
+        "📅 Getting report date",
+        "💾 Saving final report",
+    ]
+
+    with tqdm(
+        total=len(pipeline_stages),
+        desc="Stock Analysis Pipeline",
+        unit="stage",
+        leave=True,
+    ) as main_pbar:
+        # Stage 1: Load market data (this triggers data manager connectivity check)
+        main_pbar.set_description("📊 Loading market data and validating connectivity")
+        logger.info("Loading market data through data manager...")
+        stock_data = _data_manager.stock_market_data
+        industry_data = _data_manager.industry_mapping_data
+        main_pbar.update(1)
+        logger.info("✅ Market data loaded successfully")
+
+        # Stage 2: Process all holdings
+        main_pbar.set_description("🔍 Analyzing individual stock holdings")
+        logger.info(
+            "Starting individual stock analysis for %d holdings...", total_stocks
+        )
+
+        processed_count = 0
+        with tqdm(
+            total=total_stocks,
+            desc="Processing holdings",
+            unit="stock",
+            leave=False,
+            position=1,
+        ) as stock_pbar:
+            for file in account_files:
+                with open(file, "r", encoding="utf-8") as f:
+                    account_name = os.path.splitext(os.path.basename(file))[0]
+                    holding_stocks = json.load(f)
+
+                    stock_pbar.set_description(
+                        f"Processing {account_name} ({len(holding_stocks)} stocks)"
+                    )
+                    logger.info(
+                        "Processing account: %s with %d holdings",
+                        account_name,
+                        len(holding_stocks),
+                    )
+
+                    for stock_code, stock_name in holding_stocks.items():
+                        try:
+                            validate_stock_name(stock_code, stock_name, stock_data)
+                            industry_name = industry_data[
+                                industry_data["代码"] == stock_code
+                            ]["行业"].values[0]
+
+                            result = await stock_analysis(
+                                industry_name=industry_name,
+                                stock_code=stock_code,
+                                stock_name=stock_name,
+                                days=days,
+                            )
+
+                            if result is not None:
+                                df.loc[len(df)] = [f"{account_name}"] + result
+                                processed_count += 1
+
+                            stock_pbar.update(1)
+
+                        except Exception as e:
+                            logger.error(
+                                "Error processing %s (%s): %s",
+                                stock_name,
+                                stock_code,
+                                str(e),
+                            )
+                            stock_pbar.update(1)
+
+            stock_pbar.set_description(
+                f"✅ Processed {processed_count}/{total_stocks} holdings successfully"
+            )
+
+        main_pbar.update(1)
+        logger.info(
+            "✅ Stock analysis completed: %d/%d stocks processed successfully",
+            processed_count,
+            total_stocks,
+        )
+
+        # Stage 3: Get report date
+        main_pbar.set_description("📅 Getting report date from market data")
+        logger.info("Fetching latest market date for report naming...")
+        stock_sector_data = await fetch_stock_sector_fund_flow_hist("证券")
+        last_date = stock_sector_data.iloc[-1]["日期"]
+        last_date_str = last_date.strftime("%Y%m%d")
+        main_pbar.update(1)
+        logger.info("✅ Report date determined: %s", last_date_str)
+
+        # Stage 4: Save final report
+        main_pbar.set_description("💾 Saving holding analysis report")
+        df.to_csv(f"{dir_path}/reports/持股报告-{last_date_str}.csv", index=True)
+        main_pbar.update(1)
+
+        main_pbar.set_description("🎉 Stock analysis pipeline completed successfully!")
+        logger.info(
+            "✅ Report saved: %s/reports/持股报告-%s.csv", dir_path, last_date_str
+        )
+        logger.info("🎉 Stock analysis pipeline completed successfully!")
+
+    print(
+        f"📋 Stock analysis completed! Processed {processed_count} holdings from {len(account_files)} accounts."
+    )
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ import os
 import shutil
 import glob
 import re
+import argparse
 from typing import Optional
 from tqdm import tqdm
 import time
@@ -93,26 +94,37 @@ async def copy_latest_reports() -> None:
         },
     ]
 
-    # Copy each report type
-    for report_info in report_patterns:
-        latest_file = get_latest_file(report_info["pattern"])
-        if latest_file:
-            original_filename = os.path.basename(latest_file)
-            target_path = os.path.join(today_dir, original_filename)
-            shutil.copy2(latest_file, target_path)
-            logger.info(
-                "Successfully copied %s: %s",
-                report_info["description"],
-                original_filename,
-            )
-        else:
-            logger.warning(
-                "No %s found matching pattern: %s",
-                report_info["description"],
-                report_info["pattern"],
-            )
+    # Copy each report type with progress tracking
+    with tqdm(total=len(report_patterns), desc="Copying reports", unit="report", leave=False) as copy_pbar:
+        successful_copies = 0
+        
+        for report_info in report_patterns:
+            copy_pbar.set_description(f"Copying {report_info['description']}")
+            
+            latest_file = get_latest_file(report_info["pattern"])
+            if latest_file:
+                original_filename = os.path.basename(latest_file)
+                target_path = os.path.join(today_dir, original_filename)
+                shutil.copy2(latest_file, target_path)
+                successful_copies += 1
+                logger.info(
+                    "✅ Successfully copied %s: %s",
+                    report_info["description"],
+                    original_filename,
+                )
+            else:
+                logger.warning(
+                    "⚠️ No %s found matching pattern: %s",
+                    report_info["description"],
+                    report_info["pattern"],
+                )
+            
+            copy_pbar.update(1)
+        
+        copy_pbar.set_description(f"✅ Copied {successful_copies}/{len(report_patterns)} reports")
 
-    logger.info("All latest reports copied to %s/", today_dir)
+    logger.info("Report copying completed: %d/%d reports copied to %s/", 
+                successful_copies, len(report_patterns), today_dir)
 
 
 @timer
@@ -139,14 +151,23 @@ async def run_all_scripts() -> None:
         unit="task",
         leave=True,
     ) as pbar:
-        for desc, task_func in tasks:
-            pbar.set_description(desc)
-            await task_func()
-            pbar.update(1)
+        for i, (desc, task_func) in enumerate(tasks, 1):
+            pbar.set_description(f"[{i}/{len(tasks)}] {desc}")
+            logger.info("Starting task %d/%d: %s", i, len(tasks), desc)
+            
+            try:
+                await task_func()
+                pbar.update(1)
+                logger.info("✅ Completed task %d/%d: %s", i, len(tasks), desc)
+                
+            except Exception as e:
+                logger.error("❌ Error in task %d/%d (%s): %s", i, len(tasks), desc, str(e))
+                raise
 
-        pbar.set_description("Sequential analysis completed!")
+        pbar.set_description("🎉 Sequential analysis completed successfully!")
 
-    logger.info("All scripts completed!")
+    print("🎉 Sequential analysis pipeline completed successfully!")
+    logger.info("=== All sequential scripts completed successfully ===")
 
 
 @timer
@@ -160,44 +181,80 @@ async def run_all_scripts_parallel() -> None:
     """
     logger.info("Starting parallel execution of all scripts")
 
-    # Parallel execution - run main scripts concurrently
-    print("🔄 Running all analysis scripts in parallel...")
+    # Create a progress bar for the main stages
+    main_stages = [
+        "🔄 Running analysis scripts in parallel",
+        "📋 Copying latest reports",
+        "🎉 Pipeline completed"
+    ]
+    
+    with tqdm(total=len(main_stages), desc="Parallel Stock Analysis Pipeline", 
+              unit="stage", leave=True, position=0) as main_pbar:
+        
+        # Stage 1: Run the three main scripts concurrently
+        main_pbar.set_description("🔄 Running analysis scripts in parallel")
+        logger.info("Executing stock filter, stock analysis, and industry filter in parallel")
+        
+        try:
+            await asyncio.gather(
+                stock_filter_main(),
+                stock_analysis_main(),
+                industry_filter_main(),
+            )
+            main_pbar.update(1)
+            logger.info("✅ All parallel analysis scripts completed successfully")
+            
+        except Exception as e:
+            logger.error("❌ Error in parallel script execution: %s", str(e))
+            raise
 
-    # Run the three main scripts concurrently
-    await asyncio.gather(
-        stock_filter_main(),
-        stock_analysis_main(),
-        industry_filter_main(),
-    )
+        # Stage 2: Copy latest reports
+        main_pbar.set_description("📋 Copying latest reports")
+        logger.info("Starting report copying process")
+        
+        try:
+            await copy_latest_reports()
+            main_pbar.update(1)
+            logger.info("✅ Report copying completed successfully")
+            
+        except Exception as e:
+            logger.error("❌ Error in report copying: %s", str(e))
+            raise
 
-    print("✅ All parallel scripts completed!")
+        # Stage 3: Completion
+        main_pbar.set_description("🎉 Pipeline completed successfully!")
+        main_pbar.update(1)
 
-    # Copy latest reports
-    print("📋 Copying latest reports...")
-    await copy_latest_reports()
-
-    print("🎉 Parallel analysis completed!")
-
-    logger.info("All scripts completed!")
+    print("🎉 Parallel analysis pipeline completed successfully!")
+    logger.info("=== All parallel scripts completed successfully ===")
 
 
 @timer
-def startup_connectivity_check() -> None:
+def startup_connectivity_check(skip_check: bool = False) -> None:
     """
     Perform initial akshare connectivity check before starting the pipeline.
 
     This ensures that akshare services are accessible before beginning
     any data-intensive operations.
+    
+    Args:
+        skip_check: If True, skip the connectivity check entirely
     """
+    if skip_check:
+        logger.info("⚠️ Akshare connectivity check disabled via command line argument")
+        print("⚠️ Connectivity check disabled - proceeding with analysis")
+        return
+    
     logger.info("🔍 Performing startup akshare connectivity check...")
-    print("🔍 Checking akshare connectivity...")
-
+    
     try:
-        # Perform comprehensive health check
-        status, details = get_akshare_health_status()
-
-        # Log detailed status
-        log_connectivity_status(status, details)
+        with tqdm(total=1, desc="🔍 Checking akshare connectivity", unit="check", leave=False) as conn_pbar:
+            # Perform comprehensive health check
+            status, details = get_akshare_health_status()
+            conn_pbar.update(1)
+            
+            # Log detailed status
+            log_connectivity_status(status, details)
 
         # Handle different status levels
         if status == ConnectivityStatus.UNAVAILABLE:
@@ -227,6 +284,40 @@ def startup_connectivity_check() -> None:
         raise
 
 
+def parse_arguments():
+    """
+    Parse command line arguments for the stock analysis pipeline.
+    
+    Returns:
+        argparse.Namespace: Parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        description="China Stock Analysis Pipeline",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python main.py                    # Run with connectivity check (default)
+  python main.py --skip-check       # Skip connectivity check
+  python main.py --sequential       # Run scripts sequentially instead of parallel
+  python main.py --skip-check --sequential  # Skip check and run sequentially
+        """
+    )
+    
+    parser.add_argument(
+        "--skip-check", 
+        action="store_true",
+        help="Skip akshare connectivity check at startup"
+    )
+    
+    parser.add_argument(
+        "--sequential",
+        action="store_true", 
+        help="Run analysis scripts sequentially instead of in parallel"
+    )
+    
+    return parser.parse_args()
+
+
 @timer
 def main() -> None:
     """
@@ -236,6 +327,9 @@ def main() -> None:
     the progress display, and orchestrates the execution of all analysis
     components. It provides error handling and completion notifications.
     """
+    # Parse command line arguments
+    args = parse_arguments()
+    
     logger.info("=== Starting China Stock Analysis Pipeline ===")
 
     # Set console logging to only show errors to avoid interfering with progress bars
@@ -246,18 +340,17 @@ def main() -> None:
 
     print("🚀 Starting China Stock Analysis Pipeline")
 
-    # Perform startup connectivity check first
-    # startup_connectivity_check()  # Comment to temporarily disabled for testing
-    print("⚠️ Connectivity check disabled - proceeding with analysis")
+    # Perform startup connectivity check (unless disabled)
+    startup_connectivity_check(skip_check=args.skip_check)
 
     try:
-        # Choose one of these approaches:
-
-        # Option 1: Run sequentially
-        # asyncio.run(run_all_scripts())
-
-        # Option 2: Run in parallel (current default)
-        asyncio.run(run_all_scripts_parallel())
+        # Choose execution mode based on arguments
+        if args.sequential:
+            print("📋 Running scripts sequentially...")
+            asyncio.run(run_all_scripts())
+        else:
+            print("⚡ Running scripts in parallel...")
+            asyncio.run(run_all_scripts_parallel())
 
         logger.info("=== China Stock Analysis Pipeline Completed ===")
         print("✅ All analysis completed! Check logs/ directory for detailed logs.")

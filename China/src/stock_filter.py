@@ -12,6 +12,7 @@ import akshare as ak
 import pandas as pd
 import numpy as np
 from typing import Tuple, Optional, List, Any, Callable
+from tqdm import tqdm
 from src.utilities.get_stock_data import (
     get_stock_market_data,
     get_industry_stock_mapping_data,
@@ -326,32 +327,51 @@ async def process_all_industries_async(
 
     # Process industries with some concurrency but not too much to avoid overwhelming the API
     batch_size = 3
+    total_batches = (len(industry_arr) + batch_size - 1) // batch_size
 
-    for i in range(0, len(industry_arr), batch_size):
-        batch = industry_arr[i : i + batch_size]
-        logger.info(
-            "Processing industry batch %d/%d",
-            i // batch_size + 1,
-            (len(industry_arr) + batch_size - 1) // batch_size,
+    with tqdm(
+        total=total_batches, desc="Processing industries", unit="batch", leave=False
+    ) as batch_pbar:
+        for i in range(0, len(industry_arr), batch_size):
+            batch = industry_arr[i : i + batch_size]
+            batch_num = i // batch_size + 1
+
+            batch_pbar.set_description(
+                f"Processing batch {batch_num}/{total_batches} ({len(batch)} industries)"
+            )
+            logger.info(
+                "Processing industry batch %d/%d with %d industries",
+                batch_num,
+                total_batches,
+                len(batch),
+            )
+
+            # Create tasks for the current batch
+            tasks = [
+                process_single_industry_async(
+                    industry_name, stock_market_df_filtered, days
+                )
+                for industry_name in batch
+            ]
+
+            # Execute batch concurrently
+            batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Collect valid results
+            for result in batch_results:
+                if (
+                    result is not None
+                    and not isinstance(result, Exception)
+                    and isinstance(result, pd.DataFrame)
+                    and not result.empty
+                ):
+                    result_dfs.append(result)
+
+            batch_pbar.update(1)
+
+        batch_pbar.set_description(
+            f"✅ Processed {total_batches} batches, {len(result_dfs)} industries completed"
         )
-
-        # Create tasks for the current batch
-        tasks = [
-            process_single_industry_async(industry_name, stock_market_df_filtered, days)
-            for industry_name in batch
-        ]
-
-        # Execute batch concurrently
-        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        # Collect valid results
-        for result in batch_results:
-            if (
-                result is not None
-                and not isinstance(result, Exception)
-                and not result.empty
-            ):
-                result_dfs.append(result)
 
     # Concatenate all results at once, or return empty DataFrame if no results
     if result_dfs:
@@ -373,41 +393,95 @@ async def main() -> None:
     """
     days = 29
 
-    # Prepare data
-    stock_market_df_filtered, industry_arr = prepare_stock_data()
-
-    # Process all industries
-    all_industries_df = await process_all_industries_async(
-        stock_market_df_filtered, industry_arr, days
-    )
-
-    # Define the report date
-    last_date = ak.stock_sector_fund_flow_hist(symbol="证券").iloc[-1]["日期"]
-    last_date_str = last_date.strftime("%Y%m%d")
-
-    # Define the directory for reports
-    REPORT_DIR = "data/stocks/reports"
-
-    # Output the all_industries_df to a CSV file
-    all_industries_df.to_csv(
-        f"{REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv", index=True
-    )
-    logger.info("Report saved to %s/股票筛选报告-raw-%s.csv", REPORT_DIR, last_date_str)
-
-    # Apply additional filters to all_industries_df
-    df = all_industries_df[
-        (all_industries_df[f"{days}日主力净流入-总净额(亿)"] > 1)
-        & (all_industries_df[f"{days}日涨跌幅(%)"] < 10)
+    # Main pipeline stages
+    pipeline_stages = [
+        "📊 Preparing stock data",
+        "🏭 Processing all industries",
+        "📈 Generating reports",
+        "🔍 Applying filters and sorting",
+        "💾 Saving final reports",
     ]
 
-    # Sort the DataFrame by pe and {days} change percentage
-    df = df.sort_values(by=[f"{days}日涨跌幅(%)"])
-    df.reset_index(inplace=True, drop=True)
+    with tqdm(
+        total=len(pipeline_stages),
+        desc="Stock Filter Pipeline",
+        unit="stage",
+        leave=True,
+    ) as main_pbar:
+        # Stage 1: Prepare data
+        main_pbar.set_description("📊 Preparing stock market data and industry mapping")
+        logger.info("Starting stock data preparation...")
+        stock_market_df_filtered, industry_arr = prepare_stock_data()
+        main_pbar.update(1)
+        logger.info(
+            "✅ Data preparation completed: %d stocks across %d industries",
+            len(stock_market_df_filtered),
+            len(industry_arr),
+        )
 
-    # Output the filtered DataFrame to a CSV file
-    df.to_csv(f"{REPORT_DIR}/股票筛选报告-{last_date_str}.csv", index=True)
-    logger.info(
-        "Filtered report saved to %s/股票筛选报告-%s.csv", REPORT_DIR, last_date_str
+        # Stage 2: Process all industries
+        main_pbar.set_description("🏭 Processing industries with fund flow analysis")
+        logger.info(
+            "Starting industry-by-industry processing with %d day analysis period", days
+        )
+        all_industries_df = await process_all_industries_async(
+            stock_market_df_filtered, industry_arr, days
+        )
+        main_pbar.update(1)
+        logger.info(
+            "✅ Industry processing completed: %d stocks analyzed",
+            len(all_industries_df),
+        )
+
+        # Stage 3: Generate reports
+        main_pbar.set_description("📈 Getting report date and preparing directory")
+        logger.info("Generating report metadata...")
+        last_date = ak.stock_sector_fund_flow_hist(symbol="证券").iloc[-1]["日期"]
+        last_date_str = last_date.strftime("%Y%m%d")
+        REPORT_DIR = "data/stocks/reports"
+
+        # Save raw report
+        all_industries_df.to_csv(
+            f"{REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv", index=True
+        )
+        main_pbar.update(1)
+        logger.info(
+            "✅ Raw report saved: %s/股票筛选报告-raw-%s.csv", REPORT_DIR, last_date_str
+        )
+
+        # Stage 4: Apply filters and sorting
+        main_pbar.set_description("🔍 Applying investment filters and sorting results")
+        logger.info("Applying filters: 主力净流入 > 1亿, 涨跌幅 < 10%%")
+        df = all_industries_df[
+            (all_industries_df[f"{days}日主力净流入-总净额(亿)"] > 1)
+            & (all_industries_df[f"{days}日涨跌幅(%)"] < 10)
+        ]
+
+        # Sort the DataFrame by price change percentage
+        df = df.sort_values(by=[f"{days}日涨跌幅(%)"])
+        df.reset_index(inplace=True, drop=True)
+        main_pbar.update(1)
+        logger.info(
+            "✅ Filtering completed: %d/%d stocks meet investment criteria",
+            len(df),
+            len(all_industries_df),
+        )
+
+        # Stage 5: Save final reports
+        main_pbar.set_description("💾 Saving filtered investment report")
+        df.to_csv(f"{REPORT_DIR}/股票筛选报告-{last_date_str}.csv", index=True)
+        main_pbar.update(1)
+
+        main_pbar.set_description("🎉 Stock filtering pipeline completed successfully!")
+        logger.info(
+            "✅ Filtered report saved: %s/股票筛选报告-%s.csv",
+            REPORT_DIR,
+            last_date_str,
+        )
+        logger.info("🎉 Stock filtering pipeline completed successfully!")
+
+    print(
+        f"📋 Stock filtering completed! Found {len(df)} investment opportunities from {len(all_industries_df)} analyzed stocks."
     )
 
 
