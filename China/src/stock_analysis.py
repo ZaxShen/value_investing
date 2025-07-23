@@ -193,7 +193,7 @@ async def stock_analysis(
 
 
 @timer
-async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[int] = None) -> None:
+async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[int] = None, batch_task_id: Optional[int] = None) -> None:
     """
     Main function to execute stock analysis and generate holding reports.
 
@@ -204,6 +204,7 @@ async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[i
     Args:
         progress: Optional Rich Progress instance for hierarchical progress tracking
         parent_task_id: Optional parent task ID for hierarchical progress structure
+        batch_task_id: Optional pre-created batch task ID for proper hierarchy display (unused in this script)
     """
     dir_path = "data/holding_stocks"
     days = 29
