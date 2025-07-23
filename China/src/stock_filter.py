@@ -18,12 +18,16 @@ from src.utilities.get_stock_data import (
 )
 from src.utilities.tools import timer, logged
 from src.utilities.logger import get_logger
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rich.progress import Progress
 
 # Initialize logger for this module
 logger = get_logger("stock_filter")
 
 
-@timer
+# @timer
 def prepare_stock_data() -> Tuple[pd.DataFrame, np.ndarray]:
     """
     Prepare and filter stock market data based on market cap and P/E ratio criteria.
@@ -283,9 +287,14 @@ async def process_single_industry_async(
     return df
 
 
-@timer
+# @timer
 async def process_all_industries_async(
-    stock_market_df_filtered: pd.DataFrame, industry_arr: np.ndarray, days: int = 29
+    stock_market_df_filtered: pd.DataFrame, 
+    industry_arr: np.ndarray, 
+    days: int = 29,
+    progress: Optional["Progress"] = None,
+    parent_task_id: Optional[int] = None,
+    batch_task_id: Optional[int] = None
 ) -> pd.DataFrame:
     """
     Process all industries concurrently with batch processing and rate limiting.
@@ -324,14 +333,42 @@ async def process_all_industries_async(
 
     # Process industries with some concurrency but not too much to avoid overwhelming the API
     batch_size = 3
+    total_batches = (len(industry_arr) + batch_size - 1) // batch_size
+    
+    # Use pre-created batch task if provided, otherwise create new one
+    if progress is not None and batch_task_id is not None:
+        # Make the pre-created batch task visible and configure it
+        progress.update(
+            batch_task_id,
+            total=total_batches,
+            visible=True,
+            description="    📊 Stock Filter: Processing batches"
+        )
+    elif progress is not None:
+        # Fallback: create new batch task (will appear at bottom)
+        batch_task_id = progress.add_task(
+            "📊 Processing industry batches", 
+            total=total_batches,
+            visible=True
+        )
 
     for i in range(0, len(industry_arr), batch_size):
         batch = industry_arr[i : i + batch_size]
+        batch_num = i//batch_size + 1
+        
         logger.info(
             "Processing industry batch %d/%d",
-            i//batch_size + 1,
-            (len(industry_arr) + batch_size - 1)//batch_size,
+            batch_num,
+            total_batches,
         )
+        
+        # Update batch progress if available
+        if progress is not None and batch_task_id is not None:
+            progress.update(
+                batch_task_id, 
+                completed=batch_num-1,
+                description=f"    📊 Stock Filter: Processing batch {batch_num}/{total_batches} ({len(batch)} industries)"
+            )
 
         # Create tasks for the current batch
         tasks = [
@@ -346,6 +383,19 @@ async def process_all_industries_async(
         for result in batch_results:
             if result is not None and not isinstance(result, Exception) and not result.empty:
                 result_dfs.append(result)
+        
+        # Update batch progress after completion
+        if progress is not None and batch_task_id is not None:
+            progress.advance(batch_task_id)
+    
+    # Remove batch progress bar when finished (subtask cleanup)
+    if progress is not None and batch_task_id is not None:
+        progress.update(
+            batch_task_id,
+            description="    ✅ Stock Filter: All batches completed"
+        )
+        await asyncio.sleep(0.5)  # Brief display of completion
+        progress.remove_task(batch_task_id)
 
     # Concatenate all results at once, or return empty DataFrame if no results
     if result_dfs:
@@ -357,22 +407,27 @@ async def process_all_industries_async(
     return all_industries_df
 
 
-async def main() -> None:
+async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[int] = None, batch_task_id: Optional[int] = None) -> None:
     """
     Main async function to execute the complete stock filtering pipeline.
 
     This function orchestrates the entire stock filtering process including
     data preparation, industry analysis, result filtering, and report generation.
     It processes stocks with a default analysis period of 29 days.
+    
+    Args:
+        progress: Optional Rich Progress instance for hierarchical progress tracking
+        parent_task_id: Optional parent task ID for hierarchical progress structure
+        batch_task_id: Optional pre-created batch task ID for proper hierarchy display
     """
     days = 29
 
     # Prepare data
     stock_market_df_filtered, industry_arr = prepare_stock_data()
 
-    # Process all industries
+    # Process all industries with progress tracking
     all_industries_df = await process_all_industries_async(
-        stock_market_df_filtered, industry_arr, days
+        stock_market_df_filtered, industry_arr, days, progress, parent_task_id, batch_task_id
     )
 
     # Define the report date

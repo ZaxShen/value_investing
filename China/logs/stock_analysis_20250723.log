@@ -1,0 +1,1173 @@
+2025-07-23 08:14:30 - stock_analysis.timer - INFO - sync_wrapper:45 - Starting sync function: test_workflow_function
+2025-07-23 08:14:30 - stock_analysis.test_module - INFO - test_workflow_function:82 - Processing data: test_data
+2025-07-23 08:14:30 - stock_analysis.test_module - WARNING - test_workflow_function:84 - Warning message
+2025-07-23 08:14:30 - stock_analysis.timer - INFO - sync_wrapper:55 - ⏱️  Function 'test_workflow_function' runtime: 0.0032 s
+2025-07-23 08:14:30 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: async_workflow
+2025-07-23 08:14:30 - stock_analysis.async_test - INFO - async_workflow:134 - Starting async processing of 3 items
+2025-07-23 08:14:30 - stock_analysis.async_test - INFO - async_workflow:142 - Async processing completed
+2025-07-23 08:14:30 - stock_analysis.timer - INFO - async_wrapper:37 - ⏱️  Function 'async_workflow' runtime: 0.0039 s
+2025-07-23 08:14:30 - stock_analysis.stock_filter - INFO - stock_processing:186 - Processing stock data
+2025-07-23 08:14:30 - stock_analysis.stock_analysis - INFO - analysis_processing:192 - Running stock analysis
+2025-07-23 08:14:30 - stock_analysis.stock_analysis - WARNING - analysis_processing:193 - Low data quality detected
+2025-07-23 08:14:30 - stock_analysis.timer - INFO - sync_wrapper:45 - Starting sync function: industry_processing
+2025-07-23 08:14:30 - stock_analysis.industry_filter - INFO - industry_processing:198 - Processing industry data
+2025-07-23 08:14:30 - stock_analysis.industry_filter - ERROR - industry_processing:199 - Industry data incomplete
+2025-07-23 08:14:30 - stock_analysis.timer - INFO - sync_wrapper:55 - ⏱️  Function 'industry_processing' runtime: 0.0118 s
+2025-07-23 08:14:30 - stock_analysis.runtime_test - INFO - test_log_level_changes_during_runtime:219 - Info message 1
+2025-07-23 08:14:30 - stock_analysis.runtime_test - INFO - test_log_level_changes_during_runtime:225 - Info message 2
+2025-07-23 08:14:30 - stock_analysis.runtime_test - DEBUG - test_log_level_changes_during_runtime:226 - Debug message 2 - should appear
+2025-07-23 08:14:30 - stock_analysis.runtime_test - WARNING - test_log_level_changes_during_runtime:232 - Warning message 1
+2025-07-23 08:14:30 - stock_analysis.exception_test - ERROR - function_that_fails:254 - About to raise exception
+2025-07-23 08:14:30 - stock_analysis.function_tracker - ERROR - sync_wrapper:122 - ✗ Exception in function_that_fails: Intentional test failure
+2025-07-23 08:14:30 - stock_analysis.timer - ERROR - sync_wrapper:50 - Error in function_that_fails: Intentional test failure
+2025-07-23 08:14:30 - stock_analysis.timer - ERROR - sync_wrapper:50 - Error in failing_function: Test error
+2025-07-23 08:14:30 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in failing_async_function: Async test error
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering simple_function(1, 2)
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting simple_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - async_wrapper:80 - → Entering async_simple_function(5)
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - async_wrapper:89 - ← Exiting async_simple_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering function_with_args(test, keyword_arg=value)
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting function_with_args successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering failing_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - ERROR - sync_wrapper:122 - ✗ Exception in failing_function: Function failed
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering function_with_long_args(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...)
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting function_with_long_args successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering combined_function(10)
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting combined_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - async_wrapper:80 - → Entering async_combined_function(15)
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - async_wrapper:89 - ← Exiting async_combined_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering multi_decorated_function(3, 7)
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting multi_decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:110 - → Entering decorated_function()
+2025-07-23 08:14:30 - stock_analysis.function_tracker - DEBUG - sync_wrapper:119 - ← Exiting decorated_function successfully
+2025-07-23 08:16:05 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: sync_function
+2025-07-23 08:16:05 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'sync_function' runtime: 0.0130 s
+2025-07-23 08:16:09 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: test_workflow_function
+2025-07-23 08:16:09 - stock_analysis.test_module - INFO - test_workflow_function:82 - Processing data: test_data
+2025-07-23 08:16:09 - stock_analysis.test_module - WARNING - test_workflow_function:84 - Warning message
+2025-07-23 08:16:09 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'test_workflow_function' runtime: 0.0032 s
+2025-07-23 08:16:24 - stock_analysis.test - INFO - <module>:11 - Test message
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: sync_function
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'sync_function' runtime: 0.0111 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: async_function
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'async_function' runtime: 0.0111 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: failing_function
+2025-07-23 08:17:34 - stock_analysis.timer - ERROR - sync_wrapper:53 - Error in failing_function: Test error
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'failing_function' runtime: 0.0040 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: failing_async_function
+2025-07-23 08:17:34 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in failing_async_function: Async test error
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'failing_async_function' runtime: 0.0021 s
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering simple_function(1, 2)
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting simple_function successfully
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - async_wrapper:86 - → Entering async_simple_function(5)
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - async_wrapper:95 - ← Exiting async_simple_function successfully
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering function_with_args(test, keyword_arg=value)
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting function_with_args successfully
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering failing_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - ERROR - sync_wrapper:128 - ✗ Exception in failing_function: Function failed
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering function_with_long_args(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...)
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting function_with_long_args successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: combined_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering combined_function(10)
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting combined_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'combined_function' runtime: 0.0126 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: async_combined_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - async_wrapper:86 - → Entering async_combined_function(15)
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - async_wrapper:95 - ← Exiting async_combined_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'async_combined_function' runtime: 0.0113 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: multi_decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering multi_decorated_function(3, 7)
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting multi_decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'multi_decorated_function' runtime: 0.0128 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0077 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0002 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: decorated_function
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:116 - → Entering decorated_function()
+2025-07-23 08:17:34 - stock_analysis.function_tracker - DEBUG - sync_wrapper:125 - ← Exiting decorated_function successfully
+2025-07-23 08:17:34 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'decorated_function' runtime: 0.0001 s
+2025-07-23 08:19:48 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:21:16 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 87.4279 s
+2025-07-23 08:21:16 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 158.1882 s
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 08:23:54 - stock_analysis.main - INFO - main:347 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: run_all_scripts_parallel
+2025-07-23 08:23:54 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 08:23:54 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 08:23:54 - stock_analysis.main - INFO - run_all_scripts_parallel:268 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: prepare_stock_data
+2025-07-23 08:23:54 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0141 s
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0032 s
+2025-07-23 08:23:54 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'prepare_stock_data' runtime: 0.0243 s
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:23:54 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 1/29
+2025-07-23 08:23:54 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 08:23:56 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:23:56 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 1/29
+2025-07-23 08:24:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 2/29
+2025-07-23 08:24:02 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 2/29
+2025-07-23 08:24:05 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 3/29
+2025-07-23 08:24:07 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 3/29
+2025-07-23 08:24:07 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 4/29
+2025-07-23 08:24:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 5/29
+2025-07-23 08:24:14 - stock_analysis.stock_analysis - INFO - main:253 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 08:24:14 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 19.7013 s
+2025-07-23 08:24:14 - stock_analysis.main - INFO - run_with_detailed_progress:259 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 08:24:15 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 4/29
+2025-07-23 08:24:46 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 6/29
+2025-07-23 08:25:03 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 5/29
+2025-07-23 08:25:27 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 6/29
+2025-07-23 08:25:31 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 08:25:32 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 7/29
+2025-07-23 08:25:35 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 8/29
+2025-07-23 08:25:41 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 7/29
+2025-07-23 08:25:42 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 9/29
+2025-07-23 08:25:42 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 8/29
+2025-07-23 08:25:44 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 9/29
+2025-07-23 08:25:45 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 10/29
+2025-07-23 08:25:47 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 11/29
+2025-07-23 08:25:48 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 12/29
+2025-07-23 08:25:49 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 10/29
+2025-07-23 08:25:52 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 13/29
+2025-07-23 08:25:54 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 11/29
+2025-07-23 08:25:54 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 14/29
+2025-07-23 08:25:55 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 15/29
+2025-07-23 08:25:56 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 16/29
+2025-07-23 08:25:58 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 17/29
+2025-07-23 08:25:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 18/29
+2025-07-23 08:26:00 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 12/29
+2025-07-23 08:26:01 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 19/29
+2025-07-23 08:26:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 20/29
+2025-07-23 08:26:05 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 21/29
+2025-07-23 08:26:06 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 22/29
+2025-07-23 08:26:08 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 23/29
+2025-07-23 08:26:08 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 13/29
+2025-07-23 08:26:11 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 24/29
+2025-07-23 08:26:14 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 25/29
+2025-07-23 08:26:15 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 26/29
+2025-07-23 08:26:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 14/29
+2025-07-23 08:26:17 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 27/29
+2025-07-23 08:26:19 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 28/29
+2025-07-23 08:26:20 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 15/29
+2025-07-23 08:26:21 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 29/29
+2025-07-23 08:26:23 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 146.4499 s
+2025-07-23 08:26:23 - stock_analysis.industry_filter - INFO - main:376 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 08:26:23 - stock_analysis.industry_filter - INFO - main:393 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 08:26:23 - stock_analysis.main - INFO - run_with_detailed_progress:259 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 08:26:32 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 16/29
+2025-07-23 08:26:37 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 17/29
+2025-07-23 08:26:41 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 18/29
+2025-07-23 08:26:48 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 19/29
+2025-07-23 08:26:53 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 20/29
+2025-07-23 08:27:06 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 21/29
+2025-07-23 08:27:08 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 22/29
+2025-07-23 08:27:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 23/29
+2025-07-23 08:27:22 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 24/29
+2025-07-23 08:27:25 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 25/29
+2025-07-23 08:27:31 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 华之杰 (603400) due to insufficient data for the last 29 days
+2025-07-23 08:27:39 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 26/29
+2025-07-23 08:27:47 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 27/29
+2025-07-23 08:27:51 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 28/29
+2025-07-23 08:27:58 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 广信科技 (920037) due to insufficient data for the last 29 days
+2025-07-23 08:27:58 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 29/29
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 245.6619 s
+2025-07-23 08:28:00 - stock_analysis.stock_filter - INFO - main:432 - Report saved to data/stocks/reports/股票筛选报告-raw-20250723.csv
+2025-07-23 08:28:00 - stock_analysis.stock_filter - INFO - main:446 - Filtered report saved to data/stocks/reports/股票筛选报告-20250723.csv
+2025-07-23 08:28:00 - stock_analysis.main - INFO - run_with_detailed_progress:259 - ✅ Stock Filter completed (top-level task kept visible)
+2025-07-23 08:28:00 - stock_analysis.main - INFO - run_all_scripts_parallel:280 - Starting report copying with progress feedback
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: copy_latest_reports
+2025-07-23 08:28:00 - stock_analysis.main - INFO - copy_latest_reports:78 - Starting report copying process
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_latest_file
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_latest_file' runtime: 0.0012 s
+2025-07-23 08:28:00 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 持股报告: 持股报告-20250723.csv
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_latest_file
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_latest_file' runtime: 0.0002 s
+2025-07-23 08:28:00 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 股票筛选报告: 股票筛选报告-20250723.csv
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_latest_file
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_latest_file' runtime: 0.0002 s
+2025-07-23 08:28:00 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 行业筛选报告: 行业筛选报告-raw-20250723.csv
+2025-07-23 08:28:00 - stock_analysis.main - INFO - copy_latest_reports:119 - All latest reports copied to data/today/
+2025-07-23 08:28:00 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'copy_latest_reports' runtime: 0.0080 s
+2025-07-23 08:28:01 - stock_analysis.main - INFO - run_all_scripts_parallel:300 - 🎉 All parallel scripts completed successfully!
+2025-07-23 08:28:01 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'run_all_scripts_parallel' runtime: 246.8705 s
+2025-07-23 08:28:01 - stock_analysis.main - INFO - main:369 - === China Stock Analysis Pipeline Completed ===
+2025-07-23 08:28:01 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 246.8750 s
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0110 s
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0021 s
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 08:37:56 - stock_analysis.main - INFO - main:347 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: run_all_scripts_parallel
+2025-07-23 08:37:56 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 08:37:56 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 08:37:56 - stock_analysis.main - INFO - run_all_scripts_parallel:268 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: prepare_stock_data
+2025-07-23 08:37:56 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0094 s
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0018 s
+2025-07-23 08:37:56 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'prepare_stock_data' runtime: 0.0197 s
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:37:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 1/29
+2025-07-23 08:37:56 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 08:38:03 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:38:03 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 1/29
+2025-07-23 08:38:10 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 2/29
+2025-07-23 08:38:28 - stock_analysis.stock_analysis - INFO - main:253 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 08:38:28 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 31.8674 s
+2025-07-23 08:38:28 - stock_analysis.main - INFO - run_with_detailed_progress:259 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 08:38:28 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 2/29
+2025-07-23 08:38:29 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 3/29
+2025-07-23 08:38:33 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 4/29
+2025-07-23 08:38:38 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 5/29
+2025-07-23 08:38:40 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 36.5587 s
+2025-07-23 08:38:40 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 43.7474 s
+2025-07-23 08:38:40 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'run_all_scripts_parallel' runtime: 43.7749 s
+2025-07-23 08:38:44 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 48.0546 s
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0130 s
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0023 s
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 08:44:08 - stock_analysis.main - INFO - main:347 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: run_all_scripts_parallel
+2025-07-23 08:44:08 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 08:44:08 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 08:44:08 - stock_analysis.main - INFO - run_all_scripts_parallel:268 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: prepare_stock_data
+2025-07-23 08:44:08 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0094 s
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0018 s
+2025-07-23 08:44:08 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'prepare_stock_data' runtime: 0.0193 s
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:44:08 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 1/29
+2025-07-23 08:44:08 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 08:44:11 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:44:11 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 1/29
+2025-07-23 08:44:16 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 2/29
+2025-07-23 08:44:18 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 3/29
+2025-07-23 08:44:19 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 4/29
+2025-07-23 08:44:19 - stock_analysis.stock_analysis - INFO - main:253 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 08:44:19 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 11.2820 s
+2025-07-23 08:44:19 - stock_analysis.main - INFO - run_with_detailed_progress:259 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 08:44:20 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 5/29
+2025-07-23 08:44:22 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 6/29
+2025-07-23 08:44:23 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 7/29
+2025-07-23 08:44:24 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 8/29
+2025-07-23 08:44:26 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 9/29
+2025-07-23 08:44:27 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 2/29
+2025-07-23 08:44:27 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 10/29
+2025-07-23 08:44:28 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 11/29
+2025-07-23 08:44:29 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 3/29
+2025-07-23 08:44:30 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 12/29
+2025-07-23 08:44:31 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 13/29
+2025-07-23 08:44:32 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 4/29
+2025-07-23 08:44:32 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 14/29
+2025-07-23 08:44:34 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 15/29
+2025-07-23 08:44:35 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 16/29
+2025-07-23 08:44:36 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 5/29
+2025-07-23 08:44:36 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 17/29
+2025-07-23 08:44:37 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 18/29
+2025-07-23 08:44:39 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 19/29
+2025-07-23 08:44:40 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 20/29
+2025-07-23 08:44:41 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 21/29
+2025-07-23 08:44:43 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 22/29
+2025-07-23 08:44:44 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 23/29
+2025-07-23 08:44:45 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 24/29
+2025-07-23 08:44:47 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 25/29
+2025-07-23 08:44:47 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 6/29
+2025-07-23 08:44:48 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 26/29
+2025-07-23 08:44:49 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 27/29
+2025-07-23 08:44:51 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 08:44:51 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 7/29
+2025-07-23 08:44:51 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 28/29
+2025-07-23 08:44:52 - stock_analysis.industry_filter - INFO - process_all_industries_async:289 - Processing industry batch 29/29
+2025-07-23 08:44:54 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 42.4878 s
+2025-07-23 08:44:54 - stock_analysis.industry_filter - INFO - main:376 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 08:44:54 - stock_analysis.industry_filter - INFO - main:393 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 08:44:54 - stock_analysis.main - INFO - run_with_detailed_progress:259 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 08:44:54 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 8/29
+2025-07-23 08:45:01 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 9/29
+2025-07-23 08:45:07 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 10/29
+2025-07-23 08:45:13 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 11/29
+2025-07-23 08:45:21 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 12/29
+2025-07-23 08:45:34 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 13/29
+2025-07-23 08:45:41 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 14/29
+2025-07-23 08:45:46 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 15/29
+2025-07-23 08:45:57 - stock_analysis.stock_filter - INFO - process_all_industries_async:350 - Processing industry batch 16/29
+2025-07-23 08:45:58 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 110.0958 s
+2025-07-23 08:45:58 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'run_all_scripts_parallel' runtime: 110.1276 s
+2025-07-23 08:45:59 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 111.1858 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0111 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0023 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 08:53:38 - stock_analysis.main - INFO - main:355 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 08:53:38 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 08:53:38 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 08:53:38 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: prepare_stock_data
+2025-07-23 08:53:38 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0091 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0018 s
+2025-07-23 08:53:38 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'prepare_stock_data' runtime: 0.0187 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:53:38 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 1/29
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 08:53:42 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:53:42 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 1/29
+2025-07-23 08:53:46 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 2/29
+2025-07-23 08:53:50 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 2/29
+2025-07-23 08:53:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 3/29
+2025-07-23 08:53:54 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 4/29
+2025-07-23 08:53:55 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 3/29
+2025-07-23 08:53:58 - stock_analysis.stock_analysis - INFO - main:254 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 08:53:58 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 20.0630 s
+2025-07-23 08:53:58 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 08:53:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 5/29
+2025-07-23 08:54:01 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 6/29
+2025-07-23 08:54:02 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 4/29
+2025-07-23 08:54:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 7/29
+2025-07-23 08:54:06 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 8/29
+2025-07-23 08:54:09 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 9/29
+2025-07-23 08:54:10 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 5/29
+2025-07-23 08:54:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 10/29
+2025-07-23 08:54:15 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 11/29
+2025-07-23 08:54:19 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 12/29
+2025-07-23 08:54:21 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 13/29
+2025-07-23 08:54:23 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 14/29
+2025-07-23 08:54:26 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 15/29
+2025-07-23 08:54:31 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 16/29
+2025-07-23 08:54:32 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 6/29
+2025-07-23 08:54:33 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 17/29
+2025-07-23 08:54:34 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 18/29
+2025-07-23 08:54:36 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 08:54:38 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 19/29
+2025-07-23 08:54:38 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 7/29
+2025-07-23 08:54:41 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 20/29
+2025-07-23 08:54:43 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 8/29
+2025-07-23 08:54:43 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 21/29
+2025-07-23 08:54:45 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 22/29
+2025-07-23 08:54:47 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 23/29
+2025-07-23 08:54:48 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 24/29
+2025-07-23 08:54:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 25/29
+2025-07-23 08:54:51 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 9/29
+2025-07-23 08:54:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 26/29
+2025-07-23 08:54:57 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 27/29
+2025-07-23 08:54:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 28/29
+2025-07-23 08:55:00 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 10/29
+2025-07-23 08:55:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 29/29
+2025-07-23 08:55:04 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 81.9915 s
+2025-07-23 08:55:04 - stock_analysis.industry_filter - INFO - main:387 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 08:55:04 - stock_analysis.industry_filter - INFO - main:404 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 08:55:04 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 08:55:12 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 11/29
+2025-07-23 08:55:26 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 12/29
+2025-07-23 08:55:42 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 13/29
+2025-07-23 08:55:53 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 14/29
+2025-07-23 08:55:59 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 15/29
+2025-07-23 08:56:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 16/29
+2025-07-23 08:56:21 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 163.0229 s
+2025-07-23 08:56:22 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 163.9014 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0106 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0021 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 08:56:24 - stock_analysis.main - INFO - main:355 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 08:56:24 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 08:56:24 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 08:56:24 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 08:56:24 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0098 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0017 s
+2025-07-23 08:56:24 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 08:56:24 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 1/29
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 08:56:35 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:56:35 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 1/29
+2025-07-23 08:56:40 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 2/29
+2025-07-23 08:56:41 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 2/29
+2025-07-23 08:56:41 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 3/29
+2025-07-23 08:56:43 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 4/29
+2025-07-23 08:56:45 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 3/29
+2025-07-23 08:56:45 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 5/29
+2025-07-23 08:56:46 - stock_analysis.stock_analysis - INFO - main:254 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 08:56:46 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 21.9008 s
+2025-07-23 08:56:46 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 08:56:48 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 6/29
+2025-07-23 08:56:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 7/29
+2025-07-23 08:56:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 8/29
+2025-07-23 08:56:53 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 4/29
+2025-07-23 08:56:55 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 9/29
+2025-07-23 08:56:57 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 5/29
+2025-07-23 08:56:58 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 10/29
+2025-07-23 08:56:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 11/29
+2025-07-23 08:57:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 12/29
+2025-07-23 08:57:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 13/29
+2025-07-23 08:57:10 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 14/29
+2025-07-23 08:57:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 15/29
+2025-07-23 08:57:12 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 6/29
+2025-07-23 08:57:14 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 16/29
+2025-07-23 08:57:15 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 17/29
+2025-07-23 08:57:16 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 08:57:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 7/29
+2025-07-23 08:57:17 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 18/29
+2025-07-23 08:57:19 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 19/29
+2025-07-23 08:57:20 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 20/29
+2025-07-23 08:57:21 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 8/29
+2025-07-23 08:57:25 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 21/29
+2025-07-23 08:57:28 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 22/29
+2025-07-23 08:57:31 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 23/29
+2025-07-23 08:57:33 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 9/29
+2025-07-23 08:57:34 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 24/29
+2025-07-23 08:57:38 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 25/29
+2025-07-23 08:57:42 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 26/29
+2025-07-23 08:57:44 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 27/29
+2025-07-23 08:57:46 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 10/29
+2025-07-23 08:57:47 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 28/29
+2025-07-23 08:57:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 29/29
+2025-07-23 08:57:55 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 11/29
+2025-07-23 08:57:56 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 80.9003 s
+2025-07-23 08:57:56 - stock_analysis.industry_filter - INFO - main:387 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 08:57:56 - stock_analysis.industry_filter - INFO - main:404 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 08:57:56 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 08:58:09 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 12/29
+2025-07-23 08:58:23 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 13/29
+2025-07-23 08:58:34 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 14/29
+2025-07-23 08:59:52 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 15/29
+2025-07-23 09:00:13 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 16/29
+2025-07-23 09:00:22 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 17/29
+2025-07-23 09:00:33 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 18/29
+2025-07-23 09:00:44 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 19/29
+2025-07-23 09:00:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 20/29
+2025-07-23 09:01:05 - stock_analysis.stock_filter - ERROR - process_single_stock_async:225 - Error processing 吉鑫科技 (601218): ('Connection aborted.', ConnectionResetError(54, 'Connection reset by peer'))
+2025-07-23 09:01:57 - stock_analysis.stock_filter - ERROR - process_single_stock_async:225 - Error processing 中际联合 (605305): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-07-23 09:02:12 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 21/29
+2025-07-23 09:02:13 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 22/29
+2025-07-23 09:02:25 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 23/29
+2025-07-23 09:02:33 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 24/29
+2025-07-23 09:02:39 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 25/29
+2025-07-23 09:02:47 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 华之杰 (603400) due to insufficient data for the last 29 days
+2025-07-23 09:02:57 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 26/29
+2025-07-23 09:03:07 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 27/29
+2025-07-23 09:03:14 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 28/29
+2025-07-23 09:03:21 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 广信科技 (920037) due to insufficient data for the last 29 days
+2025-07-23 09:03:24 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 29/29
+2025-07-23 09:03:32 - stock_analysis.stock_filter - INFO - main:442 - Report saved to data/stocks/reports/股票筛选报告-raw-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.stock_filter - INFO - main:456 - Filtered report saved to data/stocks/reports/股票筛选报告-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Filter completed (top-level task kept visible)
+2025-07-23 09:03:32 - stock_analysis.main - INFO - run_all_scripts_parallel:288 - Starting report copying with progress feedback
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:78 - Starting report copying process
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 持股报告: 持股报告-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 股票筛选报告: 股票筛选报告-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 行业筛选报告: 行业筛选报告-raw-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:119 - All latest reports copied to data/today/
+2025-07-23 09:03:33 - stock_analysis.main - INFO - run_all_scripts_parallel:308 - 🎉 All parallel scripts completed successfully!
+2025-07-23 09:03:33 - stock_analysis.main - INFO - main:377 - === China Stock Analysis Pipeline Completed ===
+2025-07-23 09:03:33 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 428.5762 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0098 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0021 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 09:03:43 - stock_analysis.main - INFO - main:355 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 09:03:43 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 09:03:43 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 09:03:43 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 09:03:43 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0102 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0017 s
+2025-07-23 09:03:43 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 09:03:43 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 1/29
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 09:03:50 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 09:03:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 1/29
+2025-07-23 09:03:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 2/29
+2025-07-23 09:03:55 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 3/29
+2025-07-23 09:03:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 2/29
+2025-07-23 09:03:56 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 4/29
+2025-07-23 09:03:57 - stock_analysis.stock_analysis - INFO - main:254 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 09:03:57 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 13.7091 s
+2025-07-23 09:03:57 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 09:03:57 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 5/29
+2025-07-23 09:03:58 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 3/29
+2025-07-23 09:03:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 6/29
+2025-07-23 09:04:01 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 7/29
+2025-07-23 09:04:01 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 4/29
+2025-07-23 09:04:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 8/29
+2025-07-23 09:04:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 9/29
+2025-07-23 09:04:04 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 5/29
+2025-07-23 09:04:05 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 10/29
+2025-07-23 09:04:06 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 11/29
+2025-07-23 09:04:08 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 12/29
+2025-07-23 09:04:09 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 13/29
+2025-07-23 09:04:11 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 14/29
+2025-07-23 09:04:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 15/29
+2025-07-23 09:04:15 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 16/29
+2025-07-23 09:04:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 6/29
+2025-07-23 09:04:17 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 17/29
+2025-07-23 09:04:18 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 18/29
+2025-07-23 09:04:20 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 09:04:21 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 7/29
+2025-07-23 09:04:21 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 19/29
+2025-07-23 09:04:22 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 20/29
+2025-07-23 09:04:23 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 21/29
+2025-07-23 09:04:24 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 8/29
+2025-07-23 09:04:25 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 22/29
+2025-07-23 09:04:26 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 23/29
+2025-07-23 09:04:27 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 24/29
+2025-07-23 09:04:29 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 25/29
+2025-07-23 09:04:30 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 26/29
+2025-07-23 09:04:31 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 9/29
+2025-07-23 09:04:31 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 27/29
+2025-07-23 09:04:33 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 28/29
+2025-07-23 09:04:35 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 29/29
+2025-07-23 09:04:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 46.6381 s
+2025-07-23 09:04:37 - stock_analysis.industry_filter - INFO - main:387 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 09:04:37 - stock_analysis.industry_filter - INFO - main:404 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 09:04:37 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 09:04:37 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 10/29
+2025-07-23 09:04:43 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 11/29
+2025-07-23 09:04:50 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 12/29
+2025-07-23 09:04:58 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 13/29
+2025-07-23 09:05:03 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 14/29
+2025-07-23 09:05:07 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 15/29
+2025-07-23 09:05:17 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 16/29
+2025-07-23 09:05:22 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 17/29
+2025-07-23 09:05:26 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 18/29
+2025-07-23 09:05:31 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 19/29
+2025-07-23 09:05:35 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 20/29
+2025-07-23 09:05:52 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 21/29
+2025-07-23 09:05:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 22/29
+2025-07-23 09:06:04 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 23/29
+2025-07-23 09:06:13 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 24/29
+2025-07-23 09:06:17 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 25/29
+2025-07-23 09:06:26 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 华之杰 (603400) due to insufficient data for the last 29 days
+2025-07-23 09:06:36 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 26/29
+2025-07-23 09:06:48 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 27/29
+2025-07-23 09:06:54 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 28/29
+2025-07-23 09:07:03 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 广信科技 (920037) due to insufficient data for the last 29 days
+2025-07-23 09:07:03 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 29/29
+2025-07-23 09:07:09 - stock_analysis.stock_filter - INFO - main:442 - Report saved to data/stocks/reports/股票筛选报告-raw-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.stock_filter - INFO - main:456 - Filtered report saved to data/stocks/reports/股票筛选报告-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Filter completed (top-level task kept visible)
+2025-07-23 09:07:09 - stock_analysis.main - INFO - run_all_scripts_parallel:288 - Starting report copying with progress feedback
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:78 - Starting report copying process
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 持股报告: 持股报告-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 股票筛选报告: 股票筛选报告-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 行业筛选报告: 行业筛选报告-raw-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:119 - All latest reports copied to data/today/
+2025-07-23 09:07:10 - stock_analysis.main - INFO - run_all_scripts_parallel:308 - 🎉 All parallel scripts completed successfully!
+2025-07-23 09:07:10 - stock_analysis.main - INFO - main:377 - === China Stock Analysis Pipeline Completed ===
+2025-07-23 09:07:10 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 206.0795 s
