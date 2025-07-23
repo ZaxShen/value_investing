@@ -900,3 +900,274 @@
 2025-07-23 08:45:58 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 110.0958 s
 2025-07-23 08:45:58 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'run_all_scripts_parallel' runtime: 110.1276 s
 2025-07-23 08:45:59 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 111.1858 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0111 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0023 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 08:53:38 - stock_analysis.main - INFO - main:355 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 08:53:38 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 08:53:38 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 08:53:38 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: prepare_stock_data
+2025-07-23 08:53:38 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0091 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0018 s
+2025-07-23 08:53:38 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'prepare_stock_data' runtime: 0.0187 s
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:53:38 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 1/29
+2025-07-23 08:53:38 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 08:53:42 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:53:42 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 1/29
+2025-07-23 08:53:46 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 2/29
+2025-07-23 08:53:50 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 2/29
+2025-07-23 08:53:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 3/29
+2025-07-23 08:53:54 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 4/29
+2025-07-23 08:53:55 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 3/29
+2025-07-23 08:53:58 - stock_analysis.stock_analysis - INFO - main:254 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 08:53:58 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 20.0630 s
+2025-07-23 08:53:58 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 08:53:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 5/29
+2025-07-23 08:54:01 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 6/29
+2025-07-23 08:54:02 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 4/29
+2025-07-23 08:54:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 7/29
+2025-07-23 08:54:06 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 8/29
+2025-07-23 08:54:09 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 9/29
+2025-07-23 08:54:10 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 5/29
+2025-07-23 08:54:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 10/29
+2025-07-23 08:54:15 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 11/29
+2025-07-23 08:54:19 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 12/29
+2025-07-23 08:54:21 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 13/29
+2025-07-23 08:54:23 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 14/29
+2025-07-23 08:54:26 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 15/29
+2025-07-23 08:54:31 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 16/29
+2025-07-23 08:54:32 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 6/29
+2025-07-23 08:54:33 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 17/29
+2025-07-23 08:54:34 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 18/29
+2025-07-23 08:54:36 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 08:54:38 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 19/29
+2025-07-23 08:54:38 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 7/29
+2025-07-23 08:54:41 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 20/29
+2025-07-23 08:54:43 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 8/29
+2025-07-23 08:54:43 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 21/29
+2025-07-23 08:54:45 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 22/29
+2025-07-23 08:54:47 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 23/29
+2025-07-23 08:54:48 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 24/29
+2025-07-23 08:54:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 25/29
+2025-07-23 08:54:51 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 9/29
+2025-07-23 08:54:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 26/29
+2025-07-23 08:54:57 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 27/29
+2025-07-23 08:54:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 28/29
+2025-07-23 08:55:00 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 10/29
+2025-07-23 08:55:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 29/29
+2025-07-23 08:55:04 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 81.9915 s
+2025-07-23 08:55:04 - stock_analysis.industry_filter - INFO - main:387 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 08:55:04 - stock_analysis.industry_filter - INFO - main:404 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 08:55:04 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 08:55:12 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 11/29
+2025-07-23 08:55:26 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 12/29
+2025-07-23 08:55:42 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 13/29
+2025-07-23 08:55:53 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 14/29
+2025-07-23 08:55:59 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 15/29
+2025-07-23 08:56:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 16/29
+2025-07-23 08:56:21 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 163.0229 s
+2025-07-23 08:56:22 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 163.9014 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0106 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0021 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 08:56:24 - stock_analysis.main - INFO - main:355 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 08:56:24 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 08:56:24 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 08:56:24 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 08:56:24 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0098 s
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0017 s
+2025-07-23 08:56:24 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 08:56:24 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 1/29
+2025-07-23 08:56:24 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 08:56:35 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 08:56:35 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 1/29
+2025-07-23 08:56:40 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 2/29
+2025-07-23 08:56:41 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 2/29
+2025-07-23 08:56:41 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 3/29
+2025-07-23 08:56:43 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 4/29
+2025-07-23 08:56:45 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 3/29
+2025-07-23 08:56:45 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 5/29
+2025-07-23 08:56:46 - stock_analysis.stock_analysis - INFO - main:254 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 08:56:46 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 21.9008 s
+2025-07-23 08:56:46 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 08:56:48 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 6/29
+2025-07-23 08:56:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 7/29
+2025-07-23 08:56:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 8/29
+2025-07-23 08:56:53 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 4/29
+2025-07-23 08:56:55 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 9/29
+2025-07-23 08:56:57 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 5/29
+2025-07-23 08:56:58 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 10/29
+2025-07-23 08:56:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 11/29
+2025-07-23 08:57:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 12/29
+2025-07-23 08:57:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 13/29
+2025-07-23 08:57:10 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 14/29
+2025-07-23 08:57:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 15/29
+2025-07-23 08:57:12 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 6/29
+2025-07-23 08:57:14 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 16/29
+2025-07-23 08:57:15 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 17/29
+2025-07-23 08:57:16 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 08:57:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 7/29
+2025-07-23 08:57:17 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 18/29
+2025-07-23 08:57:19 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 19/29
+2025-07-23 08:57:20 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 20/29
+2025-07-23 08:57:21 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 8/29
+2025-07-23 08:57:25 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 21/29
+2025-07-23 08:57:28 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 22/29
+2025-07-23 08:57:31 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 23/29
+2025-07-23 08:57:33 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 9/29
+2025-07-23 08:57:34 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 24/29
+2025-07-23 08:57:38 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 25/29
+2025-07-23 08:57:42 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 26/29
+2025-07-23 08:57:44 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 27/29
+2025-07-23 08:57:46 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 10/29
+2025-07-23 08:57:47 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 28/29
+2025-07-23 08:57:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 29/29
+2025-07-23 08:57:55 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 11/29
+2025-07-23 08:57:56 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 80.9003 s
+2025-07-23 08:57:56 - stock_analysis.industry_filter - INFO - main:387 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 08:57:56 - stock_analysis.industry_filter - INFO - main:404 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 08:57:56 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 08:58:09 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 12/29
+2025-07-23 08:58:23 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 13/29
+2025-07-23 08:58:34 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 14/29
+2025-07-23 08:59:52 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 15/29
+2025-07-23 09:00:13 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 16/29
+2025-07-23 09:00:22 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 17/29
+2025-07-23 09:00:33 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 18/29
+2025-07-23 09:00:44 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 19/29
+2025-07-23 09:00:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 20/29
+2025-07-23 09:01:05 - stock_analysis.stock_filter - ERROR - process_single_stock_async:225 - Error processing 吉鑫科技 (601218): ('Connection aborted.', ConnectionResetError(54, 'Connection reset by peer'))
+2025-07-23 09:01:57 - stock_analysis.stock_filter - ERROR - process_single_stock_async:225 - Error processing 中际联合 (605305): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-07-23 09:02:12 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 21/29
+2025-07-23 09:02:13 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 22/29
+2025-07-23 09:02:25 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 23/29
+2025-07-23 09:02:33 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 24/29
+2025-07-23 09:02:39 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 25/29
+2025-07-23 09:02:47 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 华之杰 (603400) due to insufficient data for the last 29 days
+2025-07-23 09:02:57 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 26/29
+2025-07-23 09:03:07 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 27/29
+2025-07-23 09:03:14 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 28/29
+2025-07-23 09:03:21 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 广信科技 (920037) due to insufficient data for the last 29 days
+2025-07-23 09:03:24 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 29/29
+2025-07-23 09:03:32 - stock_analysis.stock_filter - INFO - main:442 - Report saved to data/stocks/reports/股票筛选报告-raw-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.stock_filter - INFO - main:456 - Filtered report saved to data/stocks/reports/股票筛选报告-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Filter completed (top-level task kept visible)
+2025-07-23 09:03:32 - stock_analysis.main - INFO - run_all_scripts_parallel:288 - Starting report copying with progress feedback
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:78 - Starting report copying process
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 持股报告: 持股报告-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 股票筛选报告: 股票筛选报告-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 行业筛选报告: 行业筛选报告-raw-20250723.csv
+2025-07-23 09:03:32 - stock_analysis.main - INFO - copy_latest_reports:119 - All latest reports copied to data/today/
+2025-07-23 09:03:33 - stock_analysis.main - INFO - run_all_scripts_parallel:308 - 🎉 All parallel scripts completed successfully!
+2025-07-23 09:03:33 - stock_analysis.main - INFO - main:377 - === China Stock Analysis Pipeline Completed ===
+2025-07-23 09:03:33 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 428.5762 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0098 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0021 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: main
+2025-07-23 09:03:43 - stock_analysis.main - INFO - main:355 - === Starting China Stock Analysis Pipeline ===
+2025-07-23 09:03:43 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-23 09:03:43 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-23 09:03:43 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-23 09:03:43 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0102 s
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0017 s
+2025-07-23 09:03:43 - stock_analysis.stock_filter - INFO - prepare_stock_data:82 - Loaded 1708 stocks across 85 industries
+2025-07-23 09:03:43 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 1/29
+2025-07-23 09:03:43 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: main
+2025-07-23 09:03:50 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: process_all_industries_async
+2025-07-23 09:03:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 1/29
+2025-07-23 09:03:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 2/29
+2025-07-23 09:03:55 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 3/29
+2025-07-23 09:03:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 2/29
+2025-07-23 09:03:56 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 4/29
+2025-07-23 09:03:57 - stock_analysis.stock_analysis - INFO - main:254 - Report saved to data/holding_stocks/reports/持股报告-20250723.csv
+2025-07-23 09:03:57 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'main' runtime: 13.7091 s
+2025-07-23 09:03:57 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Analysis completed (top-level task kept visible)
+2025-07-23 09:03:57 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 5/29
+2025-07-23 09:03:58 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 3/29
+2025-07-23 09:03:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 6/29
+2025-07-23 09:04:01 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 7/29
+2025-07-23 09:04:01 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 4/29
+2025-07-23 09:04:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 8/29
+2025-07-23 09:04:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 9/29
+2025-07-23 09:04:04 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 5/29
+2025-07-23 09:04:05 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 10/29
+2025-07-23 09:04:06 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 11/29
+2025-07-23 09:04:08 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 12/29
+2025-07-23 09:04:09 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 13/29
+2025-07-23 09:04:11 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 14/29
+2025-07-23 09:04:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 15/29
+2025-07-23 09:04:15 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 16/29
+2025-07-23 09:04:16 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 6/29
+2025-07-23 09:04:17 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 17/29
+2025-07-23 09:04:18 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 18/29
+2025-07-23 09:04:20 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
+2025-07-23 09:04:21 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 7/29
+2025-07-23 09:04:21 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 19/29
+2025-07-23 09:04:22 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 20/29
+2025-07-23 09:04:23 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 21/29
+2025-07-23 09:04:24 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 8/29
+2025-07-23 09:04:25 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 22/29
+2025-07-23 09:04:26 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 23/29
+2025-07-23 09:04:27 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 24/29
+2025-07-23 09:04:29 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 25/29
+2025-07-23 09:04:30 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 26/29
+2025-07-23 09:04:31 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 9/29
+2025-07-23 09:04:31 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 27/29
+2025-07-23 09:04:33 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 28/29
+2025-07-23 09:04:35 - stock_analysis.industry_filter - INFO - process_all_industries_async:298 - Processing industry batch 29/29
+2025-07-23 09:04:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'process_all_industries_async' runtime: 46.6381 s
+2025-07-23 09:04:37 - stock_analysis.industry_filter - INFO - main:387 - Report saved to data/stocks/reports/行业筛选报告-raw-20250723.csv
+2025-07-23 09:04:37 - stock_analysis.industry_filter - INFO - main:404 - Filtered report saved to data/stocks/reports/行业筛选报告-20250723.csv
+2025-07-23 09:04:37 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-23 09:04:37 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 10/29
+2025-07-23 09:04:43 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 11/29
+2025-07-23 09:04:50 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 12/29
+2025-07-23 09:04:58 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 13/29
+2025-07-23 09:05:03 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 14/29
+2025-07-23 09:05:07 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 15/29
+2025-07-23 09:05:17 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 16/29
+2025-07-23 09:05:22 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 17/29
+2025-07-23 09:05:26 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 18/29
+2025-07-23 09:05:31 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 19/29
+2025-07-23 09:05:35 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 20/29
+2025-07-23 09:05:52 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 21/29
+2025-07-23 09:05:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 22/29
+2025-07-23 09:06:04 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 23/29
+2025-07-23 09:06:13 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 24/29
+2025-07-23 09:06:17 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 25/29
+2025-07-23 09:06:26 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 华之杰 (603400) due to insufficient data for the last 29 days
+2025-07-23 09:06:36 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 26/29
+2025-07-23 09:06:48 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 27/29
+2025-07-23 09:06:54 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 28/29
+2025-07-23 09:07:03 - stock_analysis.stock_filter - WARNING - process_single_stock_async:187 - Skipping 广信科技 (920037) due to insufficient data for the last 29 days
+2025-07-23 09:07:03 - stock_analysis.stock_filter - INFO - process_all_industries_async:359 - Processing industry batch 29/29
+2025-07-23 09:07:09 - stock_analysis.stock_filter - INFO - main:442 - Report saved to data/stocks/reports/股票筛选报告-raw-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.stock_filter - INFO - main:456 - Filtered report saved to data/stocks/reports/股票筛选报告-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - run_with_detailed_progress:267 - ✅ Stock Filter completed (top-level task kept visible)
+2025-07-23 09:07:09 - stock_analysis.main - INFO - run_all_scripts_parallel:288 - Starting report copying with progress feedback
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:78 - Starting report copying process
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 持股报告: 持股报告-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 股票筛选报告: 股票筛选报告-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:107 - Successfully copied 行业筛选报告: 行业筛选报告-raw-20250723.csv
+2025-07-23 09:07:09 - stock_analysis.main - INFO - copy_latest_reports:119 - All latest reports copied to data/today/
+2025-07-23 09:07:10 - stock_analysis.main - INFO - run_all_scripts_parallel:308 - 🎉 All parallel scripts completed successfully!
+2025-07-23 09:07:10 - stock_analysis.main - INFO - main:377 - === China Stock Analysis Pipeline Completed ===
+2025-07-23 09:07:10 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'main' runtime: 206.0795 s

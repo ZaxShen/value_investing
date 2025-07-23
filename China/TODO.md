@@ -2,10 +2,13 @@
 
 ### Progress Bar
 
-Use `rich.progress` to achieve following features:
+The hierarchical progress implementation has a little issue:
 
-- Enable progress bar for low-level tasks (A.K.A subtasks) such as bach processing from asyncio (scripts `industry_filter.py`, `sotck_filter.py`)
-  - When sub tasks are running, their progress bar should under their main task's progress as a clear affiliated relationship
-  - When subtasks finished, make the progress bar disappear
-  - Don't make the progress bar disappear for the top level tasks (currenty 3)
-- Pass all unit test and integration test
+- `Processing batch` belongs to `stock_filter.py` should under main progress `Stock Filter`, but it indead under `Industry Filter`
+
+➜  china git:(dev-rich) ✗ uv run main.py
+⠹ 🚀 Parallel Stock Analysis Pipeline                 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:01:24
+⠹ 🔄 Starting Stock Filter...                         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:01:24
+  ✅ Stock Analysis completed                         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:11
+  ✅ Industry Filter completed                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:45
+⠹         Stock Filter: Processing batch 12/29 (3 in… ━━━━━━━━━━━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━  38% 0:01:24

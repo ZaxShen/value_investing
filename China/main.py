@@ -219,8 +219,16 @@ async def run_all_scripts_parallel() -> None:
         
         # Each script gets its own progress bar that will show detailed sub-progress
         stock_filter_task = progress.add_task("📈 Stock Filter", total=100, visible=True)
-        stock_analysis_task = progress.add_task("💼 Stock Analysis", total=100, visible=True) 
+        # Pre-create batch processing task for Stock Filter (initially hidden)
+        stock_filter_batch_task = progress.add_task("    📊 Stock Filter batches", total=100, visible=False)
+        
+        stock_analysis_task = progress.add_task("💼 Stock Analysis", total=100, visible=True)
+        # Pre-create batch processing task for Stock Analysis (initially hidden) 
+        stock_analysis_batch_task = progress.add_task("    💼 Stock Analysis processing", total=100, visible=False)
+        
         industry_filter_task = progress.add_task("🏭 Industry Filter", total=100, visible=True)
+        # Pre-create batch processing task for Industry Filter (initially hidden)
+        industry_filter_batch_task = progress.add_task("    🏭 Industry Filter batches", total=100, visible=False)
 
         # Enhanced progress wrapper that provides detailed progress updates
         # This function wraps each main script and provides progress feedback
@@ -229,7 +237,7 @@ async def run_all_scripts_parallel() -> None:
         # - Hierarchical progress structure with subtasks under main tasks
         # - Subtask progress bars that disappear when finished
         # - Top-level tasks remain visible (don't disappear)
-        async def run_with_detailed_progress(script_func, task_id, name, progress_instance):
+        async def run_with_detailed_progress(script_func, task_id, name, progress_instance, batch_task_id=None):
             """
             Execute a coroutine with detailed progress tracking and cleanup.
             
@@ -251,7 +259,7 @@ async def run_all_scripts_parallel() -> None:
                 
                 # Execute the actual script with progress tracking
                 # Pass progress instance and task_id to enable hierarchical progress
-                await script_func(progress=progress_instance, parent_task_id=task_id)
+                await script_func(progress=progress_instance, parent_task_id=task_id, batch_task_id=batch_task_id)
                 # Mark top-level task as completed but DON'T remove it
                 # According to TODO.md: "Don't make the progress bar disappear for the top level tasks"
                 progress_instance.update(task_id, completed=100, description=f"✅ {name} completed")
@@ -267,9 +275,9 @@ async def run_all_scripts_parallel() -> None:
         # Execute all scripts in parallel with hierarchical progress tracking
         logger.info("🚀 Launching parallel script execution with hierarchical progress tracking")
         await asyncio.gather(
-            run_with_detailed_progress(stock_filter_main, stock_filter_task, "Stock Filter", progress),
-            run_with_detailed_progress(stock_analysis_main, stock_analysis_task, "Stock Analysis", progress),
-            run_with_detailed_progress(industry_filter_main, industry_filter_task, "Industry Filter", progress),
+            run_with_detailed_progress(stock_filter_main, stock_filter_task, "Stock Filter", progress, stock_filter_batch_task),
+            run_with_detailed_progress(stock_analysis_main, stock_analysis_task, "Stock Analysis", progress, stock_analysis_batch_task),
+            run_with_detailed_progress(industry_filter_main, industry_filter_task, "Industry Filter", progress, industry_filter_batch_task),
         )
 
         # Update main progress after parallel execution
