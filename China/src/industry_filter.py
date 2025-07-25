@@ -78,32 +78,11 @@ def get_dates() -> Tuple[pd.Series, str, str, str]:
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 
 
-def run_in_executor(func: Callable) -> Callable:
+
+
+def fetch_industry_capital_flow_data_sync(industry_name: str, days: int) -> pd.DataFrame:
     """
-    Decorator to run blocking functions in thread pool executor.
-
-    This decorator converts synchronous blocking functions into asynchronous
-    functions by running them in a thread pool executor.
-
-    Args:
-        func: The synchronous function to be executed in a thread pool
-
-    Returns:
-        Async wrapper function that executes the original function in a thread pool
-    """
-
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, func, *args, **kwargs)
-
-    return wrapper
-
-
-@run_in_executor
-def fetch_industry_capital_flow_data(industry_name: str, days: int) -> pd.DataFrame:
-    """
-    Fetch industry capital flow data - wrapped for async execution.
+    Fetch industry capital flow data - synchronous version.
 
     Args:
         industry_name: Name of the industry to analyze
@@ -115,14 +94,13 @@ def fetch_industry_capital_flow_data(industry_name: str, days: int) -> pd.DataFr
     return ak.stock_sector_fund_flow_hist(symbol=industry_name).iloc[-days:]
 
 
-@run_in_executor
-def fetch_industry_index_data(
+def fetch_industry_index_data_sync(
     industry_name: str,
     first_date_str: str,
     last_date_str: str,
 ) -> pd.DataFrame:
     """
-    Fetch industry index historical data - wrapped for async execution.
+    Fetch industry index historical data - synchronous version.
 
     Args:
         industry_name: Name of the industry to analyze
@@ -169,15 +147,16 @@ async def process_single_industry_async(
     async with REQUEST_SEMAPHORE:
         try:
             # Fetch industry capital flow data
-            stock_sector_fund_flow_hist_df = await fetch_industry_capital_flow_data(
-                industry_name, days
+            stock_sector_fund_flow_hist_df = await asyncio.to_thread(
+                fetch_industry_capital_flow_data_sync, industry_name, days
             )
             # Calculate main net flow
             industry_main_net_flow = stock_sector_fund_flow_hist_df["主力净流入-净额"].sum()
             industry_main_net_flow = round(industry_main_net_flow / 1e8, 1)  # Convert to 100M
 
             # Fetch industry index data
-            stock_board_industry_hist_em = await fetch_industry_index_data(
+            stock_board_industry_hist_em = await asyncio.to_thread(
+                fetch_industry_index_data_sync,
                 industry_name,
                 first_date_str,
                 last_date_str,
