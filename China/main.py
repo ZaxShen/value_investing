@@ -7,7 +7,7 @@ sequential and parallel execution modes with beautiful progress bars.
 """
 
 # Configure environment settings before importing any other modules
-import src.settings  # This configures the environment
+# import src.settings  # This configures the environment
 
 import asyncio
 import os
@@ -275,8 +275,11 @@ async def run_all_scripts_parallel() -> None:
         # Execute all scripts in parallel with hierarchical progress tracking
         logger.info("🚀 Launching parallel script execution with hierarchical progress tracking")
         await asyncio.gather(
+            # FIXME: tqdm data preprocessing issue
             run_with_detailed_progress(stock_filter_main, stock_filter_task, "Stock Filter", progress, stock_filter_batch_task),
+            # FIXME: tqdm data preprocessing issue
             run_with_detailed_progress(stock_analysis_main, stock_analysis_task, "Stock Analysis", progress, stock_analysis_batch_task),
+            # TODO: Uncomment
             run_with_detailed_progress(industry_filter_main, industry_filter_task, "Industry Filter", progress, industry_filter_batch_task),
         )
 
