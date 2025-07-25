@@ -54,32 +54,11 @@ def validate_stock_name(stock_code: str, stock_name: str, df: pd.DataFrame) -> N
         raise ValueError(f"Stock code {stock_code} not found")
 
 
-def run_in_executor(func: Callable) -> Callable:
+
+
+def fetch_stock_individual_fund_flow_sync(stock_code: str, market: str) -> pd.DataFrame:
     """
-    Decorator to run blocking functions in thread pool executor.
-
-    This decorator converts synchronous blocking functions into asynchronous
-    functions by running them in a thread pool executor.
-
-    Args:
-        func: The synchronous function to be executed in a thread pool
-
-    Returns:
-        Async wrapper function that executes the original function in a thread pool
-    """
-
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, func, *args, **kwargs)
-
-    return wrapper
-
-
-@run_in_executor
-def fetch_stock_individual_fund_flow(stock_code: str, market: str) -> pd.DataFrame:
-    """
-    Fetch stock individual fund flow data - wrapped for async execution.
+    Fetch stock individual fund flow data - synchronous version.
 
     Args:
         stock_code: Stock code (e.g., "000001")
@@ -91,10 +70,9 @@ def fetch_stock_individual_fund_flow(stock_code: str, market: str) -> pd.DataFra
     return ak.stock_individual_fund_flow(stock=stock_code, market=market)
 
 
-@run_in_executor
-def fetch_stock_sector_fund_flow_hist(symbol: str) -> pd.DataFrame:
+def fetch_stock_sector_fund_flow_hist_sync(symbol: str) -> pd.DataFrame:
     """
-    Fetch stock sector fund flow historical data - wrapped for async execution.
+    Fetch stock sector fund flow historical data - synchronous version.
 
     Args:
         symbol: Sector symbol identifier
@@ -157,7 +135,7 @@ async def stock_analysis(
     ].values[0]
 
     # Extract the historical data of the stock (async)
-    stock_individual_fund_flow_df = await fetch_stock_individual_fund_flow(stock_code, market)
+    stock_individual_fund_flow_df = await asyncio.to_thread(fetch_stock_individual_fund_flow_sync, stock_code, market)
     if len(stock_individual_fund_flow_df) < days:
         logger.warning(
             "Skipping %s (%s) due to insufficient data for the last %d days",
@@ -246,7 +224,7 @@ async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[i
                     df.loc[len(df)] = [f"{account_name}"] + result
 
     # Define the report date (async)
-    stock_sector_data = await fetch_stock_sector_fund_flow_hist("证券")
+    stock_sector_data = await asyncio.to_thread(fetch_stock_sector_fund_flow_hist_sync, "证券")
     last_date = stock_sector_data.iloc[-1]["日期"]
     last_date_str = last_date.strftime("%Y%m%d")
     # Output the df to a CSV file

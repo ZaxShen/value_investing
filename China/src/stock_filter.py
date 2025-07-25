@@ -91,33 +91,11 @@ def prepare_stock_data() -> Tuple[pd.DataFrame, np.ndarray]:
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 
 
-def run_in_executor(func: Callable) -> Callable:
+
+
+def fetch_stock_data_sync(stock_code: str, market: str) -> pd.DataFrame:
     """
-    Decorator to run blocking functions in thread pool executor.
-
-    This decorator converts synchronous blocking functions into asynchronous
-    functions by running them in a thread pool executor, allowing for
-    concurrent execution without blocking the event loop.
-
-    Args:
-        func: The synchronous function to be executed in a thread pool
-
-    Returns:
-        Async wrapper function that executes the original function in a thread pool
-    """
-
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, func, *args, **kwargs)
-
-    return wrapper
-
-
-@run_in_executor
-def fetch_stock_data(stock_code: str, market: str) -> pd.DataFrame:
-    """
-    Fetch stock individual fund flow data - wrapped for async execution.
+    Fetch stock individual fund flow data - synchronous version.
 
     Args:
         stock_code: Stock code (e.g., "000001")
@@ -181,7 +159,7 @@ async def process_single_stock_async(
             stock_ytd_change = stock_data["年初至今涨跌幅"]
 
             # Extract the historical data of the stock (async)
-            stock_individual_fund_flow_df = await fetch_stock_data(stock_code, market)
+            stock_individual_fund_flow_df = await asyncio.to_thread(fetch_stock_data_sync, stock_code, market)
 
             if len(stock_individual_fund_flow_df) < days:
                 logger.warning(

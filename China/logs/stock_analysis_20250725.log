@@ -1,0 +1,9 @@
+2025-07-25 14:31:18 - stock_analysis.main - INFO - main:358 - === Starting China Stock Analysis Pipeline ===
+2025-07-25 14:31:18 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-25 14:31:18 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-25 14:31:18 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-25 14:31:18 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-25 14:31:18 - stock_analysis.main - ERROR - run_with_detailed_progress:272 - ❌ Error in Stock Filter: 'coroutine' object is not subscriptable
+2025-07-25 14:31:18 - stock_analysis.main - ERROR - run_with_detailed_progress:272 - ❌ Error in Stock Analysis: 'coroutine' object is not subscriptable
+2025-07-25 14:31:23 - stock_analysis.industry_filter - INFO - process_all_industries_async:277 - Processing industry batch 1/29
+2025-07-25 14:31:26 - stock_analysis.main - ERROR - main:388 - Pipeline failed: 'coroutine' object is not subscriptable
