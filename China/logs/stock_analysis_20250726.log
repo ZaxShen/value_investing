@@ -1,0 +1,152 @@
+2025-07-26 00:48:33 - stock_analysis.main - INFO - main:358 - === Starting China Stock Analysis Pipeline ===
+2025-07-26 00:48:33 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-26 00:48:33 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-26 00:48:33 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-26 00:48:33 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-26 00:48:33 - stock_analysis.main - ERROR - run_with_detailed_progress:272 - ❌ Error in Stock Filter: 'coroutine' object is not subscriptable
+2025-07-26 00:48:33 - stock_analysis.main - ERROR - run_with_detailed_progress:272 - ❌ Error in Stock Analysis: 'coroutine' object is not subscriptable
+2025-07-26 00:48:39 - stock_analysis.industry_filter - INFO - process_all_industries_async:277 - Processing industry batch 1/29
+2025-07-26 00:48:39 - stock_analysis.main - ERROR - main:388 - Pipeline failed: 'coroutine' object is not subscriptable
+2025-07-26 00:52:54 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 00:53:16 - stock_analysis.timer - ERROR - sync_wrapper:53 - Error in get_stock_market_data: HTTPSConnectionPool(host='82.push2.eastmoney.com', port=443): Read timed out. (read timeout=15)
+2025-07-26 00:53:16 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 22.0185 s
+2025-07-26 00:53:30 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 00:53:49 - stock_analysis.timer - ERROR - sync_wrapper:53 - Error in get_stock_market_data: HTTPSConnectionPool(host='82.push2.eastmoney.com', port=443): Read timed out. (read timeout=15)
+2025-07-26 00:53:49 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 18.7876 s
+2025-07-26 00:54:09 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 00:55:41 - stock_analysis.timer - ERROR - sync_wrapper:53 - Error in get_stock_market_data: HTTPSConnectionPool(host='82.push2.eastmoney.com', port=443): Read timed out. (read timeout=15)
+2025-07-26 00:55:41 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 91.2558 s
+2025-07-26 00:55:52 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 00:56:07 - stock_analysis.timer - ERROR - sync_wrapper:53 - Error in get_stock_market_data: HTTPSConnectionPool(host='82.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f12&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf22%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x10c8c8990>: Failed to establish a new connection: [Errno 65] No route to host'))
+2025-07-26 00:56:07 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 15.0212 s
+2025-07-26 00:56:34 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 00:56:49 - stock_analysis.timer - ERROR - sync_wrapper:53 - Error in get_stock_market_data: HTTPSConnectionPool(host='82.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f12&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf22%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x130233350>: Failed to establish a new connection: [Errno 65] No route to host'))
+2025-07-26 00:56:49 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 15.0213 s
+2025-07-26 00:56:55 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 00:59:16 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 140.7722 s
+2025-07-26 00:59:16 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-26 01:02:45 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 209.3010 s
+2025-07-26 01:02:45 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 01:02:45 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0145 s
+2025-07-26 01:02:45 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-26 01:02:45 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0029 s
+2025-07-26 01:10:10 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:10:10 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0175 s
+2025-07-26 01:10:10 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:10:10 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0033 s
+2025-07-26 01:10:32 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:10:32 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:12:41 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 129.1738 s
+2025-07-26 01:14:20 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 228.1899 s
+2025-07-26 01:21:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 01:21:56 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 0.0207 s
+2025-07-26 01:21:56 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-26 01:21:56 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0031 s
+2025-07-26 01:22:09 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 01:25:16 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 186.7408 s
+2025-07-26 01:25:16 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-26 01:27:20 - stock_analysis.timer - ERROR - sync_wrapper:53 - Error in get_industry_stock_mapping_data: HTTPSConnectionPool(host='29.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=b%3ABK0451+f%3A%2150&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf22%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152%2Cf45 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x10fe46a50>: Failed to establish a new connection: [Errno 65] No route to host'))
+2025-07-26 01:27:20 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 124.0760 s
+2025-07-26 01:28:06 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_stock_market_data
+2025-07-26 01:29:45 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_stock_market_data' runtime: 99.5342 s
+2025-07-26 01:29:45 - stock_analysis.timer - INFO - sync_wrapper:48 - Starting sync function: get_industry_stock_mapping_data
+2025-07-26 01:32:52 - stock_analysis.timer - INFO - sync_wrapper:61 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 187.2460 s
+2025-07-26 01:42:34 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:42:34 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: cannot safely convert passed user dtype of int32 for float64 dtyped data in column 6
+2025-07-26 01:42:34 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0181 s
+2025-07-26 01:42:34 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:42:34 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0036 s
+2025-07-26 01:44:16 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:44:16 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:45:08 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 52.2048 s
+2025-07-26 01:46:29 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 132.7212 s
+2025-07-26 01:48:07 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:48:07 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: cannot safely convert passed user dtype of int32 for float64 dtyped data in column 6
+2025-07-26 01:48:07 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0219 s
+2025-07-26 01:48:07 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:48:07 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0033 s
+2025-07-26 01:50:41 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:50:41 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: cannot safely convert passed user dtype of int32 for float64 dtyped data in column 6
+2025-07-26 01:50:41 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0125 s
+2025-07-26 01:50:41 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:50:41 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0034 s
+2025-07-26 01:51:03 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:51:03 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: cannot safely convert passed user dtype of int64 for float64 dtyped data in column 17
+2025-07-26 01:51:03 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0165 s
+2025-07-26 01:51:03 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:51:03 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0028 s
+2025-07-26 01:52:53 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:52:53 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0137 s
+2025-07-26 01:52:53 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:52:53 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0031 s
+2025-07-26 01:55:14 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:55:14 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0188 s
+2025-07-26 01:55:14 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:55:14 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0076 s
+2025-07-26 01:55:45 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 01:55:45 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 01:56:32 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 47.4320 s
+2025-07-26 01:57:42 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 116.9358 s
+2025-07-26 01:58:06 - stock_analysis.main - INFO - main:358 - === Starting China Stock Analysis Pipeline ===
+2025-07-26 01:58:06 - stock_analysis.main - INFO - run_all_scripts_parallel:195 - Starting parallel execution of all scripts
+2025-07-26 01:58:06 - stock_analysis.main - INFO - run_all_scripts_parallel:218 - Creating individual progress trackers for parallel script execution
+2025-07-26 01:58:06 - stock_analysis.main - INFO - run_all_scripts_parallel:276 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-26 01:58:06 - stock_analysis.stock_filter - INFO - prepare_stock_data:45 - Loading stock market data...
+2025-07-26 01:58:06 - stock_analysis.main - ERROR - run_with_detailed_progress:272 - ❌ Error in Stock Filter: 'coroutine' object is not subscriptable
+2025-07-26 01:58:06 - stock_analysis.main - ERROR - run_with_detailed_progress:272 - ❌ Error in Stock Analysis: 'coroutine' object is not subscriptable
+2025-07-26 01:58:17 - stock_analysis.industry_filter - INFO - process_all_industries_async:277 - Processing industry batch 1/29
+2025-07-26 01:58:29 - stock_analysis.main - ERROR - main:388 - Pipeline failed: 'coroutine' object is not subscriptable
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0017 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0036 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0024 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0011 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0018 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0007 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.1053 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.1061 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0013 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0013 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0010 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:03:37 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: API Down
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0045 s
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 02:03:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.1052 s
+2025-07-26 02:06:17 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:06:17 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0027 s
+2025-07-26 02:06:17 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 02:06:18 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.1053 s
+2025-07-26 02:06:18 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:06:18 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0007 s
+2025-07-26 02:06:18 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:06:18 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: API Error
+2025-07-26 02:06:18 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0037 s
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0028 s
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.1049 s
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0008 s
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:09:02 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: API Error
+2025-07-26 02:09:02 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0053 s
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0025 s
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.1063 s
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0009 s
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 02:10:11 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: API Error
+2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0041 s

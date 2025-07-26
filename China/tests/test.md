@@ -11,11 +11,13 @@ tests/
 ├── __init__.py                     # Test package initialization
 ├── conftest.py                     # Shared fixtures and configuration
 ├── test.md                        # This documentation file
-├── unit/                          # Unit tests
+├── unit/                          # Unit tests (fast, mocked)
 │   ├── test_logger.py             # Logger functionality tests
-│   └── test_decorators.py         # Decorator functionality tests
-├── integration/                   # Integration tests
-│   └── test_logging_system.py    # End-to-end logging tests
+│   ├── test_decorators.py         # Decorator functionality tests
+│   └── test_get_stock_data.py     # Stock data utilities tests (mocked APIs)
+├── integration/                   # Integration tests (slow, real APIs)
+│   ├── test_logging_system.py    # End-to-end logging tests
+│   └── test_akshare_api.py        # Real akshare API connectivity tests
 ├── fixtures/                      # Test data and fixtures
 └── coverage_html/                # HTML coverage reports (generated)
 ```
@@ -32,9 +34,9 @@ uv run pytest
 uv run pytest -v
 
 # Run specific test categories
-uv run pytest -m unit          # Only unit tests
-uv run pytest -m integration   # Only integration tests
-uv run pytest -m "not slow"    # Exclude slow tests
+uv run pytest -m unit          # Only unit tests (fast, mocked APIs)
+uv run pytest -m integration   # Only integration tests (slow, real APIs)  
+uv run pytest -m "not slow"    # Exclude slow tests (development mode)
 ```
 
 ### Installing Test Dependencies
@@ -87,6 +89,49 @@ async def test_timer_async_function()
 def test_logged_function_with_arguments()
 def test_timed_and_logged_combines_both()
 ```
+
+#### Stock Data Tests (`test_get_stock_data.py`)
+
+**Purpose**: Test stock market data fetching and caching utilities.
+
+**Key Test Classes**:
+
+- `TestGetStockMarketData`: Tests stock market data fetching with caching
+- `TestGetIndustryStockMappingData`: Tests industry mapping with concurrent processing  
+- `TestFetchIndustryStocks`: Tests individual industry stock fetching
+- `TestCachingBehavior`: Tests caching mechanisms across functions
+- `TestErrorHandling`: Tests error scenarios and recovery
+
+**Example Test Cases**:
+
+```python
+def test_get_stock_market_data_cache_hit()
+async def test_get_industry_mapping_cache_miss()
+def test_fetch_industry_stocks_error_handling()
+def test_cache_file_naming_convention()
+```
+
+#### API Integration Tests (`test_akshare_api.py`)
+
+**Purpose**: Test real akshare API connectivity and data quality.
+
+**Key Test Classes**:
+
+- `test_akshare_stock_market_api_is_working`: Tests real stock market API
+- `test_akshare_industry_api_is_working`: Tests real industry APIs
+- `test_our_functions_work_with_real_api`: Tests our functions with real data
+- `test_api_data_quality`: Validates real API data structure and format
+
+**Example Test Cases**:
+
+```python
+def test_akshare_stock_market_api_is_working()
+def test_akshare_industry_api_is_working()
+async def test_our_functions_work_with_real_api()
+def test_api_data_quality()
+```
+
+**⚠️ Note**: These tests make REAL API calls and are slow (1-5 minutes each).
 
 ### 2. Integration Tests (`tests/integration/`)
 
@@ -207,6 +252,12 @@ uv run pytest tests/unit/test_logger.py
 # Test only decorators
 uv run pytest tests/unit/test_decorators.py
 
+# Test only stock data utilities (mocked)
+uv run pytest tests/unit/test_get_stock_data.py
+
+# Test real API connectivity
+uv run pytest tests/integration/test_akshare_api.py
+
 # Test only integration
 uv run pytest tests/integration/
 ```
@@ -226,17 +277,30 @@ uv run pytest tests/unit/test_logger.py::TestSetupLogger::test_setup_logger_defa
 #### Run by Test Type
 
 ```bash
-# Unit tests only (fast)
+# Unit tests only (fast, mocked APIs, ~1 second)
 uv run pytest -m unit
 
-# Integration tests only
+# Integration tests only (slow, real APIs, ~5 minutes)
 uv run pytest -m integration
 
-# Exclude slow tests
+# Exclude slow tests (development mode)
 uv run pytest -m "not slow"
 
-# Run only slow tests
+# Run only slow tests (check API connectivity)
 uv run pytest -m slow
+```
+
+#### Daily Development Workflow
+
+```bash
+# During development - run fast tests frequently
+uv run pytest -m unit -v                    # ~1 second
+
+# Before committing - run all fast tests  
+uv run pytest -m "not slow" -v             # ~10 seconds
+
+# Before deployment - verify API connectivity
+uv run pytest -m integration -v            # ~5 minutes
 ```
 
 #### Run with Different Verbosity
@@ -536,6 +600,9 @@ The logging system test suite provides comprehensive coverage of:
 
 ✅ **Logger initialization and configuration**  
 ✅ **Decorator functionality (@timer, @logged, @timed_and_logged)**  
+✅ **Stock data fetching and caching utilities** (mocked)  
+✅ **Real akshare API connectivity and data quality**  
+✅ **Concurrent API processing with error handling**  
 ✅ **Async and sync function support**  
 ✅ **Exception handling and error logging**  
 ✅ **Multi-module logging coordination**  
@@ -545,13 +612,18 @@ The logging system test suite provides comprehensive coverage of:
 
 **Key Commands**:
 
-- `uv run pytest` - Run all tests
-- `uv run pytest -m unit` - Run unit tests only
+- `uv run pytest` - Run all tests (unit + integration)
+- `uv run pytest -m unit` - Run unit tests only (fast, mocked)
+- `uv run pytest -m integration` - Run integration tests (slow, real APIs)
+- `uv run pytest -m "not slow"` - Development mode (fast tests only)
 - `uv run pytest -v --cov=src` - Verbose with coverage
-- `uv run pytest tests/unit/test_logger.py` - Test specific module
+- `uv run pytest tests/unit/test_get_stock_data.py` - Test specific module
 
-**Coverage Target**: >90% for logging components
+**Coverage Target**: >85% for core utilities
 
-**Test Execution Time**: ~10-30 seconds for full suite
+**Test Execution Time**: 
+- Unit tests: ~1-10 seconds  
+- Integration tests: ~2-5 minutes
+- Full suite: ~5+ minutes
 
 The test suite ensures that the logging functionality is robust, reliable, and ready for production use in the stock analysis pipeline.
