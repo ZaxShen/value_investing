@@ -15,10 +15,6 @@ from typing import Optional, List, Any, Callable
 
 import akshare as ak
 import pandas as pd
-from src.utilities.get_stock_data import (
-    get_stock_market_data,
-    get_industry_stock_mapping_data,
-)
 from src.utilities.tools import timer
 from src.utilities.logger import get_logger
 from typing import TYPE_CHECKING
@@ -28,11 +24,6 @@ if TYPE_CHECKING:
 
 # Initialize logger for this module
 logger = get_logger("stock_analysis")
-
-
-stock_zh_a_spot_em_df = get_stock_market_data()
-industry_stock_mapping_df = get_industry_stock_mapping_data()
-
 
 def validate_stock_name(stock_code: str, stock_name: str, df: pd.DataFrame) -> None:
     """
@@ -84,7 +75,11 @@ def fetch_stock_sector_fund_flow_hist_sync(symbol: str) -> pd.DataFrame:
 
 
 async def stock_analysis(
-    industry_name: str, stock_code: str, stock_name: str, days: int = 29
+    stock_zh_a_spot_em_df: pd.DataFrame,
+    industry_name: str, 
+    stock_code: str, 
+    stock_name: str, 
+    days: int = 29 # TODO: Make it more flexible
 ) -> Optional[List[Any]]:
     """
     Perform comprehensive analysis of a single stock including fund flow and performance metrics.
@@ -93,6 +88,8 @@ async def stock_analysis(
     and calculates key metrics for investment decision making.
 
     Args:
+        stock_zh_a_spot_em_df (from ak.stock_zh_a_spot_em): pd.DataFrame containing stock market data with columns including
+        stock codes, names, prices, and financial metrics
         industry_name: Industry classification of the stock
         stock_code: Stock code (e.g., "000001")
         stock_name: Stock name for validation and display
@@ -171,7 +168,13 @@ async def stock_analysis(
 
 
 # @timer
-async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[int] = None, batch_task_id: Optional[int] = None) -> None:
+async def main(
+        industry_stock_mapping_df: pd.DataFrame,
+        stock_zh_a_spot_em_df: pd.DataFrame,
+        progress: Optional["Progress"] = None, 
+        parent_task_id: Optional[int] = None, 
+        batch_task_id: Optional[int] = None,
+        ) -> None:
     """
     Main function to execute stock analysis and generate holding reports.
 
@@ -180,9 +183,14 @@ async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[i
     and performance indicators.
     
     Args:
+        industry_stock_mapping_df (from ak.stock_board_industry_cons_em): DataFrame containing industry-stock mapping with columns for
+        industry names and corresponding stock codes
+        stock_zh_a_spot_em_df (from ak.stock_zh_a_spot_em): pd.DataFrame containing stock market data with columns including
+        stock codes, names, prices, and financial metrics
         progress: Optional Rich Progress instance for hierarchical progress tracking
         parent_task_id: Optional parent task ID for hierarchical progress structure
         batch_task_id: Optional pre-created batch task ID for proper hierarchy display (unused in this script)
+        
     """
     dir_path = "data/holding_stocks"
     days = 29
@@ -215,6 +223,7 @@ async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[i
                     industry_stock_mapping_df["代码"] == stock_code
                 ]["行业"].values[0]
                 result = await stock_analysis(
+                    stock_zh_a_spot_em_df=stock_zh_a_spot_em_df,
                     industry_name=industry_name,
                     stock_code=stock_code,
                     stock_name=stock_name,
@@ -230,7 +239,3 @@ async def main(progress: Optional["Progress"] = None, parent_task_id: Optional[i
     # Output the df to a CSV file
     df.to_csv(f"{dir_path}/reports/持股报告-{last_date_str}.csv", index=True)
     logger.info("Report saved to %s/reports/持股报告-%s.csv", dir_path, last_date_str)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
