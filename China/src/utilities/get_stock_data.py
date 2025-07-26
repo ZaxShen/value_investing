@@ -12,11 +12,17 @@ import asyncio
 import pandas as pd
 import akshare as ak
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from .tools import timer
+from rich.progress import Progress, TaskID
+from rich.console import Console
+
+# Semaphore to control concurrent API requests
+REQUEST_SEMAPHORE = asyncio.Semaphore(10)
+console = Console()
 
 
-# @timer
+@timer
 async def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     """
     Fetch stock market data with caching.
@@ -46,10 +52,31 @@ async def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     return stock_df
 
 
-# @timer
+async def _fetch_industry_stocks(industry_name: str) -> List[tuple]:
+    """
+    Fetch stocks for a single industry with semaphore control.
+    
+    Args:
+        industry_name: Name of the industry to fetch stocks for
+        
+    Returns:
+        List of (industry_name, stock_code) tuples
+    """
+    async with REQUEST_SEMAPHORE:
+        try:
+            industry_stocks = await asyncio.to_thread(
+                ak.stock_board_industry_cons_em, symbol=industry_name
+            )
+            return [(industry_name, code) for code in industry_stocks["代码"]]
+        except Exception as e:
+            print(f"Error fetching data for industry {industry_name}: {e}")
+            return []
+
+
+@timer
 async def get_industry_stock_mapping_data(data_dir: str = "data/stocks") -> pd.DataFrame:
     """
-    Fetch industry-stock mapping data with caching.
+    Fetch industry-stock mapping data with caching and optimized concurrent processing.
 
     Args:
         data_dir: Directory to store cached data files
@@ -68,15 +95,46 @@ async def get_industry_stock_mapping_data(data_dir: str = "data/stocks") -> pd.D
     for f in glob.glob(f"{data_dir}/industry_stock_mapping_df-*.csv"):
         os.remove(f)
 
-    # Fetch new data
+    # Fetch industry names
     industry_names = await asyncio.to_thread(ak.stock_board_industry_name_em)
     industry_names = industry_names["板块名称"]
-    mapping_df = pd.DataFrame(columns=["行业", "代码"])
 
-    for industry_name in industry_names:
-        industry_stocks = await asyncio.to_thread(ak.stock_board_industry_cons_em, symbol=industry_name)
-        for stock_code in industry_stocks["代码"]:
-            mapping_df.loc[len(mapping_df)] = [industry_name, stock_code]
+    # Process industries concurrently with batching and progress tracking
+    batch_size = 10
+    all_mappings = []
+    
+    with Progress(console=console) as progress:
+        task = progress.add_task(
+            f"[cyan]Processing {len(industry_names)} industries...", 
+            total=len(industry_names)
+        )
+        
+        for i in range(0, len(industry_names), batch_size):
+            batch = industry_names[i:i + batch_size]
+            
+            # Process batch concurrently
+            tasks = [_fetch_industry_stocks(industry_name) for industry_name in batch]
+            batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            # Collect successful results
+            processed_count = 0
+            for result in batch_results:
+                if isinstance(result, list):
+                    all_mappings.extend(result)
+                    processed_count += 1
+                elif isinstance(result, Exception):
+                    processed_count += 1  # Count failed ones too
+            
+            progress.update(task, advance=len(batch))
+            
+            # Add small delay between batches to be respectful to API
+            await asyncio.sleep(0.1)
+
+    # Convert to DataFrame efficiently using list of tuples
+    if all_mappings:
+        mapping_df = pd.DataFrame(all_mappings, columns=["行业", "代码"])
+    else:
+        mapping_df = pd.DataFrame(columns=["行业", "代码"])
 
     # Save data
     os.makedirs(data_dir, exist_ok=True)
