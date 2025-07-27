@@ -13,6 +13,10 @@ import json
 import os
 from typing import Optional, List, Any, Callable
 
+# Import settings first to disable tqdm before akshare import
+from src.settings import configure_environment
+configure_environment()
+
 import akshare as ak
 import pandas as pd
 from src.utilities.tools import timer
