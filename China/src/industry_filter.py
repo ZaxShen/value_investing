@@ -11,6 +11,10 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
+# Import settings first to disable tqdm before akshare import
+from src.settings import configure_environment
+configure_environment()
+
 import akshare as ak
 import pandas as pd
 

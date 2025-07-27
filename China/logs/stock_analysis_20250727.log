@@ -164,3 +164,73 @@
 2025-07-27 12:41:23 - stock_analysis.stock_filter - INFO - process_all_industries_async:438 - Processing industry batch 3/29
 2025-07-27 12:41:25 - stock_analysis.stock_filter - WARNING - process_single_stock_async:285 - Skipping 同宇新材 (301630) due to insufficient data for the last 29 days
 2025-07-27 12:41:25 - stock_analysis.industry_filter - INFO - process_all_industries_async:329 - Processing industry batch 7/29
+2025-07-27 12:49:34 - stock_analysis.main - INFO - main:520 - === Starting China Stock Analysis Pipeline ===
+2025-07-27 12:49:34 - stock_analysis.main - INFO - run_all_scripts_parallel:288 - Starting parallel execution of all scripts with data fetching
+2025-07-27 12:49:34 - stock_analysis.main - INFO - run_all_scripts_parallel:318 - Fetching market data before parallel script execution
+2025-07-27 12:49:34 - stock_analysis.pipeline - INFO - fetch_market_data:75 - Starting market data fetching
+2025-07-27 12:49:34 - stock_analysis.get_stock_data - INFO - get_stock_market_data:48 - Loading cached stock market data from data/stocks/stock_zh_a_spot_em_df-20250727.csv
+2025-07-27 12:49:34 - stock_analysis.pipeline - INFO - fetch_market_data:82 - Stock market data fetched: 5734 stocks
+2025-07-27 12:49:34 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:114 - Loading cached industry mapping data from data/stocks/industry_stock_mapping_df-20250727.csv
+2025-07-27 12:49:34 - stock_analysis.pipeline - INFO - fetch_market_data:89 - Industry mapping data fetched: 5499 mappings
+2025-07-27 12:49:34 - stock_analysis.pipeline - INFO - fetch_market_data:94 - Market data fetching completed successfully
+2025-07-27 12:49:34 - stock_analysis.main - INFO - run_all_scripts_parallel:329 - Creating individual progress trackers for parallel script execution
+2025-07-27 12:49:34 - stock_analysis.main - INFO - run_all_scripts_parallel:411 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-27 12:49:34 - stock_analysis.stock_filter - INFO - prepare_stock_data:209 - Loaded 1693 stocks across 85 industries
+2025-07-27 12:49:34 - stock_analysis.stock_filter - INFO - process_all_industries_async:438 - Processing industry batch 1/29
+2025-07-27 12:49:34 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:166 - Loaded 5 stocks for account '华泰-沈海纳'
+2025-07-27 12:49:34 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:166 - Loaded 2 stocks for account '中银-杨敏靖'
+2025-07-27 12:49:34 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:166 - Loaded 0 stocks for account '中银-沈海纳'
+2025-07-27 12:49:34 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:166 - Loaded 2 stocks for account '华泰-杨平旃'
+2025-07-27 12:49:34 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:175 - Loaded holding stocks for 4 accounts
+2025-07-27 12:49:45 - stock_analysis.industry_filter - INFO - process_all_industries_async:329 - Processing industry batch 1/29
+2025-07-27 12:57:30 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:114 - Loading cached industry mapping data from data/stocks/industry_stock_mapping_df-20250727.csv
+2025-07-27 12:57:30 - stock_analysis.get_stock_data - INFO - get_stock_market_data:48 - Loading cached stock market data from data/stocks/stock_zh_a_spot_em_df-20250727.csv
+2025-07-27 12:58:36 - stock_analysis.get_stock_data - INFO - main:208 - Starting data fetching test...
+2025-07-27 12:58:36 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:125 - Loading cached industry mapping data from data/stocks/industry_stock_mapping_df-20250727.csv
+2025-07-27 12:58:36 - stock_analysis.get_stock_data - INFO - get_stock_market_data:59 - Loading cached stock market data from data/stocks/stock_zh_a_spot_em_df-20250727.csv
+2025-07-27 12:58:36 - stock_analysis.get_stock_data - INFO - main:217 - Data fetching completed successfully!
+2025-07-27 12:58:36 - stock_analysis.get_stock_data - INFO - main:218 - Industry mapping data: 5499 rows, 2 columns
+2025-07-27 12:58:36 - stock_analysis.get_stock_data - INFO - main:220 - Stock market data: 5734 rows, 23 columns
+2025-07-27 12:59:19 - stock_analysis.get_stock_data - INFO - main:208 - Starting data fetching test...
+2025-07-27 12:59:19 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:125 - Loading cached industry mapping data from data/stocks/industry_stock_mapping_df-20250727.csv
+2025-07-27 12:59:19 - stock_analysis.get_stock_data - INFO - get_stock_market_data:59 - Loading cached stock market data from data/stocks/stock_zh_a_spot_em_df-20250727.csv
+2025-07-27 12:59:19 - stock_analysis.get_stock_data - INFO - main:217 - Data fetching completed successfully!
+2025-07-27 12:59:19 - stock_analysis.get_stock_data - INFO - main:218 - Industry mapping data: 5499 rows, 2 columns
+2025-07-27 12:59:19 - stock_analysis.get_stock_data - INFO - main:220 - Stock market data: 5734 rows, 23 columns
+2025-07-27 12:59:40 - stock_analysis.get_stock_data - INFO - main:208 - Starting data fetching test...
+2025-07-27 12:59:40 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:129 - Removing outdated industry mapping data files
+2025-07-27 12:59:40 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:134 - Fetching industry names from akshare API
+2025-07-27 12:59:40 - stock_analysis.get_stock_data - INFO - get_stock_market_data:63 - Removing outdated stock market data files
+2025-07-27 12:59:40 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Fetching new stock market data from akshare API
+2025-07-27 12:59:48 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:140 - Found 86 industries to process
+2025-07-27 13:02:38 - stock_analysis.get_stock_data - INFO - main:213 - Starting data fetching test...
+2025-07-27 13:02:38 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:134 - Removing outdated industry mapping data files
+2025-07-27 13:02:38 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:139 - Fetching industry names from akshare API
+2025-07-27 13:02:38 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Removing outdated stock market data files
+2025-07-27 13:02:38 - stock_analysis.get_stock_data - INFO - get_stock_market_data:73 - Fetching new stock market data from akshare API
+2025-07-27 13:02:44 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:145 - Found 86 industries to process
+2025-07-27 13:04:34 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:184 - Successfully processed 5499 industry-stock mappings
+2025-07-27 13:04:34 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:195 - Successfully saved industry mapping data to data/stocks/industry_stock_mapping_df-20250727.csv
+2025-07-27 13:05:52 - stock_analysis.main - INFO - main:520 - === Starting China Stock Analysis Pipeline ===
+2025-07-27 13:05:52 - stock_analysis.main - INFO - run_all_scripts_parallel:288 - Starting parallel execution of all scripts with data fetching
+2025-07-27 13:05:52 - stock_analysis.main - INFO - run_all_scripts_parallel:318 - Fetching market data before parallel script execution
+2025-07-27 13:05:52 - stock_analysis.pipeline - INFO - fetch_market_data:75 - Starting market data fetching
+2025-07-27 13:05:52 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Removing outdated stock market data files
+2025-07-27 13:05:52 - stock_analysis.get_stock_data - INFO - get_stock_market_data:73 - Fetching new stock market data from akshare API
+2025-07-27 13:09:41 - stock_analysis.get_stock_data - INFO - main:213 - Starting data fetching test...
+2025-07-27 13:09:41 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:134 - Removing outdated industry mapping data files
+2025-07-27 13:09:41 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:139 - Fetching industry names from akshare API
+2025-07-27 13:09:41 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Removing outdated stock market data files
+2025-07-27 13:09:41 - stock_analysis.get_stock_data - INFO - get_stock_market_data:73 - Fetching new stock market data from akshare API
+2025-07-27 13:09:48 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:145 - Found 86 industries to process
+2025-07-27 13:10:50 - stock_analysis.retry - WARNING - retry_call:106 - Function stock_board_industry_cons_em failed (attempt 1/3): HTTPSConnectionPool(host='29.push2delay.eastmoney.com', port=443): Read timed out. (read timeout=15). Retrying in 1.0 seconds...
+2025-07-27 13:10:51 - stock_analysis.retry - WARNING - retry_call:106 - Function stock_board_industry_cons_em failed (attempt 1/3): HTTPSConnectionPool(host='29.push2delay.eastmoney.com', port=443): Read timed out. (read timeout=15). Retrying in 1.0 seconds...
+2025-07-27 13:11:48 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Removing outdated stock market data files
+2025-07-27 13:11:48 - stock_analysis.get_stock_data - INFO - get_stock_market_data:79 - Fetching new stock market data from akshare API
+2025-07-27 13:13:37 - stock_analysis.get_stock_data - INFO - main:225 - Starting data fetching test...
+2025-07-27 13:13:37 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:146 - Removing outdated industry mapping data files
+2025-07-27 13:13:37 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:151 - Fetching industry names from akshare API
+2025-07-27 13:13:37 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Removing outdated stock market data files
+2025-07-27 13:13:37 - stock_analysis.get_stock_data - INFO - get_stock_market_data:79 - Fetching new stock market data from akshare API
+2025-07-27 13:13:47 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:157 - Found 86 industries to process
+2025-07-27 13:13:47 - stock_analysis.get_stock_data - ERROR - main:250 - Data fetching failed: Only one live display may be active at once

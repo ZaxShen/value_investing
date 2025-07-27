@@ -13,6 +13,10 @@ import json
 import os
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+# Import settings first to disable tqdm before akshare import
+from src.settings import configure_environment
+configure_environment()
+
 import akshare as ak
 import pandas as pd
 

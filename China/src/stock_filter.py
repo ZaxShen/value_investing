@@ -10,6 +10,10 @@ concurrency controls to respect API rate limits.
 import asyncio
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
+# Import settings first to disable tqdm before akshare import
+from src.settings import configure_environment
+configure_environment()
+
 import akshare as ak
 import numpy as np
 import pandas as pd

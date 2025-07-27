@@ -16,7 +16,10 @@
       "Bash(source:*)",
       "Bash(uv:*)",
       "Bash(/Users/zacks/Git/GitHub/value_investing/China/.venv/bin/python --version)",
-      "Bash(where python)"
+      "Bash(where python)",
+      "Bash(python:*)",
+      "Bash(true)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }
