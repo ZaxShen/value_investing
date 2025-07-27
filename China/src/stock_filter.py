@@ -1,7 +1,7 @@
 """
 Stock filtering and analysis for Chinese equity markets.
 
-This module provides a StockAnalyzer class that encapsulates asynchronous functions
+This module provides a StockFilter class that encapsulates asynchronous functions
 to filter and analyze Chinese stocks based on various financial metrics including
 market cap, P/E ratio, and capital flow. It processes stocks by industry with
 concurrency controls to respect API rate limits.
@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 
 from src.utilities.logger import get_logger
+from src.utilities.retry import API_RETRY_CONFIG
 
 if TYPE_CHECKING:
     from rich.progress import Progress
@@ -26,7 +27,7 @@ logger = get_logger("stock_filter")
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 
 
-class StockAnalyzer:
+class StockFilter:
     """
     A class to encapsulate stock filtering and analysis functionality.
 
@@ -35,13 +36,35 @@ class StockAnalyzer:
     based on various financial metrics.
     """
 
+    # Class constants for filtering criteria
+    MAX_MARKET_CAP_YI = 200  # Maximum market cap in 100 million RMB
+    MIN_PE_RATIO = 0
+    MAX_PE_RATIO = 50
+    MIN_MAIN_NET_INFLOW_YI = 1  # Minimum main net inflow in 100 million RMB
+    MAX_PRICE_CHANGE_PERCENT = 10
+    BATCH_SIZE = 3
+
+    # Column definitions
+    STOCK_DATA_COLS = [
+        "代码",
+        "名称",
+        "总市值",
+        "流通市值",
+        "市盈率-动态",
+        "市净率",
+        "60日涨跌幅",
+        "年初至今涨跌幅",
+    ]
+
+    REPORT_DIR = "data/stocks/reports"
+
     def __init__(
         self,
         industry_stock_mapping_df: pd.DataFrame,
         stock_zh_a_spot_em_df: pd.DataFrame,
     ):
         """
-        Initialize the StockAnalyzer with market data.
+        Initialize the StockFilter with market data.
 
         Args:
             industry_stock_mapping_df: DataFrame containing industry-stock mapping
@@ -51,6 +74,93 @@ class StockAnalyzer:
         self.stock_zh_a_spot_em_df = stock_zh_a_spot_em_df
         self.stock_market_df_filtered = None
         self.industry_arr = None
+
+    def _get_analysis_columns(self, days: int) -> List[str]:
+        """
+        Generate analysis column names with dynamic days parameter.
+
+        Args:
+            days: Number of days for fund flow analysis
+
+        Returns:
+            List of column names for analysis results
+        """
+        return [
+            "行业",
+            "代码",
+            "名称",
+            "总市值(亿)",
+            "流通市值(亿)",
+            "市盈率-动态",
+            "市净率",
+            "收盘价",
+            f"{days}日主力净流入-总净额(亿)",
+            f"{days}日涨跌幅(%)",
+            "60日涨跌幅(%)",
+            "年初至今涨跌幅(%)",
+        ]
+
+    def _get_market_by_stock_code(self, stock_code: str) -> str:
+        """
+        Determine the market based on stock code prefix.
+
+        Args:
+            stock_code: Stock code (e.g., "000001", "600001", "301001")
+
+        Returns:
+            Market identifier: "sh" for Shanghai, "sz" for Shenzhen, "bj" for Beijing
+        """
+        if stock_code.startswith("6"):
+            return "sh"  # Shanghai Stock Exchange
+        elif stock_code.startswith("0") or stock_code.startswith("3"):
+            return "sz"  # Shenzhen Stock Exchange
+        else:
+            return "bj"  # Beijing Stock Exchange
+
+    def _save_reports(self, all_industries_df: pd.DataFrame, days: int) -> None:
+        """
+        Save analysis reports to CSV files.
+
+        Args:
+            all_industries_df: DataFrame containing all analysis results
+            days: Number of days used for analysis (for filtering and naming)
+        """
+        # Define the report date with retry mechanism
+        sector_fund_flow = API_RETRY_CONFIG.retry(
+            ak.stock_sector_fund_flow_hist, symbol="证券"
+        )
+        last_date = sector_fund_flow.iloc[-1]["日期"]
+        last_date_str = last_date.strftime("%Y%m%d")
+
+        # Output the all_industries_df to a CSV file with error handling
+        try:
+            raw_report_path = f"{self.REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv"
+            all_industries_df.to_csv(raw_report_path, index=True)
+            logger.info("Report saved to %s", raw_report_path)
+        except (OSError, PermissionError) as e:
+            logger.error("Failed to save raw report: %s", str(e))
+            raise
+
+        # Apply additional filters to all_industries_df
+        main_net_inflow_col = f"{days}日主力净流入-总净额(亿)"
+        price_change_col = f"{days}日涨跌幅(%)"
+        df = all_industries_df[
+            (all_industries_df[main_net_inflow_col] > self.MIN_MAIN_NET_INFLOW_YI)
+            & (all_industries_df[price_change_col] < self.MAX_PRICE_CHANGE_PERCENT)
+        ]
+
+        # Sort the DataFrame by price change percentage
+        df = df.sort_values(by=[price_change_col])
+        df.reset_index(inplace=True, drop=True)
+
+        # Output the filtered DataFrame to a CSV file with error handling
+        try:
+            filtered_report_path = f"{self.REPORT_DIR}/股票筛选报告-{last_date_str}.csv"
+            df.to_csv(filtered_report_path, index=True)
+            logger.info("Filtered report saved to %s", filtered_report_path)
+        except (OSError, PermissionError) as e:
+            logger.error("Failed to save filtered report: %s", str(e))
+            raise
 
     def prepare_stock_data(self) -> Tuple[pd.DataFrame, np.ndarray]:
         """
@@ -67,27 +177,16 @@ class StockAnalyzer:
                 - industry_arr: Array of unique industry names for further processing
         """
 
-        # Define required COLS
-        COLS = [
-            "代码",
-            "名称",
-            "总市值",
-            "流通市值",
-            "市盈率-动态",
-            "市净率",
-            "60日涨跌幅",
-            "年初至今涨跌幅",
-        ]
+        # Use class constant for columns
 
-        # Filter stock market data
-        # 总市值 < 200 亿, 0 < 动态市盈率 < 50
+        # Filter stock market data using class constants
         stock_market_df_filtered = self.stock_zh_a_spot_em_df[
-            (self.stock_zh_a_spot_em_df["总市值"] < 200 * 1e8)
-            & (self.stock_zh_a_spot_em_df["市盈率-动态"] > 0)
-            & (self.stock_zh_a_spot_em_df["市盈率-动态"] < 50)
+            (self.stock_zh_a_spot_em_df["总市值"] < self.MAX_MARKET_CAP_YI * 1e8)
+            & (self.stock_zh_a_spot_em_df["市盈率-动态"] > self.MIN_PE_RATIO)
+            & (self.stock_zh_a_spot_em_df["市盈率-动态"] < self.MAX_PE_RATIO)
         ]
         # Extract required data
-        stock_market_df_filtered = stock_market_df_filtered[COLS]
+        stock_market_df_filtered = stock_market_df_filtered[self.STOCK_DATA_COLS]
 
         # Inner join industry_stock_mapping_df with stock_market_df_filtered
         stock_market_df_filtered = pd.merge(
@@ -98,7 +197,7 @@ class StockAnalyzer:
         )
 
         # Organize the columns
-        stock_market_df_filtered.columns = ["行业"] + COLS
+        stock_market_df_filtered.columns = ["行业"] + self.STOCK_DATA_COLS
 
         # Get unique industry names
         industry_arr = stock_market_df_filtered["行业"].unique()
@@ -116,7 +215,7 @@ class StockAnalyzer:
 
     def _fetch_stock_fund_flow_sync(self, stock_code: str, market: str) -> pd.DataFrame:
         """
-        Fetch stock individual fund flow data - synchronous version.
+        Fetch stock individual fund flow data with retry mechanism.
 
         Args:
             stock_code: Stock code (e.g., "000001")
@@ -125,7 +224,9 @@ class StockAnalyzer:
         Returns:
             DataFrame containing historical fund flow data for the specified stock
         """
-        return ak.stock_individual_fund_flow(stock=stock_code, market=market)
+        return API_RETRY_CONFIG.retry(
+            ak.stock_individual_fund_flow, stock=stock_code, market=market
+        )
 
     async def process_single_stock_async(
         self,
@@ -160,12 +261,7 @@ class StockAnalyzer:
             )
 
             # Determine the market based on the stock code
-            if stock_code.startswith("6"):
-                market = "sh"
-            elif stock_code.startswith("0") or stock_code.startswith("3"):
-                market = "sz"
-            else:
-                market = "bj"
+            market = self._get_market_by_stock_code(stock_code)
 
             try:
                 # Extract the stock's market data
@@ -203,9 +299,18 @@ class StockAnalyzer:
                     stock_individual_fund_flow_df["主力净流入-净额"].sum() / 1e8, 1
                 )
 
-                # Calculate change percentage
+                # Calculate change percentage with division by zero protection
                 stock_1st_price = stock_individual_fund_flow_df.iloc[0]["收盘价"]
                 stock_last_price = stock_individual_fund_flow_df.iloc[-1]["收盘价"]
+
+                if stock_1st_price == 0:
+                    logger.warning(
+                        "First price is zero for %s (%s), skipping price change calculation",
+                        stock_name,
+                        stock_code,
+                    )
+                    return None
+
                 stock_price_change_percentage = round(
                     (stock_last_price - stock_1st_price) / stock_1st_price * 100, 1
                 )
@@ -255,20 +360,7 @@ class StockAnalyzer:
         ][["代码", "名称"]]
 
         # Define columns for consistency
-        columns = [
-            "行业",
-            "代码",
-            "名称",
-            "总市值(亿)",
-            "流通市值(亿)",
-            "市盈率-动态",
-            "市净率",
-            "收盘价",
-            f"{days}日主力净流入-总净额(亿)",
-            f"{days}日涨跌幅(%)",
-            "60日涨跌幅(%)",
-            "年初至今涨跌幅(%)",
-        ]
+        columns = self._get_analysis_columns(days)
 
         df = pd.DataFrame(columns=columns)
 
@@ -315,26 +407,13 @@ class StockAnalyzer:
             with complete financial metrics and fund flow data
         """
         # Define columns for consistency
-        columns = [
-            "行业",
-            "代码",
-            "名称",
-            "总市值(亿)",
-            "流通市值(亿)",
-            "市盈率-动态",
-            "市净率",
-            "收盘价",
-            f"{days}日主力净流入-总净额(亿)",
-            f"{days}日涨跌幅(%)",
-            "60日涨跌幅(%)",
-            "年初至今涨跌幅(%)",
-        ]
+        columns = self._get_analysis_columns(days)
 
         # Store results in a list to avoid repeated concatenation
         result_dfs = []
 
         # Process industries with some concurrency but not too much to avoid overwhelming the API
-        batch_size = 3
+        batch_size = self.BATCH_SIZE
         total_batches = (len(self.industry_arr) + batch_size - 1) // batch_size
 
         # Use pre-created batch task if provided, otherwise create new one
@@ -439,36 +518,8 @@ class StockAnalyzer:
             batch_task_id,
         )
 
-        # Define the report date
-        last_date = ak.stock_sector_fund_flow_hist(symbol="证券").iloc[-1]["日期"]
-        last_date_str = last_date.strftime("%Y%m%d")
-
-        # Define the directory for reports
-        REPORT_DIR = "data/stocks/reports"
-
-        # Output the all_industries_df to a CSV file
-        all_industries_df.to_csv(
-            f"{REPORT_DIR}/股票筛选报告-raw-{last_date_str}.csv", index=True
-        )
-        logger.info(
-            "Report saved to %s/股票筛选报告-raw-%s.csv", REPORT_DIR, last_date_str
-        )
-
-        # Apply additional filters to all_industries_df
-        df = all_industries_df[
-            (all_industries_df[f"{days}日主力净流入-总净额(亿)"] > 1)
-            & (all_industries_df[f"{days}日涨跌幅(%)"] < 10)
-        ]
-
-        # Sort the DataFrame by pe and {days} change percentage
-        df = df.sort_values(by=[f"{days}日涨跌幅(%)"])
-        df.reset_index(inplace=True, drop=True)
-
-        # Output the filtered DataFrame to a CSV file
-        df.to_csv(f"{REPORT_DIR}/股票筛选报告-{last_date_str}.csv", index=True)
-        logger.info(
-            "Filtered report saved to %s/股票筛选报告-%s.csv", REPORT_DIR, last_date_str
-        )
+        # Save reports (raw and filtered)
+        self._save_reports(all_industries_df, days)
 
 
 async def main(
@@ -481,7 +532,7 @@ async def main(
     """
     Main async function to execute the complete stock filtering pipeline.
 
-    This function creates a StockAnalyzer instance and runs the complete analysis.
+    This function creates a StockFilter instance and runs the complete analysis.
     Maintained for backward compatibility.
 
     Args:
@@ -491,5 +542,5 @@ async def main(
         parent_task_id: Optional parent task ID for hierarchical progress structure
         batch_task_id: Optional pre-created batch task ID for proper hierarchy display
     """
-    analyzer = StockAnalyzer(industry_stock_mapping_df, stock_zh_a_spot_em_df)
-    await analyzer.run_analysis(29, progress, parent_task_id, batch_task_id)
+    stock_filter = StockFilter(industry_stock_mapping_df, stock_zh_a_spot_em_df)
+    await stock_filter.run_analysis(29, progress, parent_task_id, batch_task_id)
