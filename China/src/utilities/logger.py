@@ -6,10 +6,10 @@ It uses Rich for enhanced console output that integrates well with progress bars
 """
 
 import logging
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+
 from rich.logging import RichHandler
 
 
@@ -48,7 +48,9 @@ def setup_logger(name: str = "stock_analysis", level: str = "INFO") -> logging.L
 
     # File handler - detailed logging
     today = datetime.now().strftime("%Y%m%d")
-    file_handler = logging.FileHandler(log_dir / f"stock_analysis_{today}.log", encoding="utf-8")
+    file_handler = logging.FileHandler(
+        log_dir / f"stock_analysis_{today}.log", encoding="utf-8"
+    )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(detailed_formatter)
 
