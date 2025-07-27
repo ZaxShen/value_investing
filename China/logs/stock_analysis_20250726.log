@@ -150,3 +150,12 @@
 2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
 2025-07-26 02:10:11 - stock_analysis.timer - ERROR - async_wrapper:32 - Error in get_stock_market_data: API Error
 2025-07-26 02:10:11 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0041 s
+2025-07-26 10:31:48 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 10:31:48 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 10:32:37 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 49.1118 s
+2025-07-26 10:34:05 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 136.9721 s
+2025-07-26 10:37:28 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_stock_market_data
+2025-07-26 10:37:28 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_stock_market_data' runtime: 0.0154 s
+2025-07-26 10:37:28 - stock_analysis.timer - INFO - async_wrapper:27 - Starting async function: get_industry_stock_mapping_data
+2025-07-26 10:37:28 - stock_analysis.timer - INFO - async_wrapper:40 - ⏱️  Function 'get_industry_stock_mapping_data' runtime: 0.0043 s
+2025-07-26 10:37:46 - stock_analysis.stock_analysis - INFO - main:241 - Report saved to data/holding_stocks/reports/持股报告-20250725.csv
