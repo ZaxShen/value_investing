@@ -46,7 +46,7 @@ logger = get_logger("get_stock_data")
 
 
 # @timer
-async def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
+async def get_stock_market_data(data_dir: str = "data/stocks", progress: Progress = None) -> pd.DataFrame:
     """
     Fetch stock market data with caching and progress tracking.
 
@@ -62,6 +62,7 @@ async def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
 
     if os.path.exists(file_path):
         logger.info("Loading cached stock market data from %s", file_path)
+        console.print("[green]✓ Found cached stock market data[/green]")
         return pd.read_csv(file_path, dtype={"代码": str})
 
     # Delete outdated files
@@ -70,30 +71,37 @@ async def get_stock_market_data(data_dir: str = "data/stocks") -> pd.DataFrame:
         os.remove(f)
 
     # Fetch and save new data with retry mechanism and progress tracking
-    with Progress(console=console) as progress:
-        task = progress.add_task(
-            "[cyan]Fetching stock market data from akshare API...", 
-            total=None  # Indeterminate progress for single API call
+    use_own_progress = progress is None
+    if use_own_progress:
+        progress = Progress(console=console)
+        progress.start()
+    
+    task = progress.add_task(
+        "[cyan]Fetching stock market data from akshare API...", 
+        total=None  # Indeterminate progress for single API call
+    )
+    
+    logger.info("Fetching new stock market data from akshare API")
+    try:
+        stock_df = await asyncio.to_thread(
+            API_RETRY_CONFIG.retry, ak.stock_zh_a_spot_em
         )
         
-        logger.info("Fetching new stock market data from akshare API")
-        try:
-            stock_df = await asyncio.to_thread(
-                API_RETRY_CONFIG.retry, ak.stock_zh_a_spot_em
-            )
-            
-            # Update progress to show completion
-            progress.update(task, completed=1, total=1, description="[green]✓ Stock market data fetched successfully")
-            await asyncio.sleep(0.5)  # Brief pause to show completion
-            
-            os.makedirs(data_dir, exist_ok=True)
-            stock_df.to_csv(file_path, index=False)
-            logger.info("Successfully saved stock market data to %s", file_path)
-            return stock_df
-        except Exception as e:
-            progress.update(task, description="[red]✗ Failed to fetch stock market data")
-            logger.error("Failed to fetch stock market data: %s", str(e))
-            raise
+        # Update progress to show completion
+        progress.update(task, completed=1, total=1, description="[green]✓ Stock market data fetched successfully")
+        await asyncio.sleep(0.5)  # Brief pause to show completion
+        
+        os.makedirs(data_dir, exist_ok=True)
+        stock_df.to_csv(file_path, index=False)
+        logger.info("Successfully saved stock market data to %s", file_path)
+        return stock_df
+    except Exception as e:
+        progress.update(task, description="[red]✗ Failed to fetch stock market data")
+        logger.error("Failed to fetch stock market data: %s", str(e))
+        raise
+    finally:
+        if use_own_progress:
+            progress.stop()
 
 
 async def _fetch_industry_stocks(industry_name: str) -> List[tuple]:
@@ -123,7 +131,7 @@ async def _fetch_industry_stocks(industry_name: str) -> List[tuple]:
 
 # @timer
 async def get_industry_stock_mapping_data(
-    data_dir: str = "data/stocks",
+    data_dir: str = "data/stocks", progress: Progress = None
 ) -> pd.DataFrame:
     """
     Fetch industry-stock mapping data with caching and optimized concurrent processing.
@@ -140,6 +148,7 @@ async def get_industry_stock_mapping_data(
 
     if os.path.exists(file_path):
         logger.info("Loading cached industry mapping data from %s", file_path)
+        console.print("[green]✓ Found cached industry mapping data[/green]")
         return pd.read_csv(file_path, dtype={"代码": str})
 
     # Delete outdated files
@@ -163,12 +172,17 @@ async def get_industry_stock_mapping_data(
     batch_size = 10
     all_mappings = []
 
-    with Progress(console=console) as progress:
-        task = progress.add_task(
-            f"[cyan]Processing {len(industry_names)} industries...",
-            total=len(industry_names),
-        )
+    use_own_progress = progress is None
+    if use_own_progress:
+        progress = Progress(console=console)
+        progress.start()
+    
+    task = progress.add_task(
+        f"[cyan]Processing {len(industry_names)} industries...",
+        total=len(industry_names),
+    )
 
+    try:
         for i in range(0, len(industry_names), batch_size):
             batch = industry_names[i : i + batch_size]
 
@@ -189,6 +203,12 @@ async def get_industry_stock_mapping_data(
 
             # Add small delay between batches to be respectful to API
             await asyncio.sleep(0.1)
+        
+        # Update progress to show completion
+        progress.update(task, description="[green]✓ Industry data processed successfully")
+    finally:
+        if use_own_progress:
+            progress.stop()
 
     # Convert to DataFrame efficiently using list of tuples
     if all_mappings:
@@ -217,7 +237,7 @@ async def main():
     Main function to test data fetching functionality.
     
     This function fetches both industry mapping and stock market data
-    concurrently and displays basic statistics about the retrieved data.
+    using a shared progress display to avoid Rich conflicts.
     
     Returns:
         Tuple of (industry_stock_mapping_df, stock_zh_a_spot_em_df)
@@ -225,10 +245,12 @@ async def main():
     logger.info("Starting data fetching test...")
     
     try:
-        # Fetch both datasets concurrently
-        industry_stock_mapping_df, stock_zh_a_spot_em_df = await asyncio.gather(
-            get_industry_stock_mapping_data(), get_stock_market_data()
-        )
+        # Use single Progress context for both operations
+        with Progress(console=console) as progress:
+            industry_stock_mapping_df, stock_zh_a_spot_em_df = await asyncio.gather(
+                get_industry_stock_mapping_data(progress=progress),
+                get_stock_market_data(progress=progress)
+            )
         
         # Display basic statistics
         logger.info("Data fetching completed successfully!")
@@ -236,13 +258,6 @@ async def main():
                    len(industry_stock_mapping_df), len(industry_stock_mapping_df.columns))
         logger.info("Stock market data: %d rows, %d columns", 
                    len(stock_zh_a_spot_em_df), len(stock_zh_a_spot_em_df.columns))
-        
-        # Show sample data
-        console.print("\n[bold green]Industry Mapping Data Sample:[/bold green]")
-        console.print(industry_stock_mapping_df.head())
-        
-        console.print("\n[bold green]Stock Market Data Sample:[/bold green]")
-        console.print(stock_zh_a_spot_em_df.head())
         
         return industry_stock_mapping_df, stock_zh_a_spot_em_df
         
