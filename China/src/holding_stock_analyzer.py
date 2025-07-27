@@ -8,6 +8,9 @@ investment decision making.
 """
 
 import asyncio
+import glob
+import json
+import os
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import akshare as ak
@@ -35,6 +38,7 @@ class HoldingStockAnalyzer:
     # Class constants for analysis parameters
     DAYS_ANALYSIS_PERIOD = 29  # Default analysis period in days
     REPORT_DIR = "data/holding_stocks/reports"
+    HOLDING_STOCKS_DIR = "data/holding_stocks"
 
     def __init__(
         self,
@@ -115,6 +119,61 @@ class HoldingStockAnalyzer:
                 )
         except (IndexError, KeyError):
             raise ValueError(f"Stock code {stock_code} not found")
+
+    def load_holding_stocks_from_files(self, dir_path: str = None) -> Dict[str, Dict[str, str]]:
+        """
+        Load holding stocks data from JSON files in the specified directory.
+
+        Args:
+            dir_path: Directory path containing JSON files (default: class constant)
+
+        Returns:
+            Dictionary with account names as keys and {stock_code: stock_name} 
+            dictionaries as values
+
+        Raises:
+            FileNotFoundError: If directory doesn't exist
+            ValueError: If JSON files are malformed
+        """
+        if dir_path is None:
+            dir_path = self.HOLDING_STOCKS_DIR
+
+        if not os.path.exists(dir_path):
+            raise FileNotFoundError(f"Holding stocks directory not found: {dir_path}")
+
+        holding_stocks_data = {}
+        json_files = glob.glob(os.path.join(dir_path, "*.json"))
+        
+        if not json_files:
+            logger.warning("No JSON files found in directory: %s", dir_path)
+            return holding_stocks_data
+
+        for file_path in json_files:
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    account_name = os.path.splitext(os.path.basename(file_path))[0]
+                    holding_stocks = json.load(f)
+                    
+                    # Validate JSON structure
+                    if not isinstance(holding_stocks, dict):
+                        raise ValueError(f"JSON file {file_path} should contain a dictionary")
+                    
+                    for stock_code, stock_name in holding_stocks.items():
+                        if not isinstance(stock_code, str) or not isinstance(stock_name, str):
+                            raise ValueError(f"Invalid stock data in {file_path}: {stock_code} -> {stock_name}")
+                    
+                    holding_stocks_data[account_name] = holding_stocks
+                    logger.info("Loaded %d stocks for account '%s'", len(holding_stocks), account_name)
+                    
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.error("Error loading JSON file %s: %s", file_path, str(e))
+                raise ValueError(f"Malformed JSON file {file_path}: {str(e)}")
+            except Exception as e:
+                logger.error("Error reading file %s: %s", file_path, str(e))
+                raise
+
+        logger.info("Loaded holding stocks for %d accounts", len(holding_stocks_data))
+        return holding_stocks_data
 
     def _fetch_stock_fund_flow_sync(self, stock_code: str, market: str) -> pd.DataFrame:
         """
@@ -332,6 +391,42 @@ class HoldingStockAnalyzer:
 
         # Save the report
         self._save_report(df, last_date_str)
+
+    async def run_analysis_from_files(
+        self,
+        dir_path: str = None,
+        days: int = None,
+        progress: Optional["Progress"] = None,
+        parent_task_id: Optional[int] = None,
+        batch_task_id: Optional[int] = None,
+    ) -> None:
+        """
+        Load holding stocks from JSON files and run the complete analysis pipeline.
+
+        This is a convenience method that combines loading JSON files and running analysis.
+
+        Args:
+            dir_path: Directory path containing JSON files (default: class constant)
+            days: Number of days to analyze (default: class constant)
+            progress: Optional Rich Progress instance for hierarchical progress tracking
+            parent_task_id: Optional parent task ID for hierarchical progress structure
+            batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+        """
+        # Load holding stocks data from JSON files
+        holding_stocks_data = self.load_holding_stocks_from_files(dir_path)
+        
+        if not holding_stocks_data:
+            logger.warning("No holding stocks data loaded, skipping analysis")
+            return
+        
+        # Run the analysis with loaded data
+        await self.run_analysis(
+            holding_stocks_data=holding_stocks_data,
+            days=days,
+            progress=progress,
+            parent_task_id=parent_task_id,
+            batch_task_id=batch_task_id,
+        )
 
 
 async def main(
