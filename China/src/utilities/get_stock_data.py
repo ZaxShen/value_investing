@@ -66,12 +66,6 @@ async def get_stock_market_data(
 
     if os.path.exists(file_path):
         logger.info("Loading cached stock market data from %s", file_path)
-        # Update progress bar if one is provided
-        if progress:
-            task = progress.add_task(
-                "    [green]✓ Found cached stock market data", total=1, completed=1
-            )
-            await asyncio.sleep(0.3)  # Brief pause to show the status
         return pd.read_csv(file_path, dtype={"代码": str})
 
     # Delete outdated files
@@ -162,12 +156,6 @@ async def get_industry_stock_mapping_data(
 
     if os.path.exists(file_path):
         logger.info("Loading cached industry mapping data from %s", file_path)
-        # Update progress bar if one is provided
-        if progress:
-            task = progress.add_task(
-                "    [green]✓ Found cached industry mapping data", total=1, completed=1
-            )
-            await asyncio.sleep(0.3)  # Brief pause to show the status
         return pd.read_csv(file_path, dtype={"代码": str})
 
     # Delete outdated files

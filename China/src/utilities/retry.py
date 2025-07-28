@@ -2,10 +2,11 @@
 Retry utilities for API calls and network operations.
 
 This module provides decorators and functions for implementing retry logic
-with exponential backoff, configurable parameters, and comprehensive logging.
+with exponential backoff, timeout handling, configurable parameters, and comprehensive logging.
 """
 
 import time
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from functools import wraps
 from typing import Any, Callable, Optional, Type, Union
 
@@ -64,10 +65,11 @@ def retry_call(
     backoff_multiplier: float = 2.0,
     exceptions: Union[Type[Exception], tuple] = Exception,
     logger_name: Optional[str] = None,
+    timeout: Optional[float] = 30.0,
     **kwargs
 ) -> Any:
     """
-    Retry a function call with exponential backoff.
+    Retry a function call with exponential backoff and timeout handling.
     
     Args:
         func: The function to retry
@@ -77,6 +79,7 @@ def retry_call(
         backoff_multiplier: Multiplier for delay on each retry (default: 2.0)
         exceptions: Exception types to catch and retry (default: Exception)
         logger_name: Optional custom logger name
+        timeout: Timeout in seconds for each attempt (default: 30.0)
         **kwargs: Keyword arguments for the function
         
     Returns:
@@ -90,36 +93,93 @@ def retry_call(
             requests.get,
             "https://api.example.com/data",
             max_retries=5,
-            initial_delay=0.5
+            initial_delay=0.5,
+            timeout=60.0
         )
     """
     retry_logger = get_logger(logger_name) if logger_name else logger
     last_exception = None
     delay = initial_delay
     
-    for attempt in range(max_retries):
-        try:
+    def run_with_timeout():
+        """Run the function with timeout handling."""
+        if timeout is None:
             return func(*args, **kwargs)
-        except exceptions as e:
-            last_exception = e
-            if attempt < max_retries - 1:
+        
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(func, *args, **kwargs)
+            try:
+                return future.result(timeout=timeout)
+            except FutureTimeoutError:
                 retry_logger.warning(
-                    "Function %s failed (attempt %d/%d): %s. Retrying in %.1f seconds...",
+                    "Function %s timed out after %.1f seconds",
                     func.__name__,
+                    timeout
+                )
+                raise TimeoutError(f"Function {func.__name__} timed out after {timeout} seconds")
+    
+    for attempt in range(max_retries):
+        start_time = time.time()
+        try:
+            result = run_with_timeout()
+            elapsed = time.time() - start_time
+            
+            if elapsed > 10:  # Log if call took longer than 10 seconds
+                retry_logger.info(
+                    "Function %s completed in %.1f seconds (attempt %d/%d)",
+                    func.__name__,
+                    elapsed,
                     attempt + 1,
-                    max_retries,
-                    str(e),
-                    delay
+                    max_retries
                 )
-                time.sleep(delay)
-                delay *= backoff_multiplier
+            
+            return result
+            
+        except (Exception, TimeoutError) as e:
+            # Only catch if it matches our configured exceptions or is a TimeoutError
+            if isinstance(e, TimeoutError) or isinstance(e, exceptions):
+                last_exception = e
+                elapsed = time.time() - start_time
+                
+                if attempt < max_retries - 1:
+                    if isinstance(e, TimeoutError):
+                        retry_logger.warning(
+                            "Function %s timed out (attempt %d/%d) after %.1f seconds. Retrying in %.1f seconds...",
+                            func.__name__,
+                            attempt + 1,
+                            max_retries,
+                            elapsed,
+                            delay
+                        )
+                    else:
+                        retry_logger.warning(
+                            "Function %s failed (attempt %d/%d): %s. Retrying in %.1f seconds...",
+                            func.__name__,
+                            attempt + 1,
+                            max_retries,
+                            str(e),
+                            delay
+                        )
+                    time.sleep(delay)
+                    delay *= backoff_multiplier
+                else:
+                    if isinstance(e, TimeoutError):
+                        retry_logger.error(
+                            "Function %s timed out after %d attempts (total time: %.1f seconds)",
+                            func.__name__,
+                            max_retries,
+                            elapsed
+                        )
+                    else:
+                        retry_logger.error(
+                            "Function %s failed after %d attempts: %s",
+                            func.__name__,
+                            max_retries,
+                            str(e)
+                        )
             else:
-                retry_logger.error(
-                    "Function %s failed after %d attempts: %s",
-                    func.__name__,
-                    max_retries,
-                    str(e)
-                )
+                # Re-raise exceptions we're not configured to handle
+                raise
     
     if last_exception:
         raise last_exception
@@ -136,6 +196,7 @@ class RetryConfig:
         initial_delay: float = 1.0,
         backoff_multiplier: float = 2.0,
         exceptions: Union[Type[Exception], tuple] = Exception,
+        timeout: Optional[float] = 30.0,
     ):
         """
         Initialize retry configuration.
@@ -145,11 +206,13 @@ class RetryConfig:
             initial_delay: Initial delay between retries in seconds
             backoff_multiplier: Multiplier for delay on each retry
             exceptions: Exception types to catch and retry
+            timeout: Timeout in seconds for each attempt
         """
         self.max_retries = max_retries
         self.initial_delay = initial_delay
         self.backoff_multiplier = backoff_multiplier
         self.exceptions = exceptions
+        self.timeout = timeout
     
     def retry(self, func: Callable, *args, **kwargs) -> Any:
         """
@@ -170,6 +233,7 @@ class RetryConfig:
             initial_delay=self.initial_delay,
             backoff_multiplier=self.backoff_multiplier,
             exceptions=self.exceptions,
+            timeout=self.timeout,
             **kwargs
         )
 
@@ -179,19 +243,22 @@ API_RETRY_CONFIG = RetryConfig(
     max_retries=3,
     initial_delay=1.0,
     backoff_multiplier=2.0,
-    exceptions=(ConnectionError, TimeoutError, Exception)
+    exceptions=(ConnectionError, TimeoutError, Exception),
+    timeout=45.0  # 45 second timeout for API calls
 )
 
 NETWORK_RETRY_CONFIG = RetryConfig(
     max_retries=5,
     initial_delay=0.5,
     backoff_multiplier=1.5,
-    exceptions=(ConnectionError, TimeoutError)
+    exceptions=(ConnectionError, TimeoutError),
+    timeout=30.0  # 30 second timeout for network operations
 )
 
 FILE_RETRY_CONFIG = RetryConfig(
     max_retries=2,
     initial_delay=0.1,
     backoff_multiplier=2.0,
-    exceptions=(OSError, PermissionError)
+    exceptions=(OSError, PermissionError),
+    timeout=10.0  # 10 second timeout for file operations
 )

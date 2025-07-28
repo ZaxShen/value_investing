@@ -280,10 +280,18 @@ class StockFilter:
                 stock_60d_change = stock_data["60日涨跌幅"]
                 stock_ytd_change = stock_data["年初至今涨跌幅"]
 
-                # Extract the historical data of the stock (async)
-                stock_individual_fund_flow_df = await asyncio.to_thread(
-                    self._fetch_stock_fund_flow_sync, stock_code, market
-                )
+                # Extract the historical data of the stock (async) with timeout
+                try:
+                    stock_individual_fund_flow_df = await asyncio.wait_for(
+                        asyncio.to_thread(self._fetch_stock_fund_flow_sync, stock_code, market),
+                        timeout=60.0  # 60 second timeout for fund flow data
+                    )
+                except asyncio.TimeoutError:
+                    logger.warning(
+                        "Timeout fetching fund flow data for %s (%s) after 60 seconds, skipping",
+                        stock_name, stock_code
+                    )
+                    return None
 
                 if len(stock_individual_fund_flow_df) < days:
                     logger.warning(

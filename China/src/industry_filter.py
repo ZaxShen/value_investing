@@ -197,10 +197,15 @@ class IndustryFilter:
 
         async with REQUEST_SEMAPHORE:
             try:
-                # Fetch industry capital flow data
-                stock_sector_fund_flow_hist_df = await asyncio.to_thread(
-                    self._fetch_industry_capital_flow_data_sync, industry_name, days
-                )
+                # Fetch industry capital flow data with timeout
+                try:
+                    stock_sector_fund_flow_hist_df = await asyncio.wait_for(
+                        asyncio.to_thread(self._fetch_industry_capital_flow_data_sync, industry_name, days),
+                        timeout=45.0  # 45 second timeout
+                    )
+                except asyncio.TimeoutError:
+                    logger.warning("Timeout fetching capital flow data for industry %s, skipping", industry_name)
+                    return None
                 # Calculate main net flow
                 industry_main_net_flow = stock_sector_fund_flow_hist_df[
                     "主力净流入-净额"
@@ -209,13 +214,20 @@ class IndustryFilter:
                     industry_main_net_flow / 1e8, 1
                 )  # Convert to 100M
 
-                # Fetch industry index data
-                stock_board_industry_hist_em = await asyncio.to_thread(
-                    self._fetch_industry_index_data_sync,
-                    industry_name,
-                    first_date_str,
-                    last_date_str,
-                )
+                # Fetch industry index data with timeout
+                try:
+                    stock_board_industry_hist_em = await asyncio.wait_for(
+                        asyncio.to_thread(
+                            self._fetch_industry_index_data_sync,
+                            industry_name,
+                            first_date_str,
+                            last_date_str,
+                        ),
+                        timeout=45.0  # 45 second timeout
+                    )
+                except asyncio.TimeoutError:
+                    logger.warning("Timeout fetching index data for industry %s, skipping", industry_name)
+                    return None
                 # Get the index of the last trading date
                 industry_last_index = stock_board_industry_hist_em["收盘"].iloc[-1]
                 # Get the index of the desired trading date
