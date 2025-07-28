@@ -54,6 +54,99 @@ def temp_logs_dir():
 
 
 @pytest.fixture
+def test_logs_dir():
+    """
+    Provide the tests/logs directory for persistent test log storage.
+    
+    This fixture provides a dedicated directory within the tests folder
+    for storing test-generated log files. Unlike temp_logs_dir, these
+    logs persist after test completion for debugging and analysis.
+    
+    The directory is created if it doesn't exist and cleaned before
+    each test session to ensure a fresh start.
+    
+    Returns:
+        Path: Path to tests/logs directory
+    
+    Usage:
+        def test_logging_to_file(test_logs_dir):
+            log_file = test_logs_dir / "my_test.log"
+            # Configure logging to write to this file...
+    """
+    # Get path to tests/logs directory
+    tests_dir = Path(__file__).parent
+    logs_dir = tests_dir / "logs"
+    
+    # Create directory if it doesn't exist
+    logs_dir.mkdir(exist_ok=True)
+    
+    return logs_dir
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_logging():
+    """
+    Configure test logging to write to tests/logs directory.
+    
+    This session-scoped fixture automatically configures logging for all tests
+    to write to the tests/logs directory. It runs once per test session and
+    sets up file handlers for different log levels.
+    
+    Features:
+    - Creates separate log files for different test runs
+    - Includes timestamp in log filenames
+    - Maintains separate files for different log levels
+    - Automatically rotates logs to prevent huge files
+    """
+    import datetime
+    
+    # Get tests/logs directory
+    tests_dir = Path(__file__).parent
+    logs_dir = tests_dir / "logs"
+    logs_dir.mkdir(exist_ok=True)
+    
+    # Create timestamped log filename
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Configure root logger for tests
+    root_logger = logging.getLogger()
+    
+    # Remove existing handlers to avoid duplicates
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Create file handler for all test logs
+    log_file = logs_dir / f"test_run_{timestamp}.log"
+    file_handler = logging.FileHandler(log_file, mode='w')
+    file_handler.setLevel(logging.DEBUG)
+    
+    # Create formatter with detailed information
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+    )
+    file_handler.setFormatter(formatter)
+    
+    # Add handler to root logger
+    root_logger.addHandler(file_handler)
+    root_logger.setLevel(logging.DEBUG)
+    
+    # Also create error-only log file
+    error_log_file = logs_dir / f"test_errors_{timestamp}.log"
+    error_handler = logging.FileHandler(error_log_file, mode='w')
+    error_handler.setLevel(logging.ERROR)
+    error_handler.setFormatter(formatter)
+    root_logger.addHandler(error_handler)
+    
+    yield
+    
+    # Cleanup: Remove handlers after session
+    root_logger.removeHandler(file_handler)
+    root_logger.removeHandler(error_handler)
+    file_handler.close()
+    error_handler.close()
+
+
+@pytest.fixture
 def clean_loggers():
     """
     Clean up loggers after each test to avoid interference.

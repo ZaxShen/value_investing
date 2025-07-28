@@ -10,6 +10,10 @@ coverage.xml
 *.py,cover
 tests/coverage_html/
 
+# Test logs (but keep the directory)
+tests/logs/*.log
+!tests/logs/.gitkeep
+
 # Jupyter Notebooks (China-specific)
 test.ipynb
 
