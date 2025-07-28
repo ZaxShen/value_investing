@@ -1,0 +1,6 @@
+# This file ensures the logs directory is tracked in git
+# Log files will be stored here during test execution
+# 
+# Test log files generated:
+# - test_run_YYYYMMDD_HHMMSS.log (all test logs)
+# - test_errors_YYYYMMDD_HHMMSS.log (error-level logs only)
