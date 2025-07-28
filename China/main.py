@@ -77,16 +77,28 @@ class StockAnalysisPipeline:
         if progress and task_id:
             progress.update(task_id, description="📊 Fetching stock market data...")
         
-        # Fetch stock market data
-        self.stock_zh_a_spot_em_df = await get_stock_market_data(self.data_dir)
-        self.logger.info("Stock market data fetched: %d stocks", len(self.stock_zh_a_spot_em_df))
+        # Create a local progress context if none provided
+        if progress:
+            # Use provided progress instance
+            shared_progress = progress
+        else:
+            # Create temporary progress for standalone use
+            from rich.progress import Progress
+            shared_progress = Progress(console=console)
+            shared_progress.start()
         
-        if progress and task_id:
-            progress.update(task_id, completed=50, description="📈 Fetching industry mappings...")
-        
-        # Fetch industry-stock mapping data
-        self.industry_stock_mapping_df = await get_industry_stock_mapping_data(self.data_dir)
-        self.logger.info("Industry mapping data fetched: %d mappings", len(self.industry_stock_mapping_df))
+        try:
+            # Fetch both datasets in parallel for better performance
+            self.stock_zh_a_spot_em_df, self.industry_stock_mapping_df = await asyncio.gather(
+                get_stock_market_data(self.data_dir, progress=shared_progress),
+                get_industry_stock_mapping_data(self.data_dir, progress=shared_progress)
+            )
+            self.logger.info("Stock market data fetched: %d stocks", len(self.stock_zh_a_spot_em_df))
+            self.logger.info("Industry mapping data fetched: %d mappings", len(self.industry_stock_mapping_df))
+        finally:
+            # Clean up temporary progress if we created it
+            if not progress:
+                shared_progress.stop()
         
         if progress and task_id:
             progress.update(task_id, completed=100, description="✅ Market data ready")
