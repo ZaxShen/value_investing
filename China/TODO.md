@@ -1,19 +1,20 @@
 # TODO
 
-Update `src/utilities/get_stock_data`
+## Features
 
-- apply `retry` mechanism
-- don't forget to adjust logging system if needed
-- do not update pytest for now
+### Stuck issues
 
-Update `main.py`
+When API call get stucks, can the program return some info or logs? Maybe we need to upgrade `retry.py`
 
-- refactor it to class
-  - keep the original funcitionality
-  - add code about fetching data from `src/utilities/get_stock_data`
-  - returned two vars are `industry_stock_mapping_df`, `stock_zh_a_spot_em_df`
-  - run the code aysnchoronusly
-  - this function must be run before `IndustryFilter`, `StockFilter`, and `HoldingStockAnalyzer`
-- Asynchronouly run `IndustryFilter`, `StockFilter`, and `HoldingStockAnalyzer`
-- don't forget to adjust logging system if needed
-- do not update pytest for now
+```sh
+➜  China git:(dev-rich-tqdm) ✗ uv run main.py                                          
+🚀 Starting China Stock Analysis Pipeline
+⠼ 🚀 Parallel Stock Analysis Pipeline                       ━━━━━━━━━━━━━╺━━━━━━━━━━━━━━━━━━━━━━━━━━  33% 0:12:25
+  ✅ Market Data Ready                                      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:48
+  ✓ Stock market data fetched successfully                  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:47
+  ✓ Industry data processed successfully                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:19
+⠼ 🔄 Starting Stock Filter...                               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% 0:11:37
+⠼     📊 Stock Filter: Processing batch 8/29 (3 industries) ━━━━━━━━━╸━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  24% 0:11:37
+  ✅ Holding Stock Analyzer completed                       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:07
+  ✅ Industry Filter completed                              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:42
+```

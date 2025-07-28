@@ -1,0 +1,103 @@
+2025-07-28 00:03:56 - stock_analysis.main - INFO - main:541 - === Starting China Stock Analysis Pipeline ===
+2025-07-28 00:03:56 - stock_analysis.main - INFO - run_all_scripts_parallel:309 - Starting parallel execution of all scripts with data fetching
+2025-07-28 00:03:56 - stock_analysis.main - INFO - run_all_scripts_parallel:339 - Fetching market data before parallel script execution
+2025-07-28 00:03:56 - stock_analysis.pipeline - INFO - fetch_market_data:75 - Starting market data fetching
+2025-07-28 00:03:56 - stock_analysis.get_stock_data - INFO - get_stock_market_data:76 - Removing outdated stock market data files
+2025-07-28 00:03:56 - stock_analysis.get_stock_data - INFO - get_stock_market_data:91 - Fetching new stock market data from akshare API
+2025-07-28 00:03:56 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:170 - Removing outdated industry mapping data files
+2025-07-28 00:03:56 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:175 - Fetching industry names from akshare API
+2025-07-28 00:03:58 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:181 - Found 86 industries to process
+2025-07-28 00:04:17 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:233 - Successfully processed 5498 industry-stock mappings
+2025-07-28 00:04:17 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:244 - Successfully saved industry mapping data to data/stocks/industry_stock_mapping_df-20250728.csv
+2025-07-28 00:04:44 - stock_analysis.get_stock_data - INFO - get_stock_market_data:108 - Successfully saved stock market data to data/stocks/stock_zh_a_spot_em_df-20250728.csv
+2025-07-28 00:04:44 - stock_analysis.pipeline - INFO - fetch_market_data:105 - Stock market data fetched: 5735 stocks
+2025-07-28 00:04:44 - stock_analysis.pipeline - INFO - fetch_market_data:106 - Industry mapping data fetched: 5498 mappings
+2025-07-28 00:04:44 - stock_analysis.pipeline - INFO - fetch_market_data:115 - Market data fetching completed successfully
+2025-07-28 00:04:44 - stock_analysis.main - INFO - run_all_scripts_parallel:350 - Creating individual progress trackers for parallel script execution
+2025-07-28 00:04:44 - stock_analysis.main - INFO - run_all_scripts_parallel:432 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-28 00:04:44 - stock_analysis.stock_filter - INFO - prepare_stock_data:213 - Loaded 1690 stocks across 85 industries
+2025-07-28 00:04:44 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 1/29
+2025-07-28 00:04:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 5 stocks for account '华泰-沈海纳'
+2025-07-28 00:04:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 2 stocks for account '中银-杨敏靖'
+2025-07-28 00:04:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 0 stocks for account '中银-沈海纳'
+2025-07-28 00:04:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 2 stocks for account '华泰-杨平旃'
+2025-07-28 00:04:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:179 - Loaded holding stocks for 4 accounts
+2025-07-28 00:04:46 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 1/29
+2025-07-28 00:04:49 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 2/29
+2025-07-28 00:04:50 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 3/29
+2025-07-28 00:04:51 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 4/29
+2025-07-28 00:04:52 - stock_analysis.holding_stock_analyzer - INFO - _save_report:322 - Report saved to data/holding_stocks/reports/持股报告-20250725.csv
+2025-07-28 00:04:52 - stock_analysis.main - INFO - run_with_detailed_progress:421 - ✅ Holding Stock Analyzer completed (top-level task kept visible)
+2025-07-28 00:04:52 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 5/29
+2025-07-28 00:04:53 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 6/29
+2025-07-28 00:04:56 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 7/29
+2025-07-28 00:04:57 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 8/29
+2025-07-28 00:04:58 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 9/29
+2025-07-28 00:04:59 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 10/29
+2025-07-28 00:05:01 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 11/29
+2025-07-28 00:05:02 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 12/29
+2025-07-28 00:05:03 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 13/29
+2025-07-28 00:05:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 14/29
+2025-07-28 00:05:05 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 15/29
+2025-07-28 00:05:06 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 16/29
+2025-07-28 00:05:07 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 17/29
+2025-07-28 00:05:09 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 18/29
+2025-07-28 00:05:10 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 19/29
+2025-07-28 00:05:12 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 20/29
+2025-07-28 00:05:14 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 21/29
+2025-07-28 00:05:16 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 22/29
+2025-07-28 00:05:17 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 23/29
+2025-07-28 00:05:18 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 24/29
+2025-07-28 00:05:19 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 25/29
+2025-07-28 00:05:21 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 26/29
+2025-07-28 00:05:22 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 27/29
+2025-07-28 00:05:23 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 28/29
+2025-07-28 00:05:25 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 29/29
+2025-07-28 00:05:27 - stock_analysis.industry_filter - INFO - _save_reports:404 - Report saved to data/stocks/reports/行业筛选报告-raw-20250728.csv
+2025-07-28 00:05:27 - stock_analysis.industry_filter - INFO - _save_reports:428 - Filtered report saved to data/stocks/reports/行业筛选报告-20250728.csv
+2025-07-28 00:05:27 - stock_analysis.main - INFO - run_with_detailed_progress:421 - ✅ Industry Filter completed (top-level task kept visible)
+2025-07-28 00:06:03 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 2/29
+2025-07-28 00:06:15 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 3/29
+2025-07-28 00:06:32 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 4/29
+2025-07-28 00:06:51 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 5/29
+2025-07-28 00:06:56 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 6/29
+2025-07-28 00:07:07 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 7/29
+2025-07-28 00:07:21 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 8/29
+2025-07-28 00:07:34 - stock_analysis.stock_filter - WARNING - process_single_stock_async:289 - Skipping 华之杰 (603400) due to insufficient data for the last 29 days
+2025-07-28 00:17:44 - stock_analysis.main - INFO - main:541 - === Starting China Stock Analysis Pipeline ===
+2025-07-28 00:17:44 - stock_analysis.main - INFO - run_all_scripts_parallel:309 - Starting parallel execution of all scripts with data fetching
+2025-07-28 00:17:44 - stock_analysis.main - INFO - run_all_scripts_parallel:339 - Fetching market data before parallel script execution
+2025-07-28 00:17:44 - stock_analysis.pipeline - INFO - fetch_market_data:75 - Starting market data fetching
+2025-07-28 00:17:44 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Loading cached stock market data from data/stocks/stock_zh_a_spot_em_df-20250728.csv
+2025-07-28 00:17:44 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:162 - Loading cached industry mapping data from data/stocks/industry_stock_mapping_df-20250728.csv
+2025-07-28 00:17:44 - stock_analysis.pipeline - INFO - fetch_market_data:105 - Stock market data fetched: 5735 stocks
+2025-07-28 00:17:44 - stock_analysis.pipeline - INFO - fetch_market_data:106 - Industry mapping data fetched: 5498 mappings
+2025-07-28 00:17:44 - stock_analysis.pipeline - INFO - fetch_market_data:115 - Market data fetching completed successfully
+2025-07-28 00:17:44 - stock_analysis.main - INFO - run_all_scripts_parallel:350 - Creating individual progress trackers for parallel script execution
+2025-07-28 00:17:44 - stock_analysis.main - INFO - run_all_scripts_parallel:432 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-28 00:17:44 - stock_analysis.stock_filter - INFO - prepare_stock_data:213 - Loaded 1690 stocks across 85 industries
+2025-07-28 00:17:44 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 1/29
+2025-07-28 00:17:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 5 stocks for account '华泰-沈海纳'
+2025-07-28 00:17:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 2 stocks for account '中银-杨敏靖'
+2025-07-28 00:17:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 0 stocks for account '中银-沈海纳'
+2025-07-28 00:17:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 2 stocks for account '华泰-杨平旃'
+2025-07-28 00:17:44 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:179 - Loaded holding stocks for 4 accounts
+2025-07-28 00:18:00 - stock_analysis.main - INFO - main:541 - === Starting China Stock Analysis Pipeline ===
+2025-07-28 00:18:00 - stock_analysis.main - INFO - run_all_scripts_parallel:309 - Starting parallel execution of all scripts with data fetching
+2025-07-28 00:18:00 - stock_analysis.main - INFO - run_all_scripts_parallel:339 - Fetching market data before parallel script execution
+2025-07-28 00:18:00 - stock_analysis.pipeline - INFO - fetch_market_data:75 - Starting market data fetching
+2025-07-28 00:18:00 - stock_analysis.get_stock_data - INFO - get_stock_market_data:68 - Loading cached stock market data from data/stocks/stock_zh_a_spot_em_df-20250728.csv
+2025-07-28 00:18:00 - stock_analysis.get_stock_data - INFO - get_industry_stock_mapping_data:164 - Loading cached industry mapping data from data/stocks/industry_stock_mapping_df-20250728.csv
+2025-07-28 00:18:00 - stock_analysis.pipeline - INFO - fetch_market_data:105 - Stock market data fetched: 5735 stocks
+2025-07-28 00:18:00 - stock_analysis.pipeline - INFO - fetch_market_data:106 - Industry mapping data fetched: 5498 mappings
+2025-07-28 00:18:00 - stock_analysis.pipeline - INFO - fetch_market_data:115 - Market data fetching completed successfully
+2025-07-28 00:18:00 - stock_analysis.main - INFO - run_all_scripts_parallel:350 - Creating individual progress trackers for parallel script execution
+2025-07-28 00:18:00 - stock_analysis.main - INFO - run_all_scripts_parallel:432 - 🚀 Launching parallel script execution with hierarchical progress tracking
+2025-07-28 00:18:00 - stock_analysis.stock_filter - INFO - prepare_stock_data:213 - Loaded 1690 stocks across 85 industries
+2025-07-28 00:18:00 - stock_analysis.stock_filter - INFO - process_all_industries_async:442 - Processing industry batch 1/29
+2025-07-28 00:18:00 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 5 stocks for account '华泰-沈海纳'
+2025-07-28 00:18:00 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 2 stocks for account '中银-杨敏靖'
+2025-07-28 00:18:00 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 0 stocks for account '中银-沈海纳'
+2025-07-28 00:18:00 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:170 - Loaded 2 stocks for account '华泰-杨平旃'
+2025-07-28 00:18:00 - stock_analysis.holding_stock_analyzer - INFO - load_holding_stocks_from_files:179 - Loaded holding stocks for 4 accounts
+2025-07-28 00:18:04 - stock_analysis.industry_filter - INFO - process_all_industries_async:333 - Processing industry batch 1/29
