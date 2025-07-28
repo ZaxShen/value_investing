@@ -27,9 +27,9 @@ from rich.progress import (
     TimeElapsedColumn,  # Shows elapsed time since task started
 )
 
-from src.industry_filter import main as industry_filter_main
-from src.holding_stock_analyzer import main as holding_stock_analyzer_main
-from src.stock_filter import main as stock_filter_main
+from src.industry_filter import IndustryFilter
+from src.holding_stock_analyzer import HoldingStockAnalyzer
+from src.stock_filter import StockFilter
 from src.utilities.get_stock_data import get_stock_market_data, get_industry_stock_mapping_data
 from src.utilities.logger import get_logger, set_console_log_level
 
@@ -116,32 +116,33 @@ class StockAnalysisPipeline:
     
     async def run_stock_filter(self, progress: Optional[Progress] = None, **kwargs) -> None:
         """Run stock filter analysis with the fetched data."""
-        await stock_filter_main(
+        stock_filter = StockFilter(
             self.industry_stock_mapping_df,
-            self.stock_zh_a_spot_em_df,
-            progress=progress,
-            **kwargs
+            self.stock_zh_a_spot_em_df
         )
+        await stock_filter.run_analysis(progress=progress, **kwargs)
     
     async def run_industry_filter(self, progress: Optional[Progress] = None, **kwargs) -> None:
         """Run industry filter analysis."""
-        await industry_filter_main(progress=progress, **kwargs)
+        industry_filter = IndustryFilter()
+        await industry_filter.run_analysis(progress=progress, **kwargs)
     
     async def run_holding_stock_analyzer(self, holding_stocks_data: dict = None, progress: Optional[Progress] = None, **kwargs) -> None:
         """Run holding stock analysis with the fetched data."""
+        analyzer = HoldingStockAnalyzer(
+            self.industry_stock_mapping_df,
+            self.stock_zh_a_spot_em_df
+        )
+        
         if holding_stocks_data:
             # Use provided data
-            await holding_stock_analyzer_main(
-                self.industry_stock_mapping_df,
-                self.stock_zh_a_spot_em_df,
+            await analyzer.run_analysis(
                 holding_stocks_data,
                 progress=progress,
                 **kwargs
             )
         else:
             # Use file-based approach (load JSON files)
-            from src.holding_stock_analyzer import HoldingStockAnalyzer
-            analyzer = HoldingStockAnalyzer(self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df)
             await analyzer.run_analysis_from_files(progress=progress, **kwargs)
 
 
