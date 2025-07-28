@@ -42,10 +42,6 @@ def setup_logger(name: str = "stock_analysis", level: str = "INFO") -> logging.L
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    simple_formatter = logging.Formatter(
-        fmt="%(asctime)s - %(levelname)s - %(message)s", datefmt="%H:%M:%S"
-    )
-
     # File handler - detailed logging
     today = datetime.now().strftime("%Y%m%d")
     file_handler = logging.FileHandler(

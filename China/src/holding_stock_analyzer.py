@@ -24,7 +24,7 @@ from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG
 
 if TYPE_CHECKING:
-    from rich.progress import Progress
+    from rich.progress import Progress, TaskID
 
 # Initialize logger for this module
 logger = get_logger("holding_stock_analyzer")
@@ -124,7 +124,7 @@ class HoldingStockAnalyzer:
         except (IndexError, KeyError):
             raise ValueError(f"Stock code {stock_code} not found")
 
-    def load_holding_stocks_from_files(self, dir_path: str = None) -> Dict[str, Dict[str, str]]:
+    def load_holding_stocks_from_files(self, dir_path: Optional[str] = None) -> Dict[str, Dict[str, str]]:
         """
         Load holding stocks data from JSON files in the specified directory.
 
@@ -211,7 +211,7 @@ class HoldingStockAnalyzer:
         industry_name: str,
         stock_code: str,
         stock_name: str,
-        days: int = None,
+        days: Optional[int] = None,
     ) -> Optional[List[Any]]:
         """
         Perform comprehensive analysis of a single stock including fund flow and performance metrics.
@@ -327,10 +327,10 @@ class HoldingStockAnalyzer:
     async def run_analysis(
         self,
         holding_stocks_data: Dict[str, Dict[str, str]],
-        days: int = None,
-        progress: Optional["Progress"] = None,
-        parent_task_id: Optional[int] = None,
-        batch_task_id: Optional[int] = None,
+        days: Optional[int] = None,
+        _progress: Optional["Progress"] = None,
+        _parent_task_id: Optional["TaskID"] = None,
+        _batch_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
         Run the complete holding stock analysis pipeline.
@@ -398,11 +398,11 @@ class HoldingStockAnalyzer:
 
     async def run_analysis_from_files(
         self,
-        dir_path: str = None,
-        days: int = None,
+        dir_path: Optional[str] = None,
+        days: Optional[int] = None,
         progress: Optional["Progress"] = None,
-        parent_task_id: Optional[int] = None,
-        batch_task_id: Optional[int] = None,
+        parent_task_id: Optional["TaskID"] = None,
+        batch_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
         Load holding stocks from JSON files and run the complete analysis pipeline.
@@ -427,9 +427,9 @@ class HoldingStockAnalyzer:
         await self.run_analysis(
             holding_stocks_data=holding_stocks_data,
             days=days,
-            progress=progress,
-            parent_task_id=parent_task_id,
-            batch_task_id=batch_task_id,
+            _progress=progress,
+            _parent_task_id=parent_task_id,
+            _batch_task_id=batch_task_id,
         )
 
 
@@ -438,8 +438,8 @@ async def main(
     stock_zh_a_spot_em_df: pd.DataFrame,
     holding_stocks_data: Dict[str, Dict[str, str]],
     progress: Optional["Progress"] = None,
-    parent_task_id: Optional[int] = None,
-    batch_task_id: Optional[int] = None,
+    parent_task_id: Optional["TaskID"] = None,
+    batch_task_id: Optional["TaskID"] = None,
 ) -> None:
     """
     Main function to execute holding stock analysis and generate reports.
@@ -461,7 +461,7 @@ async def main(
     )
     await holding_stock_analyzer.run_analysis(
         holding_stocks_data=holding_stocks_data,
-        progress=progress,
-        parent_task_id=parent_task_id,
-        batch_task_id=batch_task_id,
+        _progress=progress,
+        _parent_task_id=parent_task_id,
+        _batch_task_id=batch_task_id,
     )

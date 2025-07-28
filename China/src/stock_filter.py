@@ -22,7 +22,7 @@ from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG
 
 if TYPE_CHECKING:
-    from rich.progress import Progress
+    from rich.progress import Progress, TaskID
 
 # Initialize logger for this module
 logger = get_logger("stock_filter")
@@ -76,8 +76,8 @@ class StockFilter:
         """
         self.industry_stock_mapping_df = industry_stock_mapping_df
         self.stock_zh_a_spot_em_df = stock_zh_a_spot_em_df
-        self.stock_market_df_filtered = None
-        self.industry_arr = None
+        self.stock_market_df_filtered: Optional[pd.DataFrame] = None
+        self.industry_arr: Optional[np.ndarray] = None
 
     def _get_analysis_columns(self, days: int) -> List[str]:
         """
@@ -268,6 +268,10 @@ class StockFilter:
             market = self._get_market_by_stock_code(stock_code)
 
             try:
+                # Ensure data is prepared
+                if self.stock_market_df_filtered is None:
+                    raise ValueError("Stock data not prepared. Call prepare_stock_data() first.")
+                
                 # Extract the stock's market data
                 stock_data = self.stock_market_df_filtered[
                     self.stock_market_df_filtered["代码"] == stock_code
@@ -366,6 +370,10 @@ class StockFilter:
             DataFrame containing analysis results for all stocks in the industry,
             with columns for market cap, P/E ratio, fund flow, and price changes
         """
+        # Ensure data is prepared
+        if self.stock_market_df_filtered is None:
+            raise ValueError("Stock data not prepared. Call prepare_stock_data() first.")
+        
         # Extract all qualified stocks from stock_market_df_filtered
         stocks = self.stock_market_df_filtered[
             self.stock_market_df_filtered["行业"] == industry_name
@@ -380,7 +388,7 @@ class StockFilter:
         tasks = []
         for row in stocks.itertuples():
             task = self.process_single_stock_async(
-                row.代码, row.名称, industry_name, days
+                str(row.代码), str(row.名称), industry_name, days
             )
             tasks.append(task)
 
@@ -390,7 +398,14 @@ class StockFilter:
         # Process results and add to DataFrame
         for result in results:
             if result is not None and not isinstance(result, Exception):
-                df.loc[len(df)] = result
+                try:
+                    # Ensure result is a list before adding to DataFrame
+                    if isinstance(result, list):
+                        df.loc[len(df)] = result
+                    else:
+                        logger.warning("Unexpected result type: %s", type(result))
+                except Exception as e:
+                    logger.warning("Failed to add result to DataFrame: %s", str(e))
 
         return df
 
@@ -398,8 +413,8 @@ class StockFilter:
         self,
         days: int = 29,
         progress: Optional["Progress"] = None,
-        parent_task_id: Optional[int] = None,
-        batch_task_id: Optional[int] = None,
+        parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
+        batch_task_id: Optional["TaskID"] = None,
     ) -> pd.DataFrame:
         """
         Process all industries concurrently with batch processing and rate limiting.
@@ -424,6 +439,10 @@ class StockFilter:
         # Store results in a list to avoid repeated concatenation
         result_dfs = []
 
+        # Ensure data is prepared
+        if self.industry_arr is None:
+            raise ValueError("Industry data not prepared. Call prepare_stock_data() first.")
+        
         # Process industries with some concurrency but not too much to avoid overwhelming the API
         batch_size = self.BATCH_SIZE
         total_batches = (len(self.industry_arr) + batch_size - 1) // batch_size
@@ -472,12 +491,17 @@ class StockFilter:
 
             # Collect valid results
             for result in batch_results:
-                if (
-                    result is not None
-                    and not isinstance(result, Exception)
-                    and not result.empty
-                ):
-                    result_dfs.append(result)
+                if result is not None and not isinstance(result, Exception):
+                    try:
+                        # Check if result is a DataFrame and not empty
+                        # Use explicit type check to satisfy type checker
+                        if (hasattr(result, 'empty') and hasattr(result, 'iloc') and 
+                            not isinstance(result, BaseException)):
+                            # Now type checker knows result is not an Exception
+                            if not result.empty:  # type: ignore[attr-defined]
+                                result_dfs.append(result)
+                    except Exception as e:
+                        logger.warning("Error checking result validity: %s", str(e))
 
             # Update batch progress after completion
             if progress is not None and batch_task_id is not None:
@@ -504,8 +528,8 @@ class StockFilter:
         self,
         days: int = 29,
         progress: Optional["Progress"] = None,
-        parent_task_id: Optional[int] = None,
-        batch_task_id: Optional[int] = None,
+        parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
+        batch_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
         Run the complete stock filtering pipeline.
@@ -538,8 +562,8 @@ async def main(
     industry_stock_mapping_df: pd.DataFrame,
     stock_zh_a_spot_em_df: pd.DataFrame,
     progress: Optional["Progress"] = None,
-    parent_task_id: Optional[int] = None,
-    batch_task_id: Optional[int] = None,
+    parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
+    batch_task_id: Optional["TaskID"] = None,
 ) -> None:
     """
     Main async function to execute the complete stock filtering pipeline.
