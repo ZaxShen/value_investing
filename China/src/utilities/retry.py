@@ -15,6 +15,11 @@ from src.utilities.logger import get_logger
 logger = get_logger("retry")
 
 
+def _get_func_name(func: Callable) -> str:
+    """Get function name safely, handling cases where __name__ may not exist."""
+    return getattr(func, '__name__', repr(func))
+
+
 def retry_with_backoff(
     max_retries: int = 3,
     initial_delay: float = 1.0,
@@ -97,7 +102,11 @@ def retry_call(
             timeout=60.0
         )
     """
-    retry_logger = get_logger(logger_name) if logger_name else logger
+    try:
+        retry_logger = get_logger(logger_name) if logger_name else logger
+    except Exception:
+        # Fallback to default logger if custom logger fails
+        retry_logger = logger
     last_exception = None
     delay = initial_delay
     
@@ -113,10 +122,10 @@ def retry_call(
             except FutureTimeoutError:
                 retry_logger.warning(
                     "Function %s timed out after %.1f seconds",
-                    func.__name__,
+                    _get_func_name(func),
                     timeout
                 )
-                raise TimeoutError(f"Function {func.__name__} timed out after {timeout} seconds")
+                raise TimeoutError(f"Function {_get_func_name(func)} timed out after {timeout} seconds")
     
     for attempt in range(max_retries):
         start_time = time.time()
@@ -124,10 +133,10 @@ def retry_call(
             result = run_with_timeout()
             elapsed = time.time() - start_time
             
-            if elapsed > 10:  # Log if call took longer than 10 seconds
+            if elapsed > 0.01:  # Log if call took longer than 10 milliseconds
                 retry_logger.info(
                     "Function %s completed in %.1f seconds (attempt %d/%d)",
-                    func.__name__,
+                    _get_func_name(func),
                     elapsed,
                     attempt + 1,
                     max_retries
@@ -145,7 +154,7 @@ def retry_call(
                     if isinstance(e, TimeoutError):
                         retry_logger.warning(
                             "Function %s timed out (attempt %d/%d) after %.1f seconds. Retrying in %.1f seconds...",
-                            func.__name__,
+                            _get_func_name(func),
                             attempt + 1,
                             max_retries,
                             elapsed,
@@ -154,7 +163,7 @@ def retry_call(
                     else:
                         retry_logger.warning(
                             "Function %s failed (attempt %d/%d): %s. Retrying in %.1f seconds...",
-                            func.__name__,
+                            _get_func_name(func),
                             attempt + 1,
                             max_retries,
                             str(e),
@@ -166,14 +175,14 @@ def retry_call(
                     if isinstance(e, TimeoutError):
                         retry_logger.error(
                             "Function %s timed out after %d attempts (total time: %.1f seconds)",
-                            func.__name__,
+                            _get_func_name(func),
                             max_retries,
                             elapsed
                         )
                     else:
                         retry_logger.error(
                             "Function %s failed after %d attempts: %s",
-                            func.__name__,
+                            _get_func_name(func),
                             max_retries,
                             str(e)
                         )
@@ -184,7 +193,7 @@ def retry_call(
     if last_exception:
         raise last_exception
     else:
-        raise RuntimeError(f"No attempts were made for function {func.__name__}")
+        raise RuntimeError(f"No attempts were made for function {_get_func_name(func)}")
 
 
 class RetryConfig:

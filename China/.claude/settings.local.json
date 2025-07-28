@@ -19,7 +19,9 @@
       "Bash(where python)",
       "Bash(python:*)",
       "Bash(true)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }
