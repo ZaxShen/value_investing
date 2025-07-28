@@ -5,7 +5,23 @@
       "Bash(find:*)",
       "Bash(uv run:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(python -m black:*)"
+      "Bash(python -m black:*)",
+      "Bash(code:*)",
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(brew list:*)",
+      "Bash(brew uninstall:*)",
+      "Bash(echo $SHELL)",
+      "Bash(grep:*)",
+      "Bash(source:*)",
+      "Bash(uv:*)",
+      "Bash(/Users/zacks/Git/GitHub/value_investing/China/.venv/bin/python --version)",
+      "Bash(where python)",
+      "Bash(python:*)",
+      "Bash(true)",
+      "Bash(timeout:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }
