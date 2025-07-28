@@ -1,0 +1,33 @@
+# China-specific patterns (parent .gitignore covers basic Python patterns)
+
+# Testing & Coverage
+.coverage
+.coverage.*
+.pytest_cache/
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+tests/coverage_html/
+
+# Test logs (but keep the directory)
+tests/logs/*.log
+!tests/logs/.gitkeep
+
+# Jupyter Notebooks (China-specific)
+test.ipynb
+
+# China Data Files (generated reports and cached data)
+data/stocks/*.csv
+data/stocks/reports/*.csv
+data/holding_stocks/reports/*.csv
+data/today/*.csv
+
+# China Log Files
+logs/*.log
+
+# IDE & OS (if not in parent)
+.vscode/
+.idea/
+*.swp
+*.swo
