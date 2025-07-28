@@ -28,10 +28,13 @@ from rich.progress import (
     TimeElapsedColumn,  # Shows elapsed time since task started
 )
 
-from src.industry_filter import IndustryFilter
 from src.holding_stock_analyzer import HoldingStockAnalyzer
+from src.industry_filter import IndustryFilter
 from src.stock_filter import StockFilter
-from src.utilities.get_stock_data import get_stock_market_data, get_industry_stock_mapping_data
+from src.utilities.get_stock_data import (
+    get_industry_stock_mapping_data,
+    get_stock_market_data,
+)
 from src.utilities.logger import get_logger, set_console_log_level
 
 # Initialize logger and Rich console for styled output
@@ -44,16 +47,16 @@ console = Console()
 class StockAnalysisPipeline:
     """
     A class to orchestrate the complete China stock analysis pipeline.
-    
+
     This class manages data fetching, analysis execution, and report generation
     for all components of the stock analysis system including stock filtering,
     industry analysis, and holding stock analysis.
     """
-    
+
     def __init__(self, data_dir: str = "data/stocks"):
         """
         Initialize the StockAnalysisPipeline.
-        
+
         Args:
             data_dir: Directory for storing cached data files
         """
@@ -61,23 +64,30 @@ class StockAnalysisPipeline:
         self.industry_stock_mapping_df = None
         self.stock_zh_a_spot_em_df = None
         self.logger = get_logger("pipeline")
-    
-    async def fetch_market_data(self, progress: Optional[Progress] = None, task_id: Optional[TaskID] = None) -> None:
+
+    async def fetch_market_data(
+        self, progress: Optional[Progress] = None, task_id: Optional[TaskID] = None
+    ) -> None:
         """
         Fetch and cache market data required for all analysis modules.
-        
+
         This method must be run before any analysis modules as it provides
         the core data that all other modules depend on.
-        
+
         Args:
             progress: Optional Rich Progress instance for progress tracking
             task_id: Optional task ID for progress updates
         """
         self.logger.info("Starting market data fetching")
-        
+
         if progress and task_id:
-            progress.update(task_id, description="📊 Fetching market data...", completed=0, total=100)
-        
+            progress.update(
+                task_id,
+                description="📊 Fetching market data...",
+                completed=0,
+                total=100,
+            )
+
         # Create a local progress context if none provided
         if progress:
             # Use provided progress instance
@@ -85,68 +95,88 @@ class StockAnalysisPipeline:
         else:
             # Create temporary progress for standalone use
             from rich.progress import Progress
+
             shared_progress = Progress(console=console)
             shared_progress.start()
-        
+
         try:
             # Update progress at start
             if progress and task_id:
-                progress.update(task_id, completed=10, description="📊 Loading market data...")
-            
+                progress.update(
+                    task_id, completed=10, description="📊 Loading market data..."
+                )
+
             # Fetch both datasets in parallel for better performance
-            self.stock_zh_a_spot_em_df, self.industry_stock_mapping_df = await asyncio.gather(
+            (
+                self.stock_zh_a_spot_em_df,
+                self.industry_stock_mapping_df,
+            ) = await asyncio.gather(
                 get_stock_market_data(self.data_dir, progress=shared_progress),
-                get_industry_stock_mapping_data(self.data_dir, progress=shared_progress)
+                get_industry_stock_mapping_data(
+                    self.data_dir, progress=shared_progress
+                ),
             )
-            
+
             # Update progress after data is loaded
             if progress and task_id:
-                progress.update(task_id, completed=90, description="📊 Processing market data...")
-            
-            self.logger.info("Stock market data fetched: %d stocks", len(self.stock_zh_a_spot_em_df))
-            self.logger.info("Industry mapping data fetched: %d mappings", len(self.industry_stock_mapping_df))
+                progress.update(
+                    task_id, completed=90, description="📊 Processing market data..."
+                )
+
+            self.logger.info(
+                "Stock market data fetched: %d stocks", len(self.stock_zh_a_spot_em_df)
+            )
+            self.logger.info(
+                "Industry mapping data fetched: %d mappings",
+                len(self.industry_stock_mapping_df),
+            )
         finally:
             # Clean up temporary progress if we created it
             if not progress:
                 shared_progress.stop()
-        
+
         if progress and task_id:
             progress.update(task_id, completed=100, description="✅ Market data ready")
-        
+
         self.logger.info("Market data fetching completed successfully")
-    
-    async def run_stock_filter(self, progress: Optional[Progress] = None, **kwargs) -> None:
+
+    async def run_stock_filter(
+        self, progress: Optional[Progress] = None, **kwargs
+    ) -> None:
         """Run stock filter analysis with the fetched data."""
         if self.industry_stock_mapping_df is None or self.stock_zh_a_spot_em_df is None:
             raise ValueError("Market data not fetched. Call fetch_market_data() first.")
-        
+
         stock_filter = StockFilter(
-            self.industry_stock_mapping_df,
-            self.stock_zh_a_spot_em_df
+            self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df
         )
         await stock_filter.run_analysis(progress=progress, **kwargs)
-    
-    async def run_industry_filter(self, progress: Optional[Progress] = None, **kwargs) -> None:
+
+    async def run_industry_filter(
+        self, progress: Optional[Progress] = None, **kwargs
+    ) -> None:
         """Run industry filter analysis."""
         industry_filter = IndustryFilter()
         await industry_filter.run_analysis(progress=progress, **kwargs)
-    
-    async def run_holding_stock_analyzer(self, holding_stocks_data: dict = None, progress: Optional[Progress] = None, **kwargs) -> None:
+
+    async def run_holding_stock_analyzer(
+        self,
+        holding_stocks_data: dict = None,
+        progress: Optional[Progress] = None,
+        **kwargs,
+    ) -> None:
         """Run holding stock analysis with the fetched data."""
         if self.industry_stock_mapping_df is None or self.stock_zh_a_spot_em_df is None:
             raise ValueError("Market data not fetched. Call fetch_market_data() first.")
-        
+
         analyzer = HoldingStockAnalyzer(
-            self.industry_stock_mapping_df,
-            self.stock_zh_a_spot_em_df
+            self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df
         )
-        
+
         if holding_stocks_data:
             # Use provided data
             await analyzer.run_analysis(
-                holding_stocks_data,
-                progress=progress,
-                **kwargs
+                holding_stocks_data, progress=progress, **kwargs
             )
         else:
             # Use file-based approach (load JSON files)
@@ -207,7 +237,7 @@ async def copy_latest_reports() -> None:
             "description": "股票筛选报告",
         },
         {
-            "pattern": "data/stocks/reports/行业筛选报告-[0-9]*.csv",  # Filtered industry reports
+            "pattern": "data/stocks/reports/行业筛选报告-raw-[0-9]*.csv",  # Filtered industry reports
             "description": "行业筛选报告",
         },
     ]
@@ -239,11 +269,11 @@ async def run_all_scripts() -> None:
     """
     Run all analysis scripts sequentially with progress tracking using the pipeline class.
 
-    This function executes data fetching, stock filtering, holding stock analysis, 
+    This function executes data fetching, stock filtering, holding stock analysis,
     and industry analysis in sequence, providing detailed progress feedback.
     """
     logger.info("Starting sequential execution of all scripts")
-    
+
     # Initialize the pipeline
     pipeline = StockAnalysisPipeline()
 
@@ -292,8 +322,8 @@ async def run_all_scripts_parallel() -> None:
     """
     Run all analysis scripts in parallel with detailed hierarchical progress tracking using the pipeline class.
 
-    This function first fetches market data, then executes stock filtering, holding stock analysis, 
-    and industry analysis concurrently for better performance. It uses Rich Progress to provide 
+    This function first fetches market data, then executes stock filtering, holding stock analysis,
+    and industry analysis concurrently for better performance. It uses Rich Progress to provide
     real-time progress feedback with a hierarchical structure:
     - Main pipeline progress (high-level stages)
     - Individual script progress bars that appear during execution
@@ -315,7 +345,7 @@ async def run_all_scripts_parallel() -> None:
     - Dynamic task management: Add/remove/update tasks as needed
     """
     logger.info("Starting parallel execution of all scripts with data fetching")
-    
+
     # Initialize the pipeline
     pipeline = StockAnalysisPipeline()
 
@@ -345,14 +375,18 @@ async def run_all_scripts_parallel() -> None:
 
         # Stage 1: Fetch market data (must be first, before any analysis)
         logger.info("Fetching market data before parallel script execution")
-        data_fetch_task = progress.add_task("📊 Fetching Market Data", total=100, visible=True)
-        
+        data_fetch_task = progress.add_task(
+            "📊 Fetching Market Data", total=100, visible=True
+        )
+
         await pipeline.fetch_market_data(progress, data_fetch_task)
-        
+
         # Mark data fetching as complete but keep visible
-        progress.update(data_fetch_task, completed=100, description="✅ Market Data Ready")
+        progress.update(
+            data_fetch_task, completed=100, description="✅ Market Data Ready"
+        )
         progress.advance(main_task)
-        
+
         # Stage 2: Execute all analysis scripts in parallel
         # Create individual progress bars for each script to show detailed progress
         logger.info(
