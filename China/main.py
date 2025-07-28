@@ -23,6 +23,7 @@ from rich.progress import (
     BarColumn,  # Visual progress bars with customizable width and styling
     Progress,  # Main progress container that manages multiple progress bars
     SpinnerColumn,  # Rotating spinner animation for active tasks
+    TaskID,  # Type for task identifiers
     TextColumn,  # Dynamic text descriptions that update during execution
     TimeElapsedColumn,  # Shows elapsed time since task started
 )
@@ -61,7 +62,7 @@ class StockAnalysisPipeline:
         self.stock_zh_a_spot_em_df = None
         self.logger = get_logger("pipeline")
     
-    async def fetch_market_data(self, progress: Optional[Progress] = None, task_id: Optional[int] = None) -> None:
+    async def fetch_market_data(self, progress: Optional[Progress] = None, task_id: Optional[TaskID] = None) -> None:
         """
         Fetch and cache market data required for all analysis modules.
         
@@ -116,6 +117,9 @@ class StockAnalysisPipeline:
     
     async def run_stock_filter(self, progress: Optional[Progress] = None, **kwargs) -> None:
         """Run stock filter analysis with the fetched data."""
+        if self.industry_stock_mapping_df is None or self.stock_zh_a_spot_em_df is None:
+            raise ValueError("Market data not fetched. Call fetch_market_data() first.")
+        
         stock_filter = StockFilter(
             self.industry_stock_mapping_df,
             self.stock_zh_a_spot_em_df
@@ -129,6 +133,9 @@ class StockAnalysisPipeline:
     
     async def run_holding_stock_analyzer(self, holding_stocks_data: dict = None, progress: Optional[Progress] = None, **kwargs) -> None:
         """Run holding stock analysis with the fetched data."""
+        if self.industry_stock_mapping_df is None or self.stock_zh_a_spot_em_df is None:
+            raise ValueError("Market data not fetched. Call fetch_market_data() first.")
+        
         analyzer = HoldingStockAnalyzer(
             self.industry_stock_mapping_df,
             self.stock_zh_a_spot_em_df
