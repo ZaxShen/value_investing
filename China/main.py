@@ -75,7 +75,7 @@ class StockAnalysisPipeline:
         self.logger.info("Starting market data fetching")
         
         if progress and task_id:
-            progress.update(task_id, description="📊 Fetching stock market data...")
+            progress.update(task_id, description="📊 Fetching market data...", completed=0, total=100)
         
         # Create a local progress context if none provided
         if progress:
@@ -88,11 +88,20 @@ class StockAnalysisPipeline:
             shared_progress.start()
         
         try:
+            # Update progress at start
+            if progress and task_id:
+                progress.update(task_id, completed=10, description="📊 Loading market data...")
+            
             # Fetch both datasets in parallel for better performance
             self.stock_zh_a_spot_em_df, self.industry_stock_mapping_df = await asyncio.gather(
                 get_stock_market_data(self.data_dir, progress=shared_progress),
                 get_industry_stock_mapping_data(self.data_dir, progress=shared_progress)
             )
+            
+            # Update progress after data is loaded
+            if progress and task_id:
+                progress.update(task_id, completed=90, description="📊 Processing market data...")
+            
             self.logger.info("Stock market data fetched: %d stocks", len(self.stock_zh_a_spot_em_df))
             self.logger.info("Industry mapping data fetched: %d mappings", len(self.industry_stock_mapping_df))
         finally:
