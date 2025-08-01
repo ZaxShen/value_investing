@@ -79,34 +79,56 @@ async def get_stock_market_data(
         progress = Progress(console=console)
         progress.start()
 
-    task = progress.add_task(
-        "[cyan]Fetching stock market data from akshare API...",
-        total=3,  # Three market calls: SH, SZ, BJ
+    # Create separate progress tasks for each market
+    sh_task = progress.add_task(
+        "    [cyan]Fetching SH stock market data...", total=None
+    )
+    sz_task = progress.add_task(
+        "    [cyan]Fetching SZ stock market data...", total=None
+    )
+    bj_task = progress.add_task(
+        "    [cyan]Fetching BJ stock market data...", total=None
     )
 
     logger.info("Fetching stock market data from three markets concurrently")
+
+    async def fetch_market_data(market_func, task_id, market_name):
+        """Fetch data for a specific market and update its progress."""
+        try:
+            result = await asyncio.to_thread(retry_call, market_func, timeout=None)
+            progress.update(
+                task_id,
+                completed=1,
+                total=1,
+                description=f"    [green]✓ {market_name} stock market data fetched successfully",
+            )
+            return result
+        except Exception:
+            progress.update(
+                task_id,
+                description=f"[red]✗ Failed to fetch {market_name} stock market data",
+            )
+            raise
+
     try:
-        # Fetch data from three markets concurrently
+        # Fetch data from three markets concurrently with individual progress tracking
         sh_df, sz_df, bj_df = await asyncio.gather(
-            asyncio.to_thread(retry_call, ak.stock_sh_a_spot_em, timeout=None),
-            asyncio.to_thread(retry_call, ak.stock_sz_a_spot_em, timeout=None),
-            asyncio.to_thread(retry_call, ak.stock_bj_a_spot_em, timeout=None),
+            fetch_market_data(ak.stock_sh_a_spot_em, sh_task, "SH"),
+            fetch_market_data(ak.stock_sz_a_spot_em, sz_task, "SZ"),
+            fetch_market_data(ak.stock_bj_a_spot_em, bj_task, "BJ"),
         )
-        
-        # Update progress after each market completes
-        progress.update(task, advance=3)
+
+        await asyncio.sleep(0.5)  # Brief pause to show all completions
 
         # Concatenate the three DataFrames
         stock_df = pd.concat([sh_df, sz_df, bj_df], ignore_index=True)
-        logger.info("Combined data from three markets: SH(%d), SZ(%d), BJ(%d) = Total(%d)",
-                   len(sh_df), len(sz_df), len(bj_df), len(stock_df))
-
-        # Update progress to show completion
-        progress.update(
-            task,
-            description="    [green]✓ Stock market data fetched successfully from 3 markets",
+        logger.info(
+            "Combined data from three markets: SH(%d), SZ(%d), BJ(%d) = Total(%d)",
+            len(sh_df),
+            len(sz_df),
+            len(bj_df),
+            len(stock_df),
         )
-        await asyncio.sleep(0.5)  # Brief pause to show completion
 
         os.makedirs(data_dir, exist_ok=True)
         stock_df.to_csv(file_path, index=False)
