@@ -20,7 +20,7 @@ try:
     # Import settings first to disable tqdm before akshare import
     from src.settings import configure_environment
     from src.utilities.logger import get_logger
-    from src.utilities.retry import API_RETRY_CONFIG
+    from src.utilities.retry import API_RETRY_CONFIG, retry_call
 
     configure_environment()  # Ensure tqdm is disabled
 except ModuleNotFoundError:
@@ -30,7 +30,7 @@ except ModuleNotFoundError:
         sys.path.insert(0, str(project_root))
     from src.settings import configure_environment
     from src.utilities.logger import get_logger
-    from src.utilities.retry import API_RETRY_CONFIG
+    from src.utilities.retry import API_RETRY_CONFIG, retry_call
 
     configure_environment()  # Ensure tqdm is disabled
 
@@ -81,21 +81,30 @@ async def get_stock_market_data(
 
     task = progress.add_task(
         "[cyan]Fetching stock market data from akshare API...",
-        total=None,  # Indeterminate progress for single API call
+        total=3,  # Three market calls: SH, SZ, BJ
     )
 
-    logger.info("Fetching new stock market data from akshare API")
+    logger.info("Fetching stock market data from three markets concurrently")
     try:
-        stock_df = await asyncio.to_thread(
-            API_RETRY_CONFIG.retry, ak.stock_zh_a_spot_em
+        # Fetch data from three markets concurrently
+        sh_df, sz_df, bj_df = await asyncio.gather(
+            asyncio.to_thread(retry_call, ak.stock_sh_a_spot_em, timeout=None),
+            asyncio.to_thread(retry_call, ak.stock_sz_a_spot_em, timeout=None),
+            asyncio.to_thread(retry_call, ak.stock_bj_a_spot_em, timeout=None),
         )
+        
+        # Update progress after each market completes
+        progress.update(task, advance=3)
+
+        # Concatenate the three DataFrames
+        stock_df = pd.concat([sh_df, sz_df, bj_df], ignore_index=True)
+        logger.info("Combined data from three markets: SH(%d), SZ(%d), BJ(%d) = Total(%d)",
+                   len(sh_df), len(sz_df), len(bj_df), len(stock_df))
 
         # Update progress to show completion
         progress.update(
             task,
-            completed=1,
-            total=1,
-            description="    [green]✓ Stock market data fetched successfully",
+            description="    [green]✓ Stock market data fetched successfully from 3 markets",
         )
         await asyncio.sleep(0.5)  # Brief pause to show completion
 
