@@ -26,6 +26,9 @@ data/today/*.csv
 # China Log Files
 logs/*.log
 
+# China holding_stocks
+data/holding_stocks/*.json
+
 # IDE & OS (if not in parent)
 .vscode/
 .idea/
