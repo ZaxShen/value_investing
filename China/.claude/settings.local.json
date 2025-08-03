@@ -32,7 +32,8 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git rev-list:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": []
   }

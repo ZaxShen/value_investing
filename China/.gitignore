@@ -1,36 +1,105 @@
 # China-specific patterns (parent .gitignore covers basic Python patterns)
 
-# Testing & Coverage
+# ============================================================================
+# PYTHON & DEVELOPMENT
+# ============================================================================
+
+# Python version management
+.python-version
+
+# Additional Python caches (if not covered by parent)
+.ruff_cache/
+.mypy_cache/
+.cache/
+
+# ============================================================================
+# TESTING & COVERAGE
+# ============================================================================
+
+# Coverage files
 .coverage
 .coverage.*
-.pytest_cache/
-htmlcov/
 coverage.xml
 *.cover
 *.py,cover
+htmlcov/
 tests/coverage_html/
 
-# Test logs (but keep the directory)
+# Pytest cache
+.pytest_cache/
+
+# Test logs (but keep the directory structure)
 tests/logs/*.log
 !tests/logs/.gitkeep
 
-# Jupyter Notebooks (China-specific)
+# ============================================================================
+# JUPYTER NOTEBOOKS
+# ============================================================================
+
+# China-specific test notebooks
 test.ipynb
 
-# China Data Files (generated reports and cached data)
+# Jupyter checkpoint directories
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# ============================================================================
+# DATA FILES (China-specific generated content)
+# ============================================================================
+
+# Stock market data (cached CSV files)
 data/stocks/*.csv
 data/stocks/reports/*.csv
 data/holding_stocks/reports/*.csv
 data/today/*.csv
 
-# China Log Files
-logs/*.log
-
-# China holding_stocks
+# Holding stock data (JSON files)
 data/holding_stocks/*.json
 
-# IDE & OS (if not in parent)
+# Application log files
+logs/*.log
+
+# ============================================================================
+# TEMPORARY & BACKUP FILES
+# ============================================================================
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Backup files
+*.bak
+*.orig
+
+# ============================================================================
+# DEVELOPMENT TOOLS & IDE
+# ============================================================================
+
+# IDE configurations (if not covered by parent)
 .vscode/
 .idea/
+
+# Editor temporary files
 *.swp
 *.swo
+
+# Claude AI tool settings
+.claude/settings.local.json
+
+# ============================================================================
+# ENVIRONMENT & CONFIG (Optional)
+# ============================================================================
+
+# Environment files (uncomment if needed)
+# .env
+# .env.local
+# .env.*.local
+
+# Profiling data (uncomment if needed)
+# *.prof
+
+# Database files (uncomment if needed)
+# *.db
+# *.sqlite
+# *.sqlite3
