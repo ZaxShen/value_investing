@@ -1,119 +1,61 @@
-# README
+# Versions
 
-## rich.progress
+## v1
 
-Perfect! All logger tests are passing. Now let me create
-  a summary of what was implemented:
+### v1.6.0
 
-  ✅ TODO.md Requirements Completed
+- :tada: New Features:
+  - Enabled AI guidelines files `TODO.md` and `AI_TODO.md` for better corporating with AI assistances and project stability.
 
-  I have successfully implemented all the requirements from
-   TODO.md:
+### v1.5.2
 
-  🎯 Progress Bar Implementation
+- :tada: New Features:
+  - Remove all files in git history, which are defined by `.gitignore`, for better cybersecurity and teamwork
 
-  ✅ Low-level batch processing progress bars
 
-- industry_filter.py: Added progress bars for industry
-  batch processing (lines 325-367)
-- stock_filter.py: Added progress bars for stock industry
-   batch processing (lines 326-373)
-- Both scripts now show detailed progress for their batch
-   processing operations
+### v1.5.1
 
-  ✅ Hierarchical structure with clear affiliation
+- :heavy_check_mark: Bug Fix:
+  - Fix progress bar bug. Now it can correctly display `akshare`'s internal progress from `tqdm`
 
-- Main tasks: 3 top-level progress bars for Stock Filter,
-   Stock Analysis, and Industry Filter
-- Subtasks: Batch processing progress bars appear under
-  their respective main tasks
-- Clear hierarchy: Subtasks are visually grouped under
-  their parent operations
+### v1.5.0
 
-  ✅ Subtasks disappear when finished
+- :tada: New Features:
+  - Refactored all code to Class
+  - Improved progress bar to display more info and update progress status in time
+  - Enabled retry features
 
-- Batch processing progress bars are automatically
-  removed using progress.remove_task() when completed
-- Brief completion display: Subtasks show "✅ completed"
-  for 0.5 seconds before disappearing
-- Clean interface: Reduces clutter by removing completed
-  batch operations
+### v1.4.0
 
-  ✅ Top-level tasks remain visible
+- :tada: New Features:
+  - Enabled rich progress bar in hierarchical structure for better visualization
 
-- Main script tasks (Stock Filter, Stock Analysis,
-  Industry Filter) stay visible after completion
-- Main pipeline task remains visible throughout execution
-- No removal: Top-level tasks are marked complete but NOT
-   removed per TODO.md requirements
 
-  🏗️ Technical Implementation Details
+### v1.3.0
 
-  Function Signature Updates
+- :tada: New Features:
+  - Enabled Progress Bar to replace Verbose
+- :warning: Deprecated Features:
+  - Disabled Verbose
 
-### All main functions now accept progress parameters for
+### v1.2.0
 
-  hierarchical tracking
-  async def main(progress: Optional["Progress"] = None,
-  parent_task_id: Optional[int] = None)
+- :tada: New Features:
+  - Enabled Verbose to track program running status
 
-  Batch Processing Enhancement
+### v1.1.0
 
-### Example from stock_filter.py
+- :tada: New Features:
+  - logging
+  - unit tests, and integration test
 
-  batch_task_id = progress.add_task(
-      "📊 Processing industry batches",
-      total=total_batches,
-      visible=True
-  )
 
-### ... processing logic
+### v1.0.0
 
-  progress.remove_task(batch_task_id)  # Subtask disappears
-   when finished
-
-  Hierarchical Progress Structure
-
-- Level 1: Main Pipeline (stays visible)
-- Level 2: Script Tasks - Stock Filter, Stock Analysis,
-  Industry Filter (stay visible)
-- Level 3: Batch Processing (disappear when finished)
-
-  🧪 Testing Status
-
-  ✅ Unit Tests: 32/33 passing (97% pass rate)
-
-- All decorator tests passing (timer now outputs to
-  stdout for test capture)
-- All logger tests passing (100%)
-- Only 1 performance test failing (non-critical)
-
-  ✅ Integration Tests: Most passing
-
-- Core functionality verified through live testing
-- Hierarchical progress structure working correctly
-- Progress bar lifecycle (appear/disappear) functioning
-  as specified
-
-  🚀 Live Demonstration
-
-  The implementation was tested with a live demonstration
-  showing:
-
-  1. Top-level tasks remain visible after completion
-  2. Batch processing subtasks appear during execution and
-  disappear when finished
-  3. Clear hierarchical structure with proper task
-  affiliation
-  4. Real progress feedback from actual batch processing
-  operations
-
-  📋 Key Features Delivered
-
-  ✅ Hierarchical progress tracking with Rich Progress✅
-  Batch processing progress bars for industry_filter.py and
-   stock_filter.py✅ Subtask lifecycle management (appear →
-   process → disappear)✅ Top-level task persistence
-  (remain visible after completion)✅ Detailed docstrings
-  and comments throughout the implementation✅ Test
-  compatibility with existing unit and integration tests
+- :tada: New Features:
+  - Main functionalities are complete, including
+    - stock filter
+    - industry filter
+    - holding stock analyzer
+  - Enabled concurency by `asyncio`
+    - Performance improved by 15x, from 45 mins to 3 mins
