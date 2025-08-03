@@ -20,6 +20,7 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 - Modify this file
 - Auto-execute TODO items without discussion
 - Always agree - challenge ideas when needed
+- Implement when current git branch has unstaged changes or current git branch is main
 
 ---
 
@@ -29,13 +30,3 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 - **QUESTION** unclear requirements
 - **SUGGEST** better solutions when possible
 - This file is for **AI-approved tasks only**
-
----
-
-## Update README.md
-
-Read README.md
-
-- Find what we did and update items for each tag like v1.0.0
-- Make current expression more professional. Be concise.
-- Generate your output to README_AI.md
