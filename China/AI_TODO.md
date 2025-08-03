@@ -20,13 +20,25 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 - Modify this file
 - Auto-execute TODO items without discussion
 - Always agree - challenge ideas when needed
-- Implement when current git branch has unstaged changes or current git branch is main
+- Implement on main branch or with unstaged changes
 
 ---
 
 ### 📋 Rules
 
-- **DISCUSS FIRST** - Always clarify before implementing
+- **DISCUSS FIRST** - Clarify before implementing
 - **QUESTION** unclear requirements
 - **SUGGEST** better solutions when possible
+- **LOG** activities to `logs/vx.x.x_[ai_name].log`
+  - Log silently (no token consumption)
+  - Create/append only (no edit/delete history)
+  - Format: `v1.7.0_claude.log` (version from TODO section below)
+  - Structure: Brief summary at top, then full activity details using format:
+    > user input
+    ⎿ commands, tools; output/result
+    ⏺ My explanatory responses
 - This file is for **AI-approved tasks only**
+
+---
+
+## v1.7.0 TODO

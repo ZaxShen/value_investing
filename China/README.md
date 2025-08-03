@@ -2,6 +2,14 @@
 
 ## v1
 
+### v1.7.0
+
+- :tada: **New Features:**
+  - Restructured codebase for scalable architecture:
+    - `src/analyzers/`: Analyzer modules for stocks and industries
+    - `src/filters/`: Filter modules for screening and analysis
+  - Maintained backward compatibility with updated imports and tests
+
 ### v1.6.0
 
 - :tada: **New Features:**

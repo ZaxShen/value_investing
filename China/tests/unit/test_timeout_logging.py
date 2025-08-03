@@ -208,7 +208,7 @@ class TestStockAnalysisTimeoutLogging:
     @pytest.mark.unit
     async def test_stock_filter_timeout_logging(self, caplog):
         """Test timeout logging in StockFilter operations."""
-        from src.stock_filter import StockFilter
+        from src.filters.stock_filter import StockFilter
         import pandas as pd
         
         # Create minimal test data
@@ -261,7 +261,7 @@ class TestStockAnalysisTimeoutLogging:
     @pytest.mark.unit
     async def test_industry_filter_timeout_logging(self, caplog):
         """Test timeout logging in IndustryFilter operations."""
-        from src.industry_filter import IndustryFilter
+        from src.filters.industry_filter import IndustryFilter
         
         industry_filter = IndustryFilter()
         
