@@ -12,6 +12,9 @@
   - Handling uncertain arguments from JSON to analyzers and filters
     - Enable automatic data types check
     - Fill out empty key-value with default value
+  - Upgraded `industry_filter.py` with Lazy Initialization for better performance
+- :warning: **Potential Bugs**:
+  - `industry_filter.py` needs to update the logic and code for `月k` and `周k`
 
 ### v1.6.0
 
