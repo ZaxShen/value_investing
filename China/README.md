@@ -8,7 +8,10 @@
   - Restructured codebase for scalable architecture:
     - `src/analyzers/`: Analyzer modules for stocks and industries
     - `src/filters/`: Filter modules for screening and analysis
-  - Maintained backward compatibility with updated imports and tests
+    - Maintained backward compatibility with updated imports and tests
+  - Handling uncertain arguments from JSON to analyzers and filters
+    - Enable automatic data types check
+    - Fill out empty key-value with default value
 
 ### v1.6.0
 
