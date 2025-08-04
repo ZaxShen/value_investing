@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
+
 configure_environment()
 
 import akshare as ak
@@ -200,11 +201,18 @@ class IndustryFilter:
                 # Fetch industry capital flow data with timeout
                 try:
                     stock_sector_fund_flow_hist_df = await asyncio.wait_for(
-                        asyncio.to_thread(self._fetch_industry_capital_flow_data_sync, industry_name, days),
-                        timeout=45.0  # 45 second timeout
+                        asyncio.to_thread(
+                            self._fetch_industry_capital_flow_data_sync,
+                            industry_name,
+                            days,
+                        ),
+                        timeout=45.0,  # 45 second timeout
                     )
                 except asyncio.TimeoutError:
-                    logger.warning("Timeout fetching capital flow data for industry %s, skipping", industry_name)
+                    logger.warning(
+                        "Timeout fetching capital flow data for industry %s, skipping",
+                        industry_name,
+                    )
                     return None
                 # Calculate main net flow
                 industry_main_net_flow = stock_sector_fund_flow_hist_df[
@@ -216,29 +224,34 @@ class IndustryFilter:
 
                 # Fetch industry index data with timeout
                 try:
-                    stock_board_industry_hist_em = await asyncio.wait_for(
+                    stock_board_industry_hist_em_df = await asyncio.wait_for(
                         asyncio.to_thread(
                             self._fetch_industry_index_data_sync,
                             industry_name,
                             first_date_str,
                             last_date_str,
                         ),
-                        timeout=45.0  # 45 second timeout
+                        timeout=45.0,  # 45 second timeout
                     )
                 except asyncio.TimeoutError:
-                    logger.warning("Timeout fetching index data for industry %s, skipping", industry_name)
+                    logger.warning(
+                        "Timeout fetching index data for industry %s, skipping",
+                        industry_name,
+                    )
                     return None
                 # Get the index of the last trading date
-                industry_last_index = stock_board_industry_hist_em["收盘"].iloc[-1]
+                industry_last_index = stock_board_industry_hist_em_df["收盘"].iloc[-1]
                 # Get the index of the desired trading date
-                industry_days_index = stock_board_industry_hist_em["收盘"].iloc[-days]
+                industry_days_index = stock_board_industry_hist_em_df["收盘"].iloc[
+                    -days
+                ]
                 # Get the index of 60 trading days ago
-                industry_60_index = stock_board_industry_hist_em["收盘"].iloc[
+                industry_60_index = stock_board_industry_hist_em_df["收盘"].iloc[
                     -self.TRADING_DAYS_60
                 ]
                 # Get the index of the 1st trading date
-                industry_1st_trading_date_index = stock_board_industry_hist_em[
-                    stock_board_industry_hist_em["日期"] == first_trading_date_str
+                industry_1st_trading_date_index = stock_board_industry_hist_em_df[
+                    stock_board_industry_hist_em_df["日期"] == first_trading_date_str
                 ]["收盘"].iloc[0]
                 # Calculate index change percentage
                 industry_index_change_perc_days = (
