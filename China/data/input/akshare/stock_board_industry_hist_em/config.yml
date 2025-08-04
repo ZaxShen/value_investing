@@ -31,3 +31,6 @@ period_count: 29
 #   "qfq": Forward adjustment
 #   "hfq": Backward adjustment
 adjust: ""
+
+# (Customized Arg) If this config for PROD or other purpose
+config_name: "PROD"
