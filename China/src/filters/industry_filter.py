@@ -106,9 +106,13 @@ class IndustryFilter:
     # Report directory
     REPORT_DIR = "data/stocks/reports"
 
-    def __init__(self):
-        """Initialize the IndustryFilter."""
-        pass
+    def __init__(self, config_path: Optional[str] = None):
+        """Initialize the IndustryFilter.
+
+        Args:
+            config_path: Path to YAML config file for API parameters
+        """
+        self.config = load_stock_board_industry_hist_config(config_path)
 
     def _get_analysis_columns(self, days: int) -> List[str]:
         """
@@ -161,16 +165,13 @@ class IndustryFilter:
         last_date_str = today.strftime("%Y%m%d")
 
         # Define last_date, the range to fetch industry data with retry
-        # Load config for API parameters
-        config = load_stock_board_industry_hist_config()
-
         hist_data = API_RETRY_CONFIG.retry(
             ak.stock_board_industry_hist_em,
             symbol=industry_arr[0],  # use any industry to get the latest date
             start_date=first_date_str,
             end_date=last_date_str,
-            period=config.period,
-            adjust=config.adjust,
+            period=self.config.period,
+            adjust=self.config.adjust,
         )
         dates = hist_data["日期"].values
 
@@ -211,63 +212,91 @@ class IndustryFilter:
         elif period == "月k":
             new_date = date_obj + relativedelta(months=period_count)
         else:
-            # TODO log the ValueError
-            raise ValueError("config.period not in ('日k', '周k', '月k')")
+            error_msg = (
+                f"Invalid period '{period}'. Must be one of: '日k', '周k', '月k'"
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
 
         return new_date.strftime("%Y%m%d")
+
+    def _resolve_config_dates(
+        self, config: StockBoardIndustryHistConfig, industry_name: str
+    ) -> None:
+        """
+        Resolve start_date and end_date in config based on the configuration rules.
+        Modifies the config object in-place.
+
+        Args:
+            config: Configuration object to resolve dates for (modified in-place)
+            industry_name: Industry name for API calls when needed
+        """
+        if config.start_date and config.end_date:
+            # Both dates provided - use as is
+            pass
+        elif config.start_date and not config.end_date:
+            # Only start_date provided - calculate end_date
+            config.end_date = self._date_converter(
+                config.start_date, config.period, config.period_count
+            )
+        elif not config.start_date and config.end_date:
+            # Only end_date provided - calculate start_date
+            config.start_date = self._date_converter(
+                config.end_date, config.period, -config.period_count
+            )
+        else:
+            # Both dates empty - get latest date from API call first
+            today = datetime.today()
+            temp_start = (today - timedelta(days=365)).strftime("%Y%m%d")
+            temp_end = today.strftime("%Y%m%d")
+
+            temp_data = API_RETRY_CONFIG.retry(
+                ak.stock_board_industry_hist_em,
+                symbol=industry_name,
+                start_date=temp_start,
+                end_date=temp_end,
+                period=config.period,
+                adjust=config.adjust,
+            )
+
+            # Get the latest available date and set as end_date
+            latest_date = temp_data["日期"].iloc[-1].replace("-", "")
+            config.end_date = latest_date
+
+            # Calculate start_date using period_count
+            config.start_date = self._date_converter(
+                config.end_date, config.period, -config.period_count
+            )
 
     def _fetch_industry_index_data_sync(
         self,
         industry_name: str,
-        first_date_str: str,
-        last_date_str: str,
-        config_path: Optional[str] = None,
     ) -> pd.DataFrame:
         """
         Fetch industry index historical data with retry mechanism.
 
         Args:
             industry_name: Name of the industry to analyze
-            first_date_str: Start date in %Y%m%d format
-            last_date_str: End date in %Y%m%d format
-            config_path: Path to YAML config file for API parameters
 
         Returns:
             DataFrame containing historical index data for the industry
         """
-        # Load config for API parameters
-        config = load_stock_board_industry_hist_config(config_path)
-
-        # Define config.start_date & config.end_date
-        if config.start_date and config.end_date:
-            pass
-        elif config.start_date and not config.end_date:
-            config.end_date = self._date_converter(
-                config.start_date, config.period, config.period_count
-            )
-        elif not config.start_date and config.end_date:
-            config.start_date = self._date_converter(
-                config.end_date, config.period, -config.period_count
-            )
-        else:
-            config.start_date, config.end_date = first_date_str, last_date_str
+        # Resolve dates in the class config
+        self._resolve_config_dates(self.config, industry_name)
 
         return API_RETRY_CONFIG.retry(
             ak.stock_board_industry_hist_em,
             symbol=industry_name,
-            start_date=config.start_date,
-            end_date=config.end_date,
-            period=config.period,
-            adjust=config.adjust,
+            start_date=self.config.start_date,
+            end_date=self.config.end_date,
+            period=self.config.period,
+            adjust=self.config.adjust,
         )
 
     async def process_single_industry_async(
         self,
         industry_name: str,
-        first_date_str: str,
-        last_date_str: str,
         first_trading_date_str: str,
-        days: int = 29,
     ) -> Optional[List[Any]]:
         """
         Process a single industry asynchronously to calculate performance metrics.
@@ -277,14 +306,17 @@ class IndustryFilter:
 
         Args:
             industry_name: Name of the industry to analyze
-            first_date_str: Start date in %Y%m%d format
-            last_date_str: End date in %Y%m%d format
             first_trading_date_str: First trading date in %Y-%m-%d format
-            days: Number of days to analyze (default: 29)
+            config_path: Path to YAML config file for API parameters
 
         Returns:
             List containing industry analysis results, or None if analysis fails
         """
+
+        # Use class config to get period_count
+        days = (
+            self.config.period_count if self.config.period_count > 0 else 29
+        )  # fallback to 29
 
         async with REQUEST_SEMAPHORE:
             try:
@@ -318,8 +350,6 @@ class IndustryFilter:
                         asyncio.to_thread(
                             self._fetch_industry_index_data_sync,
                             industry_name,
-                            first_date_str,
-                            last_date_str,
                         ),
                         timeout=45.0,  # 45 second timeout
                     )
@@ -390,10 +420,7 @@ class IndustryFilter:
     async def process_all_industries_async(
         self,
         industry_arr: pd.Series,
-        first_date_str: str,
-        last_date_str: str,
         first_trading_date_str: str,
-        days: int = 29,
         progress: Optional["Progress"] = None,
         parent_task_id: Optional[int] = None,
         batch_task_id: Optional[int] = None,
@@ -407,14 +434,20 @@ class IndustryFilter:
 
         Args:
             industry_arr: Series containing industry names
-            first_date_str: Start date in %Y%m%d format
-            last_date_str: End date in %Y%m%d format
             first_trading_date_str: First trading date in %Y-%m-%d format
-            days: Number of days to analyze (default: 29)
+            progress: Optional Rich Progress instance for hierarchical progress tracking
+            parent_task_id: Optional parent task ID for hierarchical progress structure
+            batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+            config_path: Path to YAML config file for API parameters
 
         Returns:
             DataFrame containing analysis results for all industries
         """
+        # Use class config to get period_count for column naming
+        days = (
+            self.config.period_count if self.config.period_count > 0 else 29
+        )  # fallback
+
         # Define columns for consistency
         columns = self._get_analysis_columns(days)
 
@@ -463,10 +496,7 @@ class IndustryFilter:
             tasks = [
                 self.process_single_industry_async(
                     industry_name,
-                    first_date_str,
-                    last_date_str,
                     first_trading_date_str,
-                    days,
                 )
                 for industry_name in batch
             ]
@@ -547,7 +577,6 @@ class IndustryFilter:
 
     async def run_analysis(
         self,
-        days: int = None,
         progress: Optional["Progress"] = None,
         parent_task_id: Optional[int] = None,
         batch_task_id: Optional[int] = None,
@@ -559,13 +588,16 @@ class IndustryFilter:
         data preparation, industry analysis, result filtering, and report generation.
 
         Args:
-            days: Number of days to analyze for fund flow (default: class constant)
             progress: Optional Rich Progress instance for hierarchical progress tracking
             parent_task_id: Optional parent task ID for hierarchical progress structure
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
-        if days is None:
-            days = self.DAYS_ANALYSIS_PERIOD
+        # Use class config to get period_count
+        days = (
+            self.config.period_count
+            if self.config.period_count > 0
+            else self.DAYS_ANALYSIS_PERIOD
+        )
 
         # Get dates and industry data
         industry_arr, first_date_str, last_date_str, first_trading_date_str = (
@@ -575,10 +607,7 @@ class IndustryFilter:
         # Process all industries with progress tracking
         all_industries_df = await self.process_all_industries_async(
             industry_arr,
-            first_date_str,
-            last_date_str,
             first_trading_date_str,
-            days=days,
             progress=progress,
             parent_task_id=parent_task_id,
             batch_task_id=batch_task_id,

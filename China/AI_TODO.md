@@ -46,23 +46,11 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 ### Apply YAML and pydantic to load config files
 
 target file: `src/filters/industry_filter.py`
-YAML's path `data/stocks/input/`
+YAML's path `data/input/akshare/stock_board_industry_hist_em`
     - if no input dir, Python should create one
-    - if no YAML file, Python should create one
-    - YAML's name: `stock_board_industry_hist_em_CONFIG.yml`
+    - if no YAML file, Python should raise an error
+    - functions or class in target file should has a arg to take the path of YAML config, by default the path is `data/input/akshare/stock_board_industry_hist_em/config.yml`
+    - YAML's name: `config.yml`
 
 - target API: `ak.stock_board_industry_hist_em`
   - You need to edit code contains `ak.stock_board_industry_hist_em` to load config file from YAML
-
-Below are the availabel paras
-- Each para I want to have a default value
-- para is from below's 名称
-- data type is from below's 类型
-- comment is from below's 描述
-
-名称 类型 描述
-symbol str symbol="小金属"; 可以通过调用 ak.stock_board_industry_name_em() 查看东方财富-行业板块的所有行业代码
-start_date str start_date="20211201";
-end_date str end_date="20220401";
-period str period="日k"; 周期; choice of {"日k", "周k", "月k"}
-adjust str adjust=""; choice of {'': 不复权, 默认; "qfq": 前复权, "hfq": 后复权}
