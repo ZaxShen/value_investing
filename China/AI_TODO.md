@@ -42,15 +42,3 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 ---
 
 ## v1.7.0 TODO
-
-### Apply YAML and pydantic to load config files
-
-target file: `src/filters/industry_filter.py`
-YAML's path `data/input/akshare/stock_board_industry_hist_em`
-    - if no input dir, Python should create one
-    - if no YAML file, Python should raise an error
-    - functions or class in target file should has a arg to take the path of YAML config, by default the path is `data/input/akshare/stock_board_industry_hist_em/config.yml`
-    - YAML's name: `config.yml`
-
-- target API: `ak.stock_board_industry_hist_em`
-  - You need to edit code contains `ak.stock_board_industry_hist_em` to load config file from YAML

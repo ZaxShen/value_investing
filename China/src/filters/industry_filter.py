@@ -9,6 +9,7 @@ industry performance and capital flows.
 
 import asyncio
 from datetime import datetime, timedelta
+from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional
 
@@ -184,6 +185,7 @@ class IndustryFilter:
             latest_date = temp_data["日期"].iloc[-1].replace("-", "")
             config.end_date = latest_date
 
+    @cached_property
     def _get_analysis_columns(self) -> List[str]:
         """
         Generate analysis column names.
@@ -199,6 +201,7 @@ class IndustryFilter:
             "年初至今涨跌幅(%)",
         ]
 
+    @cached_property
     def _get_dates(self) -> pd.Series:
         """
         Get industry names and date ranges for analysis with retry mechanism.
@@ -492,7 +495,7 @@ class IndustryFilter:
             DataFrame containing analysis results for all industries
         """
         # Define columns for consistency
-        columns = self._get_analysis_columns()
+        columns = self._get_analysis_columns
 
         all_industries_df = pd.DataFrame(columns=columns)
 
@@ -654,7 +657,7 @@ class IndustryFilter:
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
         # Get dates and industry data
-        industry_arr = self._get_dates()
+        industry_arr = self._get_dates
 
         # Process all industries with progress tracking
         all_industries_df = await self.process_all_industries_async(
