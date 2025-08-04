@@ -12,20 +12,18 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
+import pandas as pd
+import yaml
 from dateutil.relativedelta import relativedelta
+from pydantic import BaseModel
 
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
-
-configure_environment()
-
-import akshare as ak
-import pandas as pd
-import yaml
-from pydantic import BaseModel
-
 from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG
+
+configure_environment()
+import akshare as ak
 
 if TYPE_CHECKING:
     from rich.progress import Progress
@@ -50,16 +48,17 @@ class StockBoardIndustryHistConfig(BaseModel):
     period: str = "日k"  # Period: "日k", "周k", "月k"
     period_count: int = 0  # Period Count: 30, 365, 4
     adjust: str = ""  # Adjustment: "", "qfq", "hfq"
+    config_name: str = "PROD"  # If this config for PROD or other purpose
 
 
 def load_stock_board_industry_hist_config(
-    config_path: Optional[str] = None,
+    config_name: Optional[str] = None,
 ) -> StockBoardIndustryHistConfig:
     """
     Load configuration for stock_board_industry_hist_em API from YAML file.
 
     Args:
-        config_path: Path to YAML config file. If None, uses default path.
+        config_name: YAML config file name. If None, uses default config.
 
     Returns:
         StockBoardIndustryHistConfig: Validated configuration object
@@ -68,11 +67,12 @@ def load_stock_board_industry_hist_config(
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    if config_path is None:
-        config_path = "data/input/akshare/stock_board_industry_hist_em/config.yml"
+    config_dir = Path("data/input/akshare/stock_board_industry_hist_em/")
+    if config_name is None:
+        config_name = "config.yml"
+    config_path = Path(config_dir, config_name)
 
     # Create directory if it doesn't exist
-    config_dir = Path(config_path).parent
     config_dir.mkdir(parents=True, exist_ok=True)
 
     # Check if config file exists
@@ -99,40 +99,105 @@ class IndustryFilter:
     MIN_MAIN_NET_INFLOW_YI = 20  # Minimum main net inflow in 100 million RMB
     MAX_PRICE_CHANGE_PERCENT = 8  # Maximum price change percentage
     BATCH_SIZE = 3
-    DAYS_ANALYSIS_PERIOD = 29  # Default analysis period in days
     DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
     TRADING_DAYS_60 = 60  # 60 trading days for analysis
 
     # Report directory
     REPORT_DIR = "data/stocks/reports"
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_name: Optional[str] = None):
         """Initialize the IndustryFilter.
 
         Args:
-            config_path: Path to YAML config file for API parameters
+            config_name: YAML config file name for API parameters
         """
-        self.config = load_stock_board_industry_hist_config(config_path)
+        self.config = load_stock_board_industry_hist_config(config_name)
+        # Resolve dates in the class config
+        self._resolve_config()
 
-    def _get_analysis_columns(self, days: int) -> List[str]:
+    def _date_converter(self, date_str: str, period: str, period_count: int) -> str:
+        date_obj = datetime.strptime(date_str, "%Y%m%d")
+        if period == "日k":
+            new_date = date_obj + timedelta(days=period_count)
+        elif period == "周k":
+            new_date = date_obj + timedelta(weeks=period_count)
+        elif period == "月k":
+            new_date = date_obj + relativedelta(months=period_count)
+        else:
+            error_msg = (
+                f"Invalid period '{period}'. Must be one of: '日k', '周k', '月k'"
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        return new_date.strftime("%Y%m%d")
+
+    def _resolve_config(self) -> None:
         """
-        Generate analysis column names with dynamic days parameter.
+        Resolve start_date, end_date, or other data in config based on the configuration rules.
+        Modifies the config object in-place.
+        """
+        config = self.config
 
-        Args:
-            days: Number of days for fund flow analysis
+        # Define period unit: 日, 周, 月
+        try:
+            self.period_unit = config.period[0]
+        except IndexError:
+            error_msg = (
+                f"Invalid period '{config.period}'. Must be one of: '日k', '周k', '月k'"
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        # Set start_date & end_date
+        if config.start_date and config.end_date:
+            # Both dates provided - use as is
+            pass
+        elif config.start_date and not config.end_date:
+            # Only start_date provided - calculate end_date
+            config.end_date = self._date_converter(
+                config.start_date, config.period, config.period_count
+            )
+        elif not config.start_date and config.end_date:
+            # Only end_date provided - calculate start_date
+            config.start_date = self._date_converter(
+                config.end_date, config.period, -config.period_count
+            )
+        else:
+            # Both dates empty - get latest date from API call first
+            today = datetime.today()
+            temp_start = (today - timedelta(days=365)).strftime("%Y%m%d")
+            temp_end = today.strftime("%Y%m%d")
+
+            temp_data = API_RETRY_CONFIG.retry(
+                ak.stock_board_industry_hist_em,
+                symbol=config.symbol,
+                start_date=temp_start,
+                end_date=temp_end,
+                period=config.period,
+                adjust=config.adjust,
+            )
+
+            # Get the latest available date and set as end_date
+            latest_date = temp_data["日期"].iloc[-1].replace("-", "")
+            config.end_date = latest_date
+
+    def _get_analysis_columns(self) -> List[str]:
+        """
+        Generate analysis column names.
 
         Returns:
             List of column names for analysis results
         """
         return [
             "行业",
-            f"{days}日主力净流入-总净额(亿)",
-            f"{days}日涨跌幅(%)",
+            f"{self.config.period}{self.period_unit}主力净流入-总净额(亿)",
+            f"{self.config.period}{self.period_unit}涨跌幅(%)",
             "60日涨跌幅(%)",
             "年初至今涨跌幅(%)",
         ]
 
-    def get_dates(self) -> Tuple[pd.Series, str, str, str]:
+    def _get_dates(self) -> Tuple[pd.Series, str]:
         """
         Get industry names and date ranges for analysis with retry mechanism.
 
@@ -143,9 +208,6 @@ class IndustryFilter:
         Returns:
             Tuple containing:
                 - industry_arr: Series of industry names
-                - first_date_str: Start date in %Y%m%d format
-                - last_date_str: End date in %Y%m%d format
-                - first_trading_date_str: First trading date in %Y-%m-%d format
         """
         # Get the list of industry names with retry
         industry_data = API_RETRY_CONFIG.retry(ak.stock_board_industry_name_em)
@@ -175,98 +237,80 @@ class IndustryFilter:
         )
         dates = hist_data["日期"].values
 
-        last_date_str = dates[-1].replace("-", "")
+        self.last_date_str = dates[-1].replace("-", "")
 
         # Get the 1st trading date
         first_trading_date = datetime(datetime.today().year, 1, 1).date()
         while first_trading_date.strftime("%Y-%m-%d") not in dates:
             first_trading_date += timedelta(days=1)
-        first_trading_date_str = first_trading_date.strftime("%Y-%m-%d")
+        self.first_trading_date_str = first_trading_date.strftime("%Y-%m-%d")
 
-        return industry_arr, first_date_str, last_date_str, first_trading_date_str
+        return industry_arr
+
+    def _validate_industry_capital_flow_data_sync(self) -> bool:
+        """
+        Validate industry capital flow data.
+
+        Returns:
+            bool if capital flow data available
+        """
+        # Fund flow data only available in recent 120 days
+        if self.period_unit != "日":
+            return False
+        else:
+            return True
 
     def _fetch_industry_capital_flow_data_sync(
-        self, industry_name: str, days: int
+        self,
+        industry_name: str,
     ) -> pd.DataFrame:
         """
         Fetch industry capital flow data with retry mechanism.
 
         Args:
             industry_name: Name of the industry to analyze
-            days: Number of recent days to fetch data for
 
         Returns:
             DataFrame containing recent capital flow data for the industry
         """
+        if not self._validate_industry_capital_flow_data_sync():
+            flow_data = pd.DataFrame(
+                {
+                    "日期": "0000-01-01",
+                    "主力净流入-净额": [None],
+                    "主力净流入-净占比": [None],
+                    "超大单净流入-净额": [None],
+                    "超大单净流入-净占比": [None],
+                    "大单净流入-净额": [None],
+                    "大单净流入-净占比": [None],
+                    "中单净流入-净额": [None],
+                    "中单净流入-净占比": [None],
+                    "小单净流入-净额": [None],
+                    "小单净流入-净占比": [None],
+                }
+            )
+            return flow_data
+
+        config = self.config
+
+        end_date = datetime.strptime(config.end_date, "%Y%m%d").date()
+
+        # Fetch flow data
         flow_data = API_RETRY_CONFIG.retry(
             ak.stock_sector_fund_flow_hist, symbol=industry_name
         )
-        return flow_data.iloc[-days:]
+        # Convert "日期" from str to datetime object
+        flow_data["日期"] = pd.to_datetime(flow_data["日期"], format="%Y-%m-%d")
+        # Filter available flow data
+        flow_data = flow_data[flow_data["日期"] < end_date].shape[0]
+        available_lookback_days = flow_data.shape[0]
 
-    def _date_converter(self, date_str: str, period: str, period_count: int) -> str:
-        date_obj = datetime.strptime(date_str, "%Y%m%d")
-        if period == "日k":
-            new_date = date_obj + timedelta(days=period_count)
-        elif period == "周k":
-            new_date = date_obj + timedelta(weeks=period_count)
-        elif period == "月k":
-            new_date = date_obj + relativedelta(months=period_count)
-        else:
-            error_msg = (
-                f"Invalid period '{period}'. Must be one of: '日k', '周k', '月k'"
-            )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-
-        return new_date.strftime("%Y%m%d")
-
-    def _resolve_config_dates(
-        self, config: StockBoardIndustryHistConfig, industry_name: str
-    ) -> None:
-        """
-        Resolve start_date and end_date in config based on the configuration rules.
-        Modifies the config object in-place.
-
-        Args:
-            config: Configuration object to resolve dates for (modified in-place)
-            industry_name: Industry name for API calls when needed
-        """
-        if config.start_date and config.end_date:
-            # Both dates provided - use as is
-            pass
-        elif config.start_date and not config.end_date:
-            # Only start_date provided - calculate end_date
-            config.end_date = self._date_converter(
-                config.start_date, config.period, config.period_count
-            )
-        elif not config.start_date and config.end_date:
-            # Only end_date provided - calculate start_date
-            config.start_date = self._date_converter(
-                config.end_date, config.period, -config.period_count
-            )
-        else:
-            # Both dates empty - get latest date from API call first
-            today = datetime.today()
-            temp_start = (today - timedelta(days=365)).strftime("%Y%m%d")
-            temp_end = today.strftime("%Y%m%d")
-
-            temp_data = API_RETRY_CONFIG.retry(
-                ak.stock_board_industry_hist_em,
-                symbol=industry_name,
-                start_date=temp_start,
-                end_date=temp_end,
-                period=config.period,
-                adjust=config.adjust,
-            )
-
-            # Get the latest available date and set as end_date
-            latest_date = temp_data["日期"].iloc[-1].replace("-", "")
-            config.end_date = latest_date
-
-            # Calculate start_date using period_count
-            config.start_date = self._date_converter(
-                config.end_date, config.period, -config.period_count
-            )
+        if available_lookback_days == 0:
+            return
+        elif available_lookback_days > config.period_count:
+            return flow_data.iloc[-config.period_count :]
+        elif available_lookback_days <= config.period_count:
+            return flow_data.iloc[-available_lookback_days:]
 
     def _fetch_industry_index_data_sync(
         self,
@@ -281,9 +325,6 @@ class IndustryFilter:
         Returns:
             DataFrame containing historical index data for the industry
         """
-        # Resolve dates in the class config
-        self._resolve_config_dates(self.config, industry_name)
-
         return API_RETRY_CONFIG.retry(
             ak.stock_board_industry_hist_em,
             symbol=industry_name,
@@ -296,7 +337,6 @@ class IndustryFilter:
     async def process_single_industry_async(
         self,
         industry_name: str,
-        first_trading_date_str: str,
     ) -> Optional[List[Any]]:
         """
         Process a single industry asynchronously to calculate performance metrics.
@@ -306,17 +346,10 @@ class IndustryFilter:
 
         Args:
             industry_name: Name of the industry to analyze
-            first_trading_date_str: First trading date in %Y-%m-%d format
-            config_path: Path to YAML config file for API parameters
 
         Returns:
             List containing industry analysis results, or None if analysis fails
         """
-
-        # Use class config to get period_count
-        days = (
-            self.config.period_count if self.config.period_count > 0 else 29
-        )  # fallback to 29
 
         async with REQUEST_SEMAPHORE:
             try:
@@ -326,7 +359,6 @@ class IndustryFilter:
                         asyncio.to_thread(
                             self._fetch_industry_capital_flow_data_sync,
                             industry_name,
-                            days,
                         ),
                         timeout=45.0,  # 45 second timeout
                     )
@@ -363,7 +395,7 @@ class IndustryFilter:
                 industry_last_index = stock_board_industry_hist_em_df["收盘"].iloc[-1]
                 # Get the index of the desired trading date
                 industry_days_index = stock_board_industry_hist_em_df["收盘"].iloc[
-                    -days
+                    -self.config.period_count  # FIXME
                 ]
                 # Get the index of 60 trading days ago
                 industry_60_index = stock_board_industry_hist_em_df["收盘"].iloc[
@@ -371,7 +403,8 @@ class IndustryFilter:
                 ]
                 # Get the index of the 1st trading date
                 industry_1st_trading_date_index = stock_board_industry_hist_em_df[
-                    stock_board_industry_hist_em_df["日期"] == first_trading_date_str
+                    stock_board_industry_hist_em_df["日期"]
+                    == self.first_trading_date_str
                 ]["收盘"].iloc[0]
                 # Calculate index change percentage
                 industry_index_change_perc_days = (
@@ -420,7 +453,6 @@ class IndustryFilter:
     async def process_all_industries_async(
         self,
         industry_arr: pd.Series,
-        first_trading_date_str: str,
         progress: Optional["Progress"] = None,
         parent_task_id: Optional[int] = None,
         batch_task_id: Optional[int] = None,
@@ -434,22 +466,15 @@ class IndustryFilter:
 
         Args:
             industry_arr: Series containing industry names
-            first_trading_date_str: First trading date in %Y-%m-%d format
             progress: Optional Rich Progress instance for hierarchical progress tracking
             parent_task_id: Optional parent task ID for hierarchical progress structure
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
-            config_path: Path to YAML config file for API parameters
 
         Returns:
             DataFrame containing analysis results for all industries
         """
-        # Use class config to get period_count for column naming
-        days = (
-            self.config.period_count if self.config.period_count > 0 else 29
-        )  # fallback
-
         # Define columns for consistency
-        columns = self._get_analysis_columns(days)
+        columns = self._get_analysis_columns()
 
         all_industries_df = pd.DataFrame(columns=columns)
 
@@ -494,10 +519,7 @@ class IndustryFilter:
 
             # Create tasks for the current batch
             tasks = [
-                self.process_single_industry_async(
-                    industry_name,
-                    first_trading_date_str,
-                )
+                self.process_single_industry_async(industry_name)
                 for industry_name in batch
             ]
 
@@ -524,27 +546,36 @@ class IndustryFilter:
 
         return all_industries_df
 
-    def _save_reports(
-        self, all_industries_df: pd.DataFrame, days: int, last_date_str: str
-    ) -> None:
+    def _save_reports(self, all_industries_df: pd.DataFrame) -> None:
         """
         Save analysis reports to CSV files.
 
         Args:
             all_industries_df: DataFrame containing all analysis results
-            days: Number of days used for analysis (for filtering and naming)
-            last_date_str: Last date string for report naming
         """
+        config = self.config
+        # Check if config file for PROD
+        if config.config_name.upper() == "PROD":
+            config_name = ""
+        elif config.config_name == "":
+            # Only PROD config allows to use empty config_name
+            config_name = datetime.today().strftime("%Y%m%d")
+        else:
+            config_name = config.config_name
+
         # Sort all_industries_df
         all_industries_df = all_industries_df.sort_values(
-            by=[f"{days}日主力净流入-总净额(亿)", f"{days}日涨跌幅(%)"],
+            by=[
+                f"{config.period}{self.period_unit}主力净流入-总净额(亿)",
+                f"{config.period}{self.period_unit}涨跌幅(%)",
+            ],
             ascending=[False, True],
         )
         all_industries_df.reset_index(inplace=True, drop=True)
 
         # Output the raw report with error handling
         try:
-            raw_report_path = f"{self.REPORT_DIR}/行业筛选报告-raw-{last_date_str}.csv"
+            raw_report_path = f"{self.REPORT_DIR}/行业筛选报告-raw-{self.last_date_str}{config_name}.csv"
             all_industries_df.to_csv(raw_report_path, index=True)
             logger.info("Report saved to %s", raw_report_path)
         except (OSError, PermissionError) as e:
@@ -552,8 +583,8 @@ class IndustryFilter:
             raise
 
         # Apply additional filters to all_industries_df
-        main_net_inflow_col = f"{days}日主力净流入-总净额(亿)"
-        price_change_col = f"{days}日涨跌幅(%)"
+        main_net_inflow_col = f"{config.period}{self.period_unit}主力净流入-总净额(亿)"
+        price_change_col = f"{config.period}{self.period_unit}涨跌幅(%)"
         filtered_df = all_industries_df[
             (all_industries_df[main_net_inflow_col] > self.MIN_MAIN_NET_INFLOW_YI)
             & (all_industries_df[price_change_col] < self.MAX_PRICE_CHANGE_PERCENT)
@@ -568,7 +599,9 @@ class IndustryFilter:
 
         # Output the filtered report with error handling
         try:
-            filtered_report_path = f"{self.REPORT_DIR}/行业筛选报告-{last_date_str}.csv"
+            filtered_report_path = (
+                f"{self.REPORT_DIR}/行业筛选报告-{self.last_date_str}{config_name}.csv"
+            )
             filtered_df.to_csv(filtered_report_path, index=True)
             logger.info("Filtered report saved to %s", filtered_report_path)
         except (OSError, PermissionError) as e:
@@ -592,29 +625,21 @@ class IndustryFilter:
             parent_task_id: Optional parent task ID for hierarchical progress structure
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
-        # Use class config to get period_count
-        days = (
-            self.config.period_count
-            if self.config.period_count > 0
-            else self.DAYS_ANALYSIS_PERIOD
-        )
-
+        # FIXME
         # Get dates and industry data
-        industry_arr, first_date_str, last_date_str, first_trading_date_str = (
-            self.get_dates()
-        )
+        industry_arr = self._get_dates()
 
         # Process all industries with progress tracking
         all_industries_df = await self.process_all_industries_async(
             industry_arr,
-            first_trading_date_str,
+            self.first_trading_date_str,
             progress=progress,
             parent_task_id=parent_task_id,
             batch_task_id=batch_task_id,
         )
 
         # Save reports (raw and filtered)
-        self._save_reports(all_industries_df, days, last_date_str)
+        self._save_reports(all_industries_df, days)
 
 
 async def main(
