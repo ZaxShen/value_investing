@@ -9,7 +9,10 @@ industry performance and capital flows.
 
 import asyncio
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple
+
+from dateutil.relativedelta import relativedelta
 
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
@@ -18,6 +21,8 @@ configure_environment()
 
 import akshare as ak
 import pandas as pd
+import yaml
+from pydantic import BaseModel
 
 from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG
@@ -30,6 +35,55 @@ logger = get_logger("industry_filter")
 
 # Create a semaphore to limit concurrent requests
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
+
+
+class StockBoardIndustryHistConfig(BaseModel):
+    """
+    Configuration model for ak.stock_board_industry_hist_em API parameters.
+
+    This model validates and provides default values for the API parameters.
+    """
+
+    symbol: str = "小金属"  # Industry symbol
+    start_date: str = "20230101"  # Start date in YYYYMMDD format
+    end_date: str = "20241231"  # End date in YYYYMMDD format
+    period: str = "日k"  # Period: "日k", "周k", "月k"
+    period_count: int = 0  # Period Count: 30, 365, 4
+    adjust: str = ""  # Adjustment: "", "qfq", "hfq"
+
+
+def load_stock_board_industry_hist_config(
+    config_path: Optional[str] = None,
+) -> StockBoardIndustryHistConfig:
+    """
+    Load configuration for stock_board_industry_hist_em API from YAML file.
+
+    Args:
+        config_path: Path to YAML config file. If None, uses default path.
+
+    Returns:
+        StockBoardIndustryHistConfig: Validated configuration object
+
+    Raises:
+        FileNotFoundError: If config file doesn't exist
+        ValueError: If config validation fails
+    """
+    if config_path is None:
+        config_path = "data/input/akshare/stock_board_industry_hist_em/config.yml"
+
+    # Create directory if it doesn't exist
+    config_dir = Path(config_path).parent
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    # Check if config file exists
+    if not Path(config_path).exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    # Load and validate config
+    with open(config_path, "r", encoding="utf-8") as f:
+        config_data = yaml.safe_load(f)
+
+    return StockBoardIndustryHistConfig(**config_data)
 
 
 class IndustryFilter:
@@ -107,13 +161,16 @@ class IndustryFilter:
         last_date_str = today.strftime("%Y%m%d")
 
         # Define last_date, the range to fetch industry data with retry
+        # Load config for API parameters
+        config = load_stock_board_industry_hist_config()
+
         hist_data = API_RETRY_CONFIG.retry(
             ak.stock_board_industry_hist_em,
-            symbol=industry_arr[0],
+            symbol=industry_arr[0],  # use any industry to get the latest date
             start_date=first_date_str,
             end_date=last_date_str,
-            period="日k",
-            adjust="",
+            period=config.period,
+            adjust=config.adjust,
         )
         dates = hist_data["日期"].values
 
@@ -145,11 +202,26 @@ class IndustryFilter:
         )
         return flow_data.iloc[-days:]
 
+    def _date_converter(self, date_str: str, period: str, period_count: int) -> str:
+        date_obj = datetime.strptime(date_str, "%Y%m%d")
+        if period == "日k":
+            new_date = date_obj + timedelta(days=period_count)
+        elif period == "周k":
+            new_date = date_obj + timedelta(weeks=period_count)
+        elif period == "月k":
+            new_date = date_obj + relativedelta(months=period_count)
+        else:
+            # TODO log the ValueError
+            raise ValueError("config.period not in ('日k', '周k', '月k')")
+
+        return new_date.strftime("%Y%m%d")
+
     def _fetch_industry_index_data_sync(
         self,
         industry_name: str,
         first_date_str: str,
         last_date_str: str,
+        config_path: Optional[str] = None,
     ) -> pd.DataFrame:
         """
         Fetch industry index historical data with retry mechanism.
@@ -158,17 +230,35 @@ class IndustryFilter:
             industry_name: Name of the industry to analyze
             first_date_str: Start date in %Y%m%d format
             last_date_str: End date in %Y%m%d format
+            config_path: Path to YAML config file for API parameters
 
         Returns:
             DataFrame containing historical index data for the industry
         """
+        # Load config for API parameters
+        config = load_stock_board_industry_hist_config(config_path)
+
+        # Define config.start_date & config.end_date
+        if config.start_date and config.end_date:
+            pass
+        elif config.start_date and not config.end_date:
+            config.end_date = self._date_converter(
+                config.start_date, config.period, config.period_count
+            )
+        elif not config.start_date and config.end_date:
+            config.start_date = self._date_converter(
+                config.end_date, config.period, -config.period_count
+            )
+        else:
+            config.start_date, config.end_date = first_date_str, last_date_str
+
         return API_RETRY_CONFIG.retry(
             ak.stock_board_industry_hist_em,
             symbol=industry_name,
-            start_date=first_date_str,
-            end_date=last_date_str,
-            period="日k",
-            adjust="",
+            start_date=config.start_date,
+            end_date=config.end_date,
+            period=config.period,
+            adjust=config.adjust,
         )
 
     async def process_single_industry_async(
