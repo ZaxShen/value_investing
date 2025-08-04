@@ -10,7 +10,7 @@ industry performance and capital flows.
 import asyncio
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional
 
 import pandas as pd
 import yaml
@@ -58,7 +58,7 @@ def load_stock_board_industry_hist_config(
     Load configuration for stock_board_industry_hist_em API from YAML file.
 
     Args:
-        config_name: YAML config file name. If None, uses default config.
+        config_name: YAML config file name. If None, uses default config
 
     Returns:
         StockBoardIndustryHistConfig: Validated configuration object
@@ -112,6 +112,8 @@ class IndustryFilter:
             config_name: YAML config file name for API parameters
         """
         self.config = load_stock_board_industry_hist_config(config_name)
+        # Initialize fund_period_count with default value
+        self.fund_period_count = self.config.period_count
         # Resolve dates in the class config
         self._resolve_config()
 
@@ -191,13 +193,13 @@ class IndustryFilter:
         """
         return [
             "行业",
-            f"{self.config.period}{self.period_unit}主力净流入-总净额(亿)",
-            f"{self.config.period}{self.period_unit}涨跌幅(%)",
+            "主力净流入-总净额(亿)",
+            f"{self.config.period_count}{self.period_unit}涨跌幅(%)",
             "60日涨跌幅(%)",
             "年初至今涨跌幅(%)",
         ]
 
-    def _get_dates(self) -> Tuple[pd.Series, str]:
+    def _get_dates(self) -> pd.Series:
         """
         Get industry names and date ranges for analysis with retry mechanism.
 
@@ -206,8 +208,7 @@ class IndustryFilter:
         trading days for meaningful analysis.
 
         Returns:
-            Tuple containing:
-                - industry_arr: Series of industry names
+            Series of industry names
         """
         # Get the list of industry names with retry
         industry_data = API_RETRY_CONFIG.retry(ak.stock_board_industry_name_em)
@@ -293,7 +294,7 @@ class IndustryFilter:
 
         config = self.config
 
-        end_date = datetime.strptime(config.end_date, "%Y%m%d").date()
+        end_date = datetime.strptime(config.end_date, "%Y%m%d")
 
         # Fetch flow data
         flow_data = API_RETRY_CONFIG.retry(
@@ -302,15 +303,17 @@ class IndustryFilter:
         # Convert "日期" from str to datetime object
         flow_data["日期"] = pd.to_datetime(flow_data["日期"], format="%Y-%m-%d")
         # Filter available flow data
-        flow_data = flow_data[flow_data["日期"] < end_date].shape[0]
-        available_lookback_days = flow_data.shape[0]
+        filtered_flow_data = flow_data[flow_data["日期"] <= end_date]
+        available_lookback_days = filtered_flow_data.shape[0]
 
         if available_lookback_days == 0:
-            return
+            return filtered_flow_data  # Return empty DataFrame
         elif available_lookback_days > config.period_count:
-            return flow_data.iloc[-config.period_count :]
-        elif available_lookback_days <= config.period_count:
-            return flow_data.iloc[-available_lookback_days:]
+            self.fund_period_count = config.period_count
+            return filtered_flow_data.iloc[-config.period_count :]
+        else:
+            self.fund_period_count = available_lookback_days
+            return filtered_flow_data.iloc[-available_lookback_days:]
 
     def _fetch_industry_index_data_sync(
         self,
@@ -393,19 +396,34 @@ class IndustryFilter:
                     return None
                 # Get the index of the last trading date
                 industry_last_index = stock_board_industry_hist_em_df["收盘"].iloc[-1]
-                # Get the index of the desired trading date
+
+                # Check if we have enough data for period_count lookback
+                df_len = len(stock_board_industry_hist_em_df)
+                period_lookback = min(self.config.period_count, df_len - 1)
+                days_60_lookback = min(self.TRADING_DAYS_60, df_len - 1)
+
+                # Get the index of the desired trading date (with bounds checking)
                 industry_days_index = stock_board_industry_hist_em_df["收盘"].iloc[
-                    -self.config.period_count  # FIXME
+                    -period_lookback if period_lookback > 0 else -1
                 ]
-                # Get the index of 60 trading days ago
+                # Get the index of 60 trading days ago (with bounds checking)
                 industry_60_index = stock_board_industry_hist_em_df["收盘"].iloc[
-                    -self.TRADING_DAYS_60
+                    -days_60_lookback if days_60_lookback > 0 else -1
                 ]
-                # Get the index of the 1st trading date
-                industry_1st_trading_date_index = stock_board_industry_hist_em_df[
+                # Get the index of the 1st trading date (with bounds checking)
+                first_trading_date_filter = stock_board_industry_hist_em_df[
                     stock_board_industry_hist_em_df["日期"]
                     == self.first_trading_date_str
-                ]["收盘"].iloc[0]
+                ]
+                if len(first_trading_date_filter) > 0:
+                    industry_1st_trading_date_index = first_trading_date_filter[
+                        "收盘"
+                    ].iloc[0]
+                else:
+                    # Fallback to first available date if exact date not found
+                    industry_1st_trading_date_index = stock_board_industry_hist_em_df[
+                        "收盘"
+                    ].iloc[0]
                 # Calculate index change percentage
                 industry_index_change_perc_days = (
                     (industry_last_index - industry_days_index)
@@ -559,15 +577,23 @@ class IndustryFilter:
             config_name = ""
         elif config.config_name == "":
             # Only PROD config allows to use empty config_name
-            config_name = datetime.today().strftime("%Y%m%d")
+            config_name = "-UNKNOWN"
         else:
-            config_name = config.config_name
+            config_name = f"-{config.config_name}"
+
+        # Rename column name
+        all_industries_df.rename(
+            columns={
+                "主力净流入-总净额(亿)": f"{self.fund_period_count}{self.period_unit}主力净流入-总净额(亿)"
+            },
+            inplace=True,
+        )
 
         # Sort all_industries_df
         all_industries_df = all_industries_df.sort_values(
             by=[
-                f"{config.period}{self.period_unit}主力净流入-总净额(亿)",
-                f"{config.period}{self.period_unit}涨跌幅(%)",
+                f"{self.fund_period_count}{self.period_unit}主力净流入-总净额(亿)",
+                f"{config.period_count}{self.period_unit}涨跌幅(%)",
             ],
             ascending=[False, True],
         )
@@ -583,8 +609,10 @@ class IndustryFilter:
             raise
 
         # Apply additional filters to all_industries_df
-        main_net_inflow_col = f"{config.period}{self.period_unit}主力净流入-总净额(亿)"
-        price_change_col = f"{config.period}{self.period_unit}涨跌幅(%)"
+        main_net_inflow_col = (
+            f"{self.fund_period_count}{self.period_unit}主力净流入-总净额(亿)"
+        )
+        price_change_col = f"{config.period_count}{self.period_unit}涨跌幅(%)"
         filtered_df = all_industries_df[
             (all_industries_df[main_net_inflow_col] > self.MIN_MAIN_NET_INFLOW_YI)
             & (all_industries_df[price_change_col] < self.MAX_PRICE_CHANGE_PERCENT)
@@ -625,27 +653,26 @@ class IndustryFilter:
             parent_task_id: Optional parent task ID for hierarchical progress structure
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
-        # FIXME
         # Get dates and industry data
         industry_arr = self._get_dates()
 
         # Process all industries with progress tracking
         all_industries_df = await self.process_all_industries_async(
             industry_arr,
-            self.first_trading_date_str,
             progress=progress,
             parent_task_id=parent_task_id,
             batch_task_id=batch_task_id,
         )
 
         # Save reports (raw and filtered)
-        self._save_reports(all_industries_df, days)
+        self._save_reports(all_industries_df)
 
 
 async def main(
     progress: Optional["Progress"] = None,
     parent_task_id: Optional[int] = None,
     batch_task_id: Optional[int] = None,
+    config_name: Optional[str] = None,
 ) -> None:
     """
     Main function to execute the complete industry filtering pipeline.
@@ -657,8 +684,9 @@ async def main(
         progress: Optional Rich Progress instance for hierarchical progress tracking
         parent_task_id: Optional parent task ID for hierarchical progress structure
         batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+        config_name: YAML config file name. If None, uses default config
     """
-    industry_filter = IndustryFilter()
+    industry_filter = IndustryFilter(config_name)
     await industry_filter.run_analysis(
         progress=progress, parent_task_id=parent_task_id, batch_task_id=batch_task_id
     )
