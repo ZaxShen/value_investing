@@ -106,7 +106,7 @@ async def get_stock_market_data(
         except Exception:
             progress.update(
                 task_id,
-                description=f"[red]✗ Failed to fetch {market_name} stock market data",
+                description=f"    [red]✗ Failed to fetch {market_name} stock market data",
             )
             raise
 
@@ -135,7 +135,9 @@ async def get_stock_market_data(
         logger.info("Successfully saved stock market data to %s", file_path)
         return stock_df
     except Exception as e:
-        progress.update(task, description="[red]✗ Failed to fetch stock market data")
+        progress.update(
+            task, description="    [red]✗ Failed to fetch stock market data"
+        )
         logger.error("Failed to fetch stock market data: %s", str(e))
         raise
     finally:
