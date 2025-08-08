@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
+
 configure_environment()
 
 import akshare as ak
@@ -129,6 +130,7 @@ class StockFilter:
             all_industries_df: DataFrame containing all analysis results
             days: Number of days used for analysis (for filtering and naming)
         """
+        # TODO: Get last date from shared function to avoid redundant API calls
         # Define the report date with retry mechanism
         sector_fund_flow = API_RETRY_CONFIG.retry(
             ak.stock_sector_fund_flow_hist, symbol="证券"
@@ -270,8 +272,10 @@ class StockFilter:
             try:
                 # Ensure data is prepared
                 if self.stock_market_df_filtered is None:
-                    raise ValueError("Stock data not prepared. Call prepare_stock_data() first.")
-                
+                    raise ValueError(
+                        "Stock data not prepared. Call prepare_stock_data() first."
+                    )
+
                 # Extract the stock's market data
                 stock_data = self.stock_market_df_filtered[
                     self.stock_market_df_filtered["代码"] == stock_code
@@ -287,13 +291,16 @@ class StockFilter:
                 # Extract the historical data of the stock (async) with timeout
                 try:
                     stock_individual_fund_flow_df = await asyncio.wait_for(
-                        asyncio.to_thread(self._fetch_stock_fund_flow_sync, stock_code, market),
-                        timeout=60.0  # 60 second timeout for fund flow data
+                        asyncio.to_thread(
+                            self._fetch_stock_fund_flow_sync, stock_code, market
+                        ),
+                        timeout=60.0,  # 60 second timeout for fund flow data
                     )
                 except asyncio.TimeoutError:
                     logger.warning(
                         "Timeout fetching fund flow data for %s (%s) after 60 seconds, skipping",
-                        stock_name, stock_code
+                        stock_name,
+                        stock_code,
                     )
                     return None
 
@@ -372,8 +379,10 @@ class StockFilter:
         """
         # Ensure data is prepared
         if self.stock_market_df_filtered is None:
-            raise ValueError("Stock data not prepared. Call prepare_stock_data() first.")
-        
+            raise ValueError(
+                "Stock data not prepared. Call prepare_stock_data() first."
+            )
+
         # Extract all qualified stocks from stock_market_df_filtered
         stocks = self.stock_market_df_filtered[
             self.stock_market_df_filtered["行业"] == industry_name
@@ -441,8 +450,10 @@ class StockFilter:
 
         # Ensure data is prepared
         if self.industry_arr is None:
-            raise ValueError("Industry data not prepared. Call prepare_stock_data() first.")
-        
+            raise ValueError(
+                "Industry data not prepared. Call prepare_stock_data() first."
+            )
+
         # Process industries with some concurrency but not too much to avoid overwhelming the API
         batch_size = self.BATCH_SIZE
         total_batches = (len(self.industry_arr) + batch_size - 1) // batch_size
@@ -495,8 +506,11 @@ class StockFilter:
                     try:
                         # Check if result is a DataFrame and not empty
                         # Use explicit type check to satisfy type checker
-                        if (hasattr(result, 'empty') and hasattr(result, 'iloc') and 
-                            not isinstance(result, BaseException)):
+                        if (
+                            hasattr(result, "empty")
+                            and hasattr(result, "iloc")
+                            and not isinstance(result, BaseException)
+                        ):
                             # Now type checker knows result is not an Exception
                             if not result.empty:  # type: ignore[attr-defined]
                                 result_dfs.append(result)
