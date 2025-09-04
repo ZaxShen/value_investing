@@ -11,7 +11,7 @@ import asyncio
 from datetime import datetime, timedelta
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pandas as pd
 import yaml
@@ -43,27 +43,54 @@ class StockBoardIndustryHistConfig(BaseModel):
     This model validates and provides default values for the API parameters.
     """
 
-    symbol: str = "小金属"  # Industry symbol
-    start_date: str = "20230101"  # Start date in YYYYMMDD format
-    end_date: str = "20241231"  # End date in YYYYMMDD format
-    period: str = "日k"  # Period: "日k", "周k", "月k"
+    symbol: str = ""  # Industry symbol
+    start_date: str = ""  # Start date in YYYYMMDD format
+    end_date: str = ""  # End date in YYYYMMDD format
+    period: str = ""  # Period: "日k", "周k", "月k"
     period_count: int = 0  # Period Count: 30, 365, 4
     adjust: str = ""  # Adjustment: "", "qfq", "hfq"
     config_name: str = "PROD"  # If this config for PROD or other purpose
 
 
-def load_stock_board_industry_hist_config(
-    config_name: Optional[str] = None,
-) -> StockBoardIndustryHistConfig:
+class IndustryFilterConfig(BaseModel):
     """
-    Load configuration for stock_board_industry_hist_em API from YAML file.
+    Configuration model for IndustryFilter class parameters.
+    
+    This model validates and provides default values for the IndustryFilter class constants.
+    """
+    
+    min_main_net_inflow_yi: int = 20  # Minimum main net inflow in 100 million RMB
+    max_price_change_percent: int = 8  # Maximum price change percentage
+    batch_size: int = 3  # Batch size for concurrent processing
+    days_lookback_period: int = 100  # Days to look back for sufficient trading data
+    trading_days_60: int = 60  # 60 trading days for analysis
+    report_dir: str = "data/stocks/reports"  # Report directory
 
+
+class NestedIndustryConfig(BaseModel):
+    """
+    Configuration model for nested YAML structure supporting both akshare and IndustryFilter configs.
+    
+    This model handles the nested structure from test_5.yml format.
+    """
+    
+    akshare: Dict[str, Dict[str, Any]] = {}
+    industry_filter: Dict[str, Any] = {}
+    file_config: Dict[str, Any] = {}
+
+
+def load_nested_industry_config(
+    config_name: Optional[str] = None,
+) -> tuple[StockBoardIndustryHistConfig, IndustryFilterConfig, dict]:
+    """
+    Load nested configuration from YAML file supporting test_5.yml format.
+    
     Args:
         config_name: YAML config file name. If None, uses default config
-
+        
     Returns:
-        StockBoardIndustryHistConfig: Validated configuration object
-
+        tuple: (akshare_config, industry_filter_config, file_config)
+        
     Raises:
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
@@ -82,11 +109,58 @@ def load_stock_board_industry_hist_config(
     if not Path(config_path).exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
 
-    # Load and validate config
+    # Load YAML config
     with open(config_path, "r", encoding="utf-8") as f:
         config_data = yaml.safe_load(f)
+    
+    # Check if it's nested format (has 'akshare' key) or flat format
+    if 'akshare' in config_data:
+        # Nested format - extract each section
+        nested_config = NestedIndustryConfig(**config_data)
+        
+        # Extract akshare config
+        akshare_data = nested_config.akshare.get('stock_board_industry_hist_em', {})
+        # Add file config name to akshare config
+        akshare_data['config_name'] = nested_config.file_config.get('config_name', 'PROD')
+        akshare_config = StockBoardIndustryHistConfig(**akshare_data)
+        
+        # Extract industry filter config
+        industry_filter_config = IndustryFilterConfig(**nested_config.industry_filter)
+        
+        # Return file config as dict
+        file_config = nested_config.file_config
+        
+        return akshare_config, industry_filter_config, file_config
+    else:
+        # Flat format - use existing logic for backward compatibility
+        akshare_config = StockBoardIndustryHistConfig(**config_data)
+        # Use default industry filter config
+        industry_filter_config = IndustryFilterConfig()
+        file_config = {"config_name": akshare_config.config_name}
+        
+        return akshare_config, industry_filter_config, file_config
 
-    return StockBoardIndustryHistConfig(**config_data)
+
+def load_stock_board_industry_hist_config(
+    config_name: Optional[str] = None,
+) -> StockBoardIndustryHistConfig:
+    """
+    Load configuration for stock_board_industry_hist_em API from YAML file.
+    
+    Maintains backward compatibility by returning only the akshare config.
+
+    Args:
+        config_name: YAML config file name. If None, uses default config
+
+    Returns:
+        StockBoardIndustryHistConfig: Validated configuration object
+
+    Raises:
+        FileNotFoundError: If config file doesn't exist
+        ValueError: If config validation fails
+    """
+    akshare_config, _, _ = load_nested_industry_config(config_name)
+    return akshare_config
 
 
 class IndustryFilter:
@@ -98,15 +172,15 @@ class IndustryFilter:
     on various financial metrics.
     """
 
-    # Class constants for filtering criteria
-    MIN_MAIN_NET_INFLOW_YI = 20  # Minimum main net inflow in 100 million RMB
-    MAX_PRICE_CHANGE_PERCENT = 8  # Maximum price change percentage
-    BATCH_SIZE = 3
-    DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
-    TRADING_DAYS_60 = 60  # 60 trading days for analysis
+    # # Class constants for filtering criteria
+    # MIN_MAIN_NET_INFLOW_YI = 20  # Minimum main net inflow in 100 million RMB
+    # MAX_PRICE_CHANGE_PERCENT = 8  # Maximum price change percentage
+    # BATCH_SIZE = 3
+    # DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
+    # TRADING_DAYS_60 = 60  # 60 trading days for analysis
 
-    # Report directory
-    REPORT_DIR = "data/stocks/reports"
+    # # Report directory
+    # REPORT_DIR = "data/stocks/reports"
 
     def __init__(self, config_name: Optional[str] = None):
         """Initialize the IndustryFilter.
@@ -114,7 +188,17 @@ class IndustryFilter:
         Args:
             config_name: YAML config file name for API parameters
         """
-        self.config = load_stock_board_industry_hist_config(config_name)
+        # Load both akshare and industry filter configs
+        self.config, self.filter_config, self.file_config = load_nested_industry_config(config_name)
+        
+        # Apply class constants from config
+        self.MIN_MAIN_NET_INFLOW_YI = self.filter_config.min_main_net_inflow_yi
+        self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
+        self.BATCH_SIZE = self.filter_config.batch_size
+        self.DAYS_LOOKBACK_PERIOD = self.filter_config.days_lookback_period
+        self.TRADING_DAYS_60 = self.filter_config.trading_days_60
+        self.REPORT_DIR = self.filter_config.report_dir
+        
         # Initialize fund_period_count with default value
         self.fund_period_count = self.config.period_count
         # Resolve dates in the class config

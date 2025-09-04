@@ -8,20 +8,16 @@ stock: "000001"
 # Market identifier
 # Options: "sh" (Shanghai), "sz" (Shenzhen), "bj" (Beijing)
 # Note: This will be auto-determined from stock code if not specified
-market: "sz"
+market: ""
 
-# Start date for fund flow data (format: YYYYMMDD)
-# If empty, will use end_date - period_count days
-start_date: ""
-
-# End date for fund flow data (format: YYYYMMDD)  
-# If empty, will use the latest available date
-end_date: ""
+# Date for fund flow data (format: YYYYMMDD)
+# If empty, will use the latest trading date
+date: ""
 
 # Number of days for fund flow analysis
-# Used for calculating start_date when start_date is empty
+# Used for calculating the specific periods based on selected date
 # Also used as the default analysis period for holding stocks
-period_count: 29
+period_count: [1, 5, 29]
 
 # (Customized Arg) If this config for PROD or other purpose
-config_name: "PROD"
+config_name: "test"

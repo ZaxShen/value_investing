@@ -42,3 +42,21 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 ---
 
 ## v1.7.0 TODO
+
+### Features
+
+#### Refactor Specific Python Scripts with Config Files
+
+Target scripts:
+
+- holding_stock_analyzer.py
+
+Before implement:
+
+- Review industry_filter.py and apply similar features/updates to holding_stock_analyzer.py
+
+New Features:
+
+- Add date parameters for backtesting
+- Use `*args, **kwargs` with JSON config files
+- In `data/input/holding_stock_analyzer/akshare/stock_individual_fund_flow`, create a `config.yml` and `test.yml`. Sample files are in `data/input/industry_filter/akshare/stock_board_industry_hist_em`

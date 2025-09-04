@@ -1,0 +1,14 @@
+# Configuration for ak.stock_individual_fund_flow API
+# This file contains default parameters for fetching individual stock fund flow data
+
+# Date of fund flow data (format: YYYYMMDD)
+# If empty, will use the latest trading date
+date: ""
+
+# Number of days for fund flow analysis
+# Used for calculating the specific periods based on selected date
+# Also used as the default analysis period for holding stocks
+period_count: [1, 5, 29]
+
+# (Customized Arg) If this config for PROD or other purpose
+config_name: "PROD"

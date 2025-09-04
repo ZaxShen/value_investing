@@ -11,24 +11,79 @@ import asyncio
 import glob
 import json
 import os
+from datetime import datetime, timedelta
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+import pandas as pd
+import yaml
+from pydantic import BaseModel
 
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
-
-configure_environment()
-
-import akshare as ak
-import pandas as pd
-
 from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG
+
+configure_environment()
+import akshare as ak
 
 if TYPE_CHECKING:
     from rich.progress import Progress, TaskID
 
 # Initialize logger for this module
 logger = get_logger("holding_stock_analyzer")
+
+# Create a semaphore to limit concurrent requests
+REQUEST_SEMAPHORE = asyncio.Semaphore(10)
+
+
+class StockIndividualFundFlowConfig(BaseModel):
+    """
+    Configuration model for ak.stock_individual_fund_flow API parameters.
+
+    This model validates and provides default values for the API parameters.
+    """
+
+    date: str = ""  # Date of fund flow data (format: YYYYMMDD)
+    period_count: list = []  # Number of days for fund flow analysis
+    config_name: str = ""  # If this config for PROD or other purpose
+
+
+def load_stock_individual_fund_flow_config(
+    config_name: Optional[str] = None,
+) -> StockIndividualFundFlowConfig:
+    """
+    Load configuration for stock_individual_fund_flow API from YAML file.
+
+    Args:
+        config_name: YAML config file name. If None, uses default config
+
+    Returns:
+        StockIndividualFundFlowConfig: Validated configuration object
+
+    Raises:
+        FileNotFoundError: If config file doesn't exist
+        ValueError: If config validation fails
+    """
+    config_dir = Path(
+        "data/input/holding_stock_analyzer/akshare/stock_individual_fund_flow/"
+    )
+    if config_name is None:
+        config_name = "config.yml"
+    config_path = Path(config_dir, config_name)
+
+    # Create directory if it doesn't exist
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    # Check if config file exists
+    if not Path(config_path).exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    # Load and validate config
+    with open(config_path, "r", encoding="utf-8") as f:
+        config_data = yaml.safe_load(f)
+
+    return StockIndividualFundFlowConfig(**config_data)
 
 
 class HoldingStockAnalyzer:
@@ -41,14 +96,18 @@ class HoldingStockAnalyzer:
     """
 
     # Class constants for analysis parameters
-    DAYS_ANALYSIS_PERIOD = 29  # Default analysis period in days
+    # TODO: Make Class constants to config.yml
     REPORT_DIR = "data/holding_stocks/reports"
     HOLDING_STOCKS_DIR = "data/holding_stocks"
+    DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
 
     def __init__(
         self,
         industry_stock_mapping_df: pd.DataFrame,
         stock_zh_a_spot_em_df: pd.DataFrame,
+        config_name: Optional[str] = None,
+        *args,
+        **kwargs,
     ):
         """
         Initialize the HoldingStockAnalyzer with market data.
@@ -56,9 +115,78 @@ class HoldingStockAnalyzer:
         Args:
             industry_stock_mapping_df: DataFrame containing industry-stock mapping
             stock_zh_a_spot_em_df: DataFrame containing stock market data
+            config_name: YAML config file name for API parameters
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments including backtesting parameters
         """
         self.industry_stock_mapping_df = industry_stock_mapping_df
         self.stock_zh_a_spot_em_df = stock_zh_a_spot_em_df
+        self.config = load_stock_individual_fund_flow_config(config_name)
+
+        # Store additional arguments for flexibility
+        self.args = args
+        self.kwargs = kwargs
+
+        # Resolve dates in the class config
+        self._resolve_config()
+
+    def _date_converter(self, date_str: str, period_count: int) -> str:
+        """
+        Convert date by adding/subtracting days.
+
+        Args:
+            date_str: Date string in YYYYMMDD format
+            period_count: Number of days to add (positive) or subtract (negative)
+
+        Returns:
+            New date string in YYYYMMDD format
+        """
+        date_obj = datetime.strptime(date_str, "%Y%m%d")
+        new_date = date_obj + timedelta(days=period_count)
+        return new_date.strftime("%Y%m%d")
+
+    def _resolve_config(self) -> None:
+        """
+        Resolve start_date, end_date, or other data in config based on the configuration rules.
+        Modifies the config object in-place.
+        """
+        config = self.config
+
+        # Override with kwargs if provided
+        if "start_date" in self.kwargs:
+            config.start_date = self.kwargs["start_date"]
+        if "end_date" in self.kwargs:
+            config.end_date = self.kwargs["end_date"]
+        if "period_count" in self.kwargs:
+            config.period_count = self.kwargs["period_count"]
+
+        # Set start_date & end_date
+        if config.start_date and config.end_date:
+            # Both dates provided - use as is
+            pass
+        elif config.start_date and not config.end_date:
+            # Only start_date provided - calculate end_date
+            config.end_date = self._date_converter(
+                config.start_date, config.period_count
+            )
+        elif not config.start_date and config.end_date:
+            # Only end_date provided - calculate start_date
+            config.start_date = self._date_converter(
+                config.end_date, -config.period_count
+            )
+        else:
+            # Both dates empty - get latest date from API call first
+            # Use default stock to get latest available date
+            temp_data = API_RETRY_CONFIG.retry(
+                ak.stock_individual_fund_flow, stock=config.stock, market=config.market
+            )
+
+            # Get the latest available date and set as end_date
+            latest_date = temp_data["日期"].iloc[-1].replace("-", "")
+            config.end_date = latest_date
+            config.start_date = self._date_converter(
+                config.end_date, -config.period_count
+            )
 
     def _get_analysis_columns(self, days: int) -> List[str]:
         """
@@ -243,7 +371,7 @@ class HoldingStockAnalyzer:
             analysis fails or stock doesn't meet criteria
         """
         if days is None:
-            days = self.DAYS_ANALYSIS_PERIOD
+            days = self.config.period_count
 
         logger.debug(
             "Processing %s (%s) in %s industry", stock_name, stock_code, industry_name
@@ -329,8 +457,18 @@ class HoldingStockAnalyzer:
             df: DataFrame containing analysis results
             last_date_str: Date string for report naming
         """
+        config = self.config
+        # Check if config file for PROD
+        if config.config_name.upper() == "PROD":
+            config_name = ""
+        elif config.config_name == "":
+            # Only PROD config allows to use empty config_name
+            config_name = "-UNKNOWN"
+        else:
+            config_name = f"-{config.config_name}"
+
         try:
-            report_path = f"{self.REPORT_DIR}/持股报告-{last_date_str}.csv"
+            report_path = f"{self.REPORT_DIR}/持股报告-{last_date_str}{config_name}.csv"
             df.to_csv(report_path, index=True)
             logger.info("Report saved to %s", report_path)
         except (OSError, PermissionError) as e:
@@ -360,7 +498,7 @@ class HoldingStockAnalyzer:
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
         if days is None:
-            days = self.DAYS_ANALYSIS_PERIOD
+            days = self.config.period_count
 
         # Initialize DataFrame with analysis columns
         columns = self._get_analysis_columns(days)
@@ -452,6 +590,9 @@ async def main(
     progress: Optional["Progress"] = None,
     parent_task_id: Optional["TaskID"] = None,
     batch_task_id: Optional["TaskID"] = None,
+    config_name: Optional[str] = None,
+    *args,
+    **kwargs,
 ) -> None:
     """
     Main function to execute holding stock analysis and generate reports.
@@ -462,14 +603,15 @@ async def main(
     Args:
         industry_stock_mapping_df: DataFrame containing industry-stock mapping
         stock_zh_a_spot_em_df: DataFrame containing stock market data
-        holding_stocks_data: Dictionary with account names as keys and
-                            {stock_code: stock_name} dictionaries as values
         progress: Optional Rich Progress instance for hierarchical progress tracking
         parent_task_id: Optional parent task ID for hierarchical progress structure
         batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+        config_name: YAML config file name. If None, uses default config
+        *args: Additional positional arguments
+        **kwargs: Additional keyword arguments including backtesting parameters
     """
     holding_stock_analyzer = HoldingStockAnalyzer(
-        industry_stock_mapping_df, stock_zh_a_spot_em_df
+        industry_stock_mapping_df, stock_zh_a_spot_em_df, config_name, *args, **kwargs
     )
     holding_stocks_data = holding_stock_analyzer.load_holding_stocks_from_files()
     await holding_stock_analyzer.run_analysis(
