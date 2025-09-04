@@ -19,9 +19,9 @@ import shutil
 from unittest.mock import patch, Mock
 from rich.progress import Progress
 
-from src.stock_filter import StockFilter
-from src.industry_filter import IndustryFilter
-from src.holding_stock_analyzer import HoldingStockAnalyzer
+from src.filters.stock_filter import StockFilter
+from src.filters.industry_filter import IndustryFilter
+from src.analyzers.holding_stock_analyzer import HoldingStockAnalyzer
 from src.utilities.get_stock_data import get_stock_market_data, get_industry_stock_mapping_data
 
 

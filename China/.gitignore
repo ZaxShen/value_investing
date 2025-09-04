@@ -37,7 +37,7 @@ tests/logs/*.log
 # ============================================================================
 
 # China-specific test notebooks
-test.ipynb
+test*.ipynb
 
 # Jupyter checkpoint directories
 .ipynb_checkpoints/

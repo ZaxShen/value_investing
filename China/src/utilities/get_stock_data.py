@@ -10,29 +10,15 @@ with comprehensive retry mechanisms.
 import asyncio
 import glob
 import os
-import sys
 from datetime import datetime
-from pathlib import Path
 from typing import List
 
-# Handle imports for both module and standalone execution
-try:
-    # Import settings first to disable tqdm before akshare import
-    from src.settings import configure_environment
-    from src.utilities.logger import get_logger
-    from src.utilities.retry import API_RETRY_CONFIG, retry_call
+# Import settings first to disable tqdm before akshare import
+from src.settings import configure_environment
+from src.utilities.logger import get_logger
+from src.utilities.retry import API_RETRY_CONFIG, retry_call
 
-    configure_environment()  # Ensure tqdm is disabled
-except ModuleNotFoundError:
-    # When running as standalone script, add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-    from src.settings import configure_environment
-    from src.utilities.logger import get_logger
-    from src.utilities.retry import API_RETRY_CONFIG, retry_call
-
-    configure_environment()  # Ensure tqdm is disabled
+configure_environment()  # Ensure tqdm is disabled
 
 import akshare as ak
 import pandas as pd
@@ -106,7 +92,7 @@ async def get_stock_market_data(
         except Exception:
             progress.update(
                 task_id,
-                description=f"[red]✗ Failed to fetch {market_name} stock market data",
+                description=f"    [red]✗ Failed to fetch {market_name} stock market data",
             )
             raise
 
@@ -135,7 +121,9 @@ async def get_stock_market_data(
         logger.info("Successfully saved stock market data to %s", file_path)
         return stock_df
     except Exception as e:
-        progress.update(task, description="[red]✗ Failed to fetch stock market data")
+        progress.update(
+            task, description="    [red]✗ Failed to fetch stock market data"
+        )
         logger.error("Failed to fetch stock market data: %s", str(e))
         raise
     finally:
