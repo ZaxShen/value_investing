@@ -68,7 +68,9 @@ def load_stock_board_industry_hist_config(
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    config_dir = Path("data/input/akshare/stock_board_industry_hist_em/")
+    config_dir = Path(
+        "data/input/industry_filter/akshare/stock_board_industry_hist_em/"
+    )
     if config_name is None:
         config_name = "config.yml"
     config_path = Path(config_dir, config_name)

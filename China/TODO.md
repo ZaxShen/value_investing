@@ -32,16 +32,6 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ## Features
 
-### Refactor Dir Structre
-
-Move to specific dir:
-
-- holding_stock_analyzer.py
-- industry_filter.py
-- stock_filter.py
-
----
-
 ### Reconstruct Specific Python Scripts
 
 Target scripts:
@@ -54,3 +44,4 @@ Changes:
 
 - Add date/days parameters for backtesting
 - Use `*args, **kwargs` with JSON config files
+- Find MACD near 0 stocks
