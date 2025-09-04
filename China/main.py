@@ -28,9 +28,9 @@ from rich.progress import (
     TimeElapsedColumn,  # Shows elapsed time since task started
 )
 
-from src.holding_stock_analyzer import HoldingStockAnalyzer
-from src.industry_filter import IndustryFilter
-from src.stock_filter import StockFilter
+from src.analyzers.holding_stock_analyzer import HoldingStockAnalyzer
+from src.filters.industry_filter import IndustryFilter
+from src.filters.stock_filter import StockFilter
 from src.utilities.get_stock_data import (
     get_industry_stock_mapping_data,
     get_stock_market_data,

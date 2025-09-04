@@ -21,10 +21,11 @@ dependencies = [
     "tushare>=1.4.21",
     "yfinance>=0.2.65",
     "pytest>=8.0.0",
-    "pytest-asyncio>=0.21.0", 
+    "pytest-asyncio>=0.21.0",
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.10.0",
     "ruff>=0.1.0",
+    "pydantic>=2.11.7",
 ]
 
 [tool.pytest.ini_options]

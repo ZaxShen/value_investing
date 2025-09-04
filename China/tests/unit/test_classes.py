@@ -17,9 +17,9 @@ import numpy as np
 from unittest.mock import Mock, patch, AsyncMock, MagicMock
 from rich.progress import Progress
 
-from src.stock_filter import StockFilter
-from src.industry_filter import IndustryFilter
-from src.holding_stock_analyzer import HoldingStockAnalyzer
+from src.filters.stock_filter import StockFilter
+from src.filters.industry_filter import IndustryFilter
+from src.analyzers.holding_stock_analyzer import HoldingStockAnalyzer
 
 
 class TestStockFilter:
@@ -367,9 +367,9 @@ class TestClassIntegration:
         holding_data = {"银行股票": {"000001": "平安银行"}}
         
         # Mock all external API calls
-        with patch('src.stock_filter.ak') as mock_ak:
-            with patch('src.industry_filter.ak') as mock_ak2:
-                with patch('src.holding_stock_analyzer.ak') as mock_ak3:
+        with patch('src.filters.stock_filter.ak') as mock_ak:
+            with patch('src.filters.industry_filter.ak') as mock_ak2:
+                with patch('src.analyzers.holding_stock_analyzer.ak') as mock_ak3:
                     # Setup mock returns
                     mock_ak.stock_sector_fund_flow_hist.return_value = pd.DataFrame({"日期": ["2025-01-01"]})
                     mock_ak.stock_individual_fund_flow.return_value = pd.DataFrame({"日期": ["2025-01-01"]})
