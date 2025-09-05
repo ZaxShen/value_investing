@@ -46,8 +46,8 @@ class StockBoardIndustryHistConfig(BaseModel):
     symbol: str = ""  # Industry symbol
     start_date: str = ""  # Start date in YYYYMMDD format
     end_date: str = ""  # End date in YYYYMMDD format
-    period: str = ""  # Period: "日k", "周k", "月k"
-    period_count: int = 0  # Period Count: 30, 365, 4
+    period: str = "日 k"  # Period: "日k", "周k", "月k"
+    period_count: int = 29  # Period Count: 30, 365, 4
     adjust: str = ""  # Adjustment: "", "qfq", "hfq"
     config_name: str = "PROD"  # If this config for PROD or other purpose
 
@@ -55,10 +55,10 @@ class StockBoardIndustryHistConfig(BaseModel):
 class IndustryFilterConfig(BaseModel):
     """
     Configuration model for IndustryFilter class parameters.
-    
+
     This model validates and provides default values for the IndustryFilter class constants.
     """
-    
+
     min_main_net_inflow_yi: int = 20  # Minimum main net inflow in 100 million RMB
     max_price_change_percent: int = 8  # Maximum price change percentage
     batch_size: int = 3  # Batch size for concurrent processing
@@ -67,37 +67,35 @@ class IndustryFilterConfig(BaseModel):
     report_dir: str = "data/stocks/reports"  # Report directory
 
 
-class NestedIndustryConfig(BaseModel):
+class IndustryConfig(BaseModel):
     """
     Configuration model for nested YAML structure supporting both akshare and IndustryFilter configs.
-    
+
     This model handles the nested structure from test_5.yml format.
     """
-    
+
     akshare: Dict[str, Dict[str, Any]] = {}
     industry_filter: Dict[str, Any] = {}
     file_config: Dict[str, Any] = {}
 
 
-def load_nested_industry_config(
+def load_config(
     config_name: Optional[str] = None,
 ) -> tuple[StockBoardIndustryHistConfig, IndustryFilterConfig, dict]:
     """
     Load nested configuration from YAML file supporting test_5.yml format.
-    
+
     Args:
         config_name: YAML config file name. If None, uses default config
-        
+
     Returns:
         tuple: (akshare_config, industry_filter_config, file_config)
-        
+
     Raises:
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    config_dir = Path(
-        "data/input/industry_filter/akshare/stock_board_industry_hist_em/"
-    )
+    config_dir = Path("data/config/industry_filter/")
     if config_name is None:
         config_name = "config.yml"
     config_path = Path(config_dir, config_name)
@@ -112,24 +110,24 @@ def load_nested_industry_config(
     # Load YAML config
     with open(config_path, "r", encoding="utf-8") as f:
         config_data = yaml.safe_load(f)
-    
+
     # Check if it's nested format (has 'akshare' key) or flat format
-    if 'akshare' in config_data:
+    if "akshare" in config_data:
         # Nested format - extract each section
-        nested_config = NestedIndustryConfig(**config_data)
-        
+        configs = IndustryConfig(**config_data)
+
         # Extract akshare config
-        akshare_data = nested_config.akshare.get('stock_board_industry_hist_em', {})
+        akshare_config = configs.akshare.get("stock_board_industry_hist_em", {})
         # Add file config name to akshare config
-        akshare_data['config_name'] = nested_config.file_config.get('config_name', 'PROD')
-        akshare_config = StockBoardIndustryHistConfig(**akshare_data)
-        
+        akshare_config["config_name"] = configs.file_config.get("config_name", "PROD")
+        akshare_config = StockBoardIndustryHistConfig(**akshare_config)
+
         # Extract industry filter config
-        industry_filter_config = IndustryFilterConfig(**nested_config.industry_filter)
-        
+        industry_filter_config = IndustryFilterConfig(**configs.industry_filter)
+
         # Return file config as dict
-        file_config = nested_config.file_config
-        
+        file_config = configs.file_config
+
         return akshare_config, industry_filter_config, file_config
     else:
         # Flat format - use existing logic for backward compatibility
@@ -137,30 +135,8 @@ def load_nested_industry_config(
         # Use default industry filter config
         industry_filter_config = IndustryFilterConfig()
         file_config = {"config_name": akshare_config.config_name}
-        
+
         return akshare_config, industry_filter_config, file_config
-
-
-def load_stock_board_industry_hist_config(
-    config_name: Optional[str] = None,
-) -> StockBoardIndustryHistConfig:
-    """
-    Load configuration for stock_board_industry_hist_em API from YAML file.
-    
-    Maintains backward compatibility by returning only the akshare config.
-
-    Args:
-        config_name: YAML config file name. If None, uses default config
-
-    Returns:
-        StockBoardIndustryHistConfig: Validated configuration object
-
-    Raises:
-        FileNotFoundError: If config file doesn't exist
-        ValueError: If config validation fails
-    """
-    akshare_config, _, _ = load_nested_industry_config(config_name)
-    return akshare_config
 
 
 class IndustryFilter:
@@ -172,6 +148,7 @@ class IndustryFilter:
     on various financial metrics.
     """
 
+    # TODO: Remove those class variables
     # # Class constants for filtering criteria
     # MIN_MAIN_NET_INFLOW_YI = 20  # Minimum main net inflow in 100 million RMB
     # MAX_PRICE_CHANGE_PERCENT = 8  # Maximum price change percentage
@@ -189,8 +166,10 @@ class IndustryFilter:
             config_name: YAML config file name for API parameters
         """
         # Load both akshare and industry filter configs
-        self.config, self.filter_config, self.file_config = load_nested_industry_config(config_name)
-        
+        self.akshare_config, self.filter_config, self.file_config = load_config(
+            config_name
+        )
+
         # Apply class constants from config
         self.MIN_MAIN_NET_INFLOW_YI = self.filter_config.min_main_net_inflow_yi
         self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
@@ -198,11 +177,11 @@ class IndustryFilter:
         self.DAYS_LOOKBACK_PERIOD = self.filter_config.days_lookback_period
         self.TRADING_DAYS_60 = self.filter_config.trading_days_60
         self.REPORT_DIR = self.filter_config.report_dir
-        
+
         # Initialize fund_period_count with default value
-        self.fund_period_count = self.config.period_count
+        self.fund_period_count = self.akshare_config.period_count
         # Resolve dates in the class config
-        self._resolve_config()
+        self._resolve_akshare_config()
 
     def _date_converter(self, date_str: str, period: str, period_count: int) -> str:
         date_obj = datetime.strptime(date_str, "%Y%m%d")
@@ -221,12 +200,12 @@ class IndustryFilter:
 
         return new_date.strftime("%Y%m%d")
 
-    def _resolve_config(self) -> None:
+    def _resolve_akshare_config(self) -> None:
         """
         Resolve start_date, end_date, or other data in config based on the configuration rules.
         Modifies the config object in-place.
         """
-        config = self.config
+        config = self.akshare_config
 
         # Define period unit: 日, 周, 月
         try:
@@ -282,7 +261,7 @@ class IndustryFilter:
         return [
             "行业",
             "主力净流入-总净额(亿)",
-            f"{self.config.period_count}{self.period_unit}涨跌幅(%)",
+            f"{self.akshare_config.period_count}{self.period_unit}涨跌幅(%)",
             "60日涨跌幅(%)",
             "年初至今涨跌幅(%)",
         ]
@@ -322,8 +301,8 @@ class IndustryFilter:
             symbol=industry_arr[0],  # use any industry to get the latest date
             start_date=first_date_str,
             end_date=last_date_str,
-            period=self.config.period,
-            adjust=self.config.adjust,
+            period=self.akshare_config.period,
+            adjust=self.akshare_config.adjust,
         )
         dates = hist_data["日期"].values
 
@@ -381,7 +360,7 @@ class IndustryFilter:
             )
             return flow_data
 
-        config = self.config
+        config = self.akshare_config
 
         end_date = datetime.strptime(config.end_date, "%Y%m%d")
 
@@ -420,10 +399,10 @@ class IndustryFilter:
         return API_RETRY_CONFIG.retry(
             ak.stock_board_industry_hist_em,
             symbol=industry_name,
-            start_date=self.config.start_date,
-            end_date=self.config.end_date,
-            period=self.config.period,
-            adjust=self.config.adjust,
+            start_date=self.akshare_config.start_date,
+            end_date=self.akshare_config.end_date,
+            period=self.akshare_config.period,
+            adjust=self.akshare_config.adjust,
         )
 
     async def process_single_industry_async(
@@ -488,7 +467,7 @@ class IndustryFilter:
 
                 # Check if we have enough data for period_count lookback
                 df_len = len(stock_board_industry_hist_em_df)
-                period_lookback = min(self.config.period_count, df_len - 1)
+                period_lookback = min(self.akshare_config.period_count, df_len - 1)
                 days_60_lookback = min(self.TRADING_DAYS_60, df_len - 1)
 
                 # Get the index of the desired trading date (with bounds checking)
@@ -660,7 +639,7 @@ class IndustryFilter:
         Args:
             all_industries_df: DataFrame containing all analysis results
         """
-        config = self.config
+        config = self.akshare_config
         # Check if config file for PROD
         if config.config_name.upper() == "PROD":
             config_name = ""
