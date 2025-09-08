@@ -37,6 +37,19 @@ logger = get_logger("watchlist_analyzer")
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 
 
+class FileConfig(BaseModel):
+    """
+    Configuration model for file-related settings.
+
+    This model handles file configuration metadata including config name,
+    version, and description.
+    """
+
+    config_name: str = "PROD"  # If this config for PROD or other purpose
+    description: str = ""  # Configuration description
+    version: str = ""  # Configuration version
+
+
 class StockIndividualFundFlowConfig(BaseModel):
     """
     Configuration model for ak.stock_individual_fund_flow API parameters.
@@ -48,7 +61,6 @@ class StockIndividualFundFlowConfig(BaseModel):
     market: str = ""  # Market identifier: "sh", "sz", "bj"
     date: str = ""  # Date of fund flow data (format: YYYYMMDD)
     period_count: list = [1, 5, 29]  # Number of days for fund flow analysis
-    config_name: str = "PROD"  # If this config for PROD or other purpose
 
 
 class WatchlistAnalyzerConfig(BaseModel):
@@ -77,7 +89,7 @@ class Config(BaseModel):
 
 def load_config(
     config_name: Optional[str] = None,
-) -> tuple[StockIndividualFundFlowConfig, WatchlistAnalyzerConfig, dict]:
+) -> tuple[StockIndividualFundFlowConfig, WatchlistAnalyzerConfig, FileConfig]:
     """
     Load nested configuration from YAML file supporting test.yml format.
 
@@ -114,23 +126,23 @@ def load_config(
 
         # Extract akshare config
         akshare_data = config.akshare.get("stock_individual_fund_flow", {})
-        # Add file config name to akshare config
-        akshare_data["config_name"] = config.file_config.get("config_name", "PROD")
         akshare_config = StockIndividualFundFlowConfig(**akshare_data)
 
         # Extract watchlist analyzer config
         watchlist_config = WatchlistAnalyzerConfig(**config.watchlist_analyzer)
 
-        # Return file config as dict
-        file_config = config.file_config
+        # Extract file config
+        file_config = FileConfig(**config.file_config)
 
         return akshare_config, watchlist_config, file_config
     else:
         # Flat format - use existing logic for backward compatibility
+        # Extract config_name if present, otherwise use PROD
+        config_name_val = config_data.pop("config_name", "PROD")
         akshare_config = StockIndividualFundFlowConfig(**config_data)
         # Use default watchlist analyzer config
         watchlist_config = WatchlistAnalyzerConfig()
-        file_config = {"config_name": akshare_config.config_name}
+        file_config = FileConfig(config_name=config_name_val)
 
         return akshare_config, watchlist_config, file_config
 
@@ -529,15 +541,15 @@ class WatchlistAnalyzer:
         if "1日涨跌幅(%)" in df.columns:
             df.drop(columns=["1日涨跌幅(%)"], inplace=True)
 
-        config = self.config
+        file_config = self.file_config
         # Check if config file for PROD
-        if config.config_name.upper() == "PROD":
+        if file_config.config_name.upper() == "PROD":
             config_name = ""
-        elif config.config_name == "":
+        elif file_config.config_name == "":
             # Only PROD config allows to use empty config_name
             config_name = "-UNKNOWN"
         else:
-            config_name = f"-{config.config_name}"
+            config_name = f"-{file_config.config_name}"
 
         try:
             report_path = (
