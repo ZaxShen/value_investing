@@ -165,17 +165,6 @@ class IndustryFilter:
     on various financial metrics.
     """
 
-    # TODO: Remove those class variables
-    # # Class constants for filtering criteria
-    # MIN_MAIN_NET_INFLOW_YI = 20  # Minimum main net inflow in 100 million RMB
-    # MAX_PRICE_CHANGE_PERCENT = 8  # Maximum price change percentage
-    # BATCH_SIZE = 3
-    # DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
-    # TRADING_DAYS_60 = 60  # 60 trading days for analysis
-
-    # # Report directory
-    # REPORT_DIR = "data/stocks/reports"
-
     def __init__(self, config_name: Optional[str] = None):
         """Initialize the IndustryFilter.
 
@@ -642,9 +631,9 @@ class IndustryFilter:
     async def process_all_industries_async(
         self,
         industry_arr: pd.Series,
-        progress: Optional["Progress"] = None,
-        parent_task_id: Optional[int] = None,
-        batch_task_id: Optional[int] = None,
+        _progress: Optional["Progress"] = None,
+        _parent_task_id: Optional[int] = None,
+        _batch_task_id: Optional[int] = None,
     ) -> pd.DataFrame:
         """
         Process all industries concurrently with batch processing.
@@ -655,9 +644,9 @@ class IndustryFilter:
 
         Args:
             industry_arr: Series containing industry names
-            progress: Optional Rich Progress instance for hierarchical progress tracking
-            parent_task_id: Optional parent task ID for hierarchical progress structure
-            batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+            _progress: Optional Rich Progress instance for hierarchical progress tracking
+            _parent_task_id: Optional parent task ID for hierarchical progress structure
+            _batch_task_id: Optional pre-created batch task ID for proper hierarchy display
 
         Returns:
             DataFrame containing analysis results for all industries
@@ -672,17 +661,17 @@ class IndustryFilter:
         total_batches = (len(industry_arr) + batch_size - 1) // batch_size
 
         # Use pre-created batch task if provided, otherwise create new one
-        if progress is not None and batch_task_id is not None:
+        if _progress is not None and _batch_task_id is not None:
             # Make the pre-created batch task visible and configure it
-            progress.update(
-                batch_task_id,
+            _progress.update(
+                _batch_task_id,
                 total=total_batches,
                 visible=True,
                 description="    🏢 Industry Filter: Processing batches",
             )
-        elif progress is not None:
+        elif _progress is not None:
             # Fallback: create new batch task (will appear at bottom)
-            batch_task_id = progress.add_task(
+            _batch_task_id = _progress.add_task(
                 "🏢 Processing industry analysis batches",
                 total=total_batches,
                 visible=True,
@@ -699,9 +688,9 @@ class IndustryFilter:
             )
 
             # Update batch progress if available
-            if progress is not None and batch_task_id is not None:
-                progress.update(
-                    batch_task_id,
+            if _progress is not None and _batch_task_id is not None:
+                _progress.update(
+                    _batch_task_id,
                     completed=batch_num - 1,
                     description=f"    🏢 Industry Filter: Processing batch {batch_num}/{total_batches} ({len(batch)} industries)",
                 )
@@ -721,17 +710,17 @@ class IndustryFilter:
                     all_industries_df.loc[len(all_industries_df)] = result
 
             # Update batch progress after completion
-            if progress is not None and batch_task_id is not None:
-                progress.advance(batch_task_id)
+            if _progress is not None and _batch_task_id is not None:
+                _progress.advance(_batch_task_id)
 
         # Remove batch progress bar when finished (subtask cleanup)
-        if progress is not None and batch_task_id is not None:
-            progress.update(
-                batch_task_id,
+        if _progress is not None and _batch_task_id is not None:
+            _progress.update(
+                _batch_task_id,
                 description="    ✅ Industry Filter: All batches completed",
             )
             await asyncio.sleep(0.5)  # Brief display of completion
-            progress.remove_task(batch_task_id)
+            _progress.remove_task(_batch_task_id)
 
         return all_industries_df
 
@@ -805,9 +794,9 @@ class IndustryFilter:
 
     async def run_analysis(
         self,
-        progress: Optional["Progress"] = None,
-        parent_task_id: Optional[int] = None,
-        batch_task_id: Optional[int] = None,
+        _progress: Optional["Progress"] = None,
+        _parent_task_id: Optional[int] = None,
+        _batch_task_id: Optional[int] = None,
     ) -> None:
         """
         Run the complete industry filtering pipeline.
@@ -816,9 +805,9 @@ class IndustryFilter:
         data preparation, industry analysis, result filtering, and report generation.
 
         Args:
-            progress: Optional Rich Progress instance for hierarchical progress tracking
-            parent_task_id: Optional parent task ID for hierarchical progress structure
-            batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+            _progress: Optional Rich Progress instance for hierarchical progress tracking
+            _parent_task_id: Optional parent task ID for hierarchical progress structure
+            _batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
         # Get dates and industry data
         industry_arr = self._get_dates
@@ -826,9 +815,9 @@ class IndustryFilter:
         # Process all industries with progress tracking
         all_industries_df = await self.process_all_industries_async(
             industry_arr,
-            progress=progress,
-            parent_task_id=parent_task_id,
-            batch_task_id=batch_task_id,
+            _progress=_progress,
+            _parent_task_id=_parent_task_id,
+            _batch_task_id=_batch_task_id,
         )
 
         # Save reports (raw and filtered)
@@ -836,10 +825,10 @@ class IndustryFilter:
 
 
 async def main(
-    progress: Optional["Progress"] = None,
-    parent_task_id: Optional[int] = None,
-    batch_task_id: Optional[int] = None,
     config_name: Optional[str] = None,
+    _progress: Optional["Progress"] = None,
+    _parent_task_id: Optional[int] = None,
+    _batch_task_id: Optional[int] = None,
 ) -> None:
     """
     Main function to execute the complete industry filtering pipeline.
@@ -848,14 +837,16 @@ async def main(
     Maintained for backward compatibility.
 
     Args:
-        progress: Optional Rich Progress instance for hierarchical progress tracking
-        parent_task_id: Optional parent task ID for hierarchical progress structure
-        batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         config_name: YAML config file name. If None, uses default config
+        _progress: Optional Rich Progress instance for hierarchical progress tracking
+        _parent_task_id: Optional parent task ID for hierarchical progress structure
+        _batch_task_id: Optional pre-created batch task ID for proper hierarchy display
     """
     industry_filter = IndustryFilter(config_name)
     await industry_filter.run_analysis(
-        progress=progress, parent_task_id=parent_task_id, batch_task_id=batch_task_id
+        _progress=_progress,
+        _parent_task_id=_parent_task_id,
+        _batch_task_id=_batch_task_id,
     )
 
 

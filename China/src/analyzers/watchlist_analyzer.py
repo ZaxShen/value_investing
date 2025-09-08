@@ -751,9 +751,9 @@ class WatchlistAnalyzer:
     async def run_analysis_from_files(
         self,
         dir_path: Optional[str] = None,
-        progress: Optional["Progress"] = None,
-        parent_task_id: Optional["TaskID"] = None,
-        batch_task_id: Optional["TaskID"] = None,
+        _progress: Optional["Progress"] = None,
+        _parent_task_id: Optional["TaskID"] = None,
+        _batch_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
         Load watchlist from JSON files and run the complete analysis pipeline.
@@ -762,9 +762,9 @@ class WatchlistAnalyzer:
 
         Args:
             dir_path: Directory path containing JSON files (default: class constant)
-            progress: Optional Rich Progress instance for hierarchical progress tracking
-            parent_task_id: Optional parent task ID for hierarchical progress structure
-            batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+            _progress: Optional Rich Progress instance for hierarchical progress tracking
+            _parent_task_id: Optional parent task ID for hierarchical progress structure
+            _batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
         # Load watchlist data from JSON files
         watchlist_data = self.load_watchlist_from_files(dir_path)
@@ -776,19 +776,19 @@ class WatchlistAnalyzer:
         # Run the analysis with loaded data (periods are now from config)
         await self.run_analysis(
             watchlist_data=watchlist_data,
-            _progress=progress,
-            _parent_task_id=parent_task_id,
-            _batch_task_id=batch_task_id,
+            _progress=_progress,
+            _parent_task_id=_parent_task_id,
+            _batch_task_id=_batch_task_id,
         )
 
 
 async def main(
     industry_stock_mapping_df: pd.DataFrame,
     stock_zh_a_spot_em_df: pd.DataFrame,
-    progress: Optional["Progress"] = None,
-    parent_task_id: Optional["TaskID"] = None,
-    batch_task_id: Optional["TaskID"] = None,
     config_name: Optional[str] = None,
+    _progress: Optional["Progress"] = None,
+    _parent_task_id: Optional["TaskID"] = None,
+    _batch_task_id: Optional["TaskID"] = None,
     *args,
     **kwargs,
 ) -> None:
@@ -801,10 +801,10 @@ async def main(
     Args:
         industry_stock_mapping_df: DataFrame containing industry-stock mapping
         stock_zh_a_spot_em_df: DataFrame containing stock market data
-        progress: Optional Rich Progress instance for hierarchical progress tracking
-        parent_task_id: Optional parent task ID for hierarchical progress structure
-        batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         config_name: YAML config file name. If None, uses default config
+        _progress: Optional Rich Progress instance for hierarchical progress tracking
+        _parent_task_id: Optional parent task ID for hierarchical progress structure
+        _batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         *args: Additional positional arguments
         **kwargs: Additional keyword arguments including backtesting parameters
     """
@@ -814,7 +814,7 @@ async def main(
     watchlist_data = watchlist_analyzer.load_watchlist_from_files()
     await watchlist_analyzer.run_analysis(
         watchlist_data=watchlist_data,
-        _progress=progress,
-        _parent_task_id=parent_task_id,
-        _batch_task_id=batch_task_id,
+        _progress=_progress,
+        _parent_task_id=_parent_task_id,
+        _batch_task_id=_batch_task_id,
     )
