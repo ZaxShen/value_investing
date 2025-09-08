@@ -20,8 +20,7 @@ akshare:
     date: "20250831"
 
     # Number of days for fund flow analysis
-    # Used for calculating the specific periods based on selected date
-    # Also used as the default analysis period for holding stocks
+    # Used for calculating multiple periods (replaces single 'days' parameter)
     period_count: [1, 5, 29]
 
 # =============================================================================
@@ -29,7 +28,12 @@ akshare:
 # =============================================================================
 stock_filter:
   # Class constants for filtering criteria
-  days_lookback_period: 100  # Days to look back for sufficient trading data
+  max_market_cap_yi: 200       # Maximum market cap in 100 million RMB
+  min_pe_ratio: 0              # Minimum P/E ratio
+  max_pe_ratio: 50             # Maximum P/E ratio
+  min_main_net_inflow_yi: 1    # Minimum main net inflow in 100 million RMB
+  max_price_change_percent: 10 # Maximum price change percentage
+  batch_size: 3                # Batch size for concurrent processing
   
   # Report directory
   report_dir: "data/stocks/reports"
@@ -40,6 +44,6 @@ stock_filter:
 file_config:
   # (Customized Arg) If this config for PROD or other purpose
   config_name: "test"
-  description: "Test configuration with nested structure"
+  description: "Test configuration for stock_filter with nested structure and dynamic periods"
   # Follow main function's version
   version: "1.7.0"

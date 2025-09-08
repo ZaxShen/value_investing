@@ -8,6 +8,7 @@ concurrency controls to respect API rate limits.
 """
 
 import asyncio
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 # Import settings first to disable tqdm before akshare import
@@ -18,6 +19,8 @@ configure_environment()
 import akshare as ak
 import numpy as np
 import pandas as pd
+import yaml
+from pydantic import BaseModel
 
 from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG
@@ -32,6 +35,120 @@ logger = get_logger("stock_filter")
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 
 
+class FileConfig(BaseModel):
+    """
+    Configuration model for file-related settings.
+
+    This model handles file configuration metadata including config name,
+    version, and description.
+    """
+
+    config_name: str = "PROD"
+    description: str = ""
+    version: str = ""
+
+
+class StockIndividualFundFlowConfig(BaseModel):
+    """
+    Configuration model for ak.stock_individual_fund_flow API parameters.
+
+    This model validates and provides default values for the API parameters.
+    """
+
+    stock: str = ""
+    market: str = ""
+    date: str = ""
+    period_count: List[int] = [1, 5, 29]
+
+
+class StockFilterConfig(BaseModel):
+    """
+    Configuration model for StockFilter class parameters.
+
+    This model validates and provides default values for the StockFilter class constants.
+    """
+
+    max_market_cap_yi: int = 200
+    min_pe_ratio: int = 0
+    max_pe_ratio: int = 50
+    min_main_net_inflow_yi: int = 1
+    max_price_change_percent: int = 10
+    batch_size: int = 3
+    report_dir: str = "data/stocks/reports"
+
+
+class Config(BaseModel):
+    """
+    Configuration model for nested YAML structure supporting both akshare and StockFilter configs.
+
+    This model handles the nested structure from data/config/stock_filter.
+    """
+
+    akshare: dict = {}
+    stock_filter: StockFilterConfig = StockFilterConfig()
+    file_config: FileConfig = FileConfig()
+
+
+def load_config(
+    config_name: Optional[str] = None,
+) -> tuple[StockIndividualFundFlowConfig, StockFilterConfig, FileConfig]:
+    """
+    Load nested configuration from YAML file.
+
+    Args:
+        config_name: YAML config file name. If None, uses default config
+
+    Returns:
+        tuple: (akshare_config, stock_filter_config, file_config)
+
+    Raises:
+        FileNotFoundError: If config file doesn't exist
+        ValueError: If config validation fails
+    """
+    if config_name is None:
+        config_name = "config.yml"
+
+    # Handle both relative and absolute paths
+    if config_name.startswith("data/config/"):
+        config_path = Path(config_name)
+    else:
+        config_dir = Path("data/config/stock_filter/")
+        config_path = config_dir / config_name
+
+    # Create directory if it doesn't exist
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Check if config file exists
+    if not Path(config_path).exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    # Load YAML config
+    with open(config_path, "r", encoding="utf-8") as f:
+        config_data = yaml.safe_load(f)
+
+    # Check if it's nested format (has 'akshare' key) or flat format
+    if "akshare" in config_data:
+        # Nested format - extract each section
+        configs = Config(**config_data)
+
+        # Extract akshare config
+        if "stock_individual_fund_flow" in configs.akshare:
+            akshare_data = configs.akshare["stock_individual_fund_flow"]
+            akshare_config = StockIndividualFundFlowConfig(**akshare_data)
+        else:
+            akshare_config = StockIndividualFundFlowConfig()
+
+        # Extract stock filter config
+        filter_config = configs.stock_filter
+
+        # Extract file config
+        file_config = configs.file_config
+
+        return akshare_config, filter_config, file_config
+    else:
+        raise ValueError("Legacy flat config format not supported. Use nested format.")
+
+
 class StockFilter:
     """
     A class to encapsulate stock filtering and analysis functionality.
@@ -40,14 +157,6 @@ class StockFilter:
     providing asynchronous methods to filter and analyze Chinese stocks
     based on various financial metrics.
     """
-
-    # Class constants for filtering criteria
-    MAX_MARKET_CAP_YI = 200  # Maximum market cap in 100 million RMB
-    MIN_PE_RATIO = 0
-    MAX_PE_RATIO = 50
-    MIN_MAIN_NET_INFLOW_YI = 1  # Minimum main net inflow in 100 million RMB
-    MAX_PRICE_CHANGE_PERCENT = 10
-    BATCH_SIZE = 3
 
     # Column definitions
     STOCK_DATA_COLS = [
@@ -61,36 +170,91 @@ class StockFilter:
         "年初至今涨跌幅",
     ]
 
-    REPORT_DIR = "data/stocks/reports"
-
     def __init__(
         self,
         industry_stock_mapping_df: pd.DataFrame,
         stock_zh_a_spot_em_df: pd.DataFrame,
+        config_name: Optional[str] = None,
     ):
         """
-        Initialize the StockFilter with market data.
+        Initialize the StockFilter with market data and configuration.
 
         Args:
             industry_stock_mapping_df: DataFrame containing industry-stock mapping
             stock_zh_a_spot_em_df: DataFrame containing stock market data
+            config_name: YAML config file name for API parameters
         """
+        # Load configuration
+        self.akshare_config, self.filter_config, self.file_config = load_config(
+            config_name
+        )
+
+        # Apply class constants from config
+        self.MAX_MARKET_CAP_YI = self.filter_config.max_market_cap_yi
+        self.MIN_PE_RATIO = self.filter_config.min_pe_ratio
+        self.MAX_PE_RATIO = self.filter_config.max_pe_ratio
+        self.MIN_MAIN_NET_INFLOW_YI = self.filter_config.min_main_net_inflow_yi
+        self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
+        self.BATCH_SIZE = self.filter_config.batch_size
+        self.REPORT_DIR = self.filter_config.report_dir
+
+        # Store market data
         self.industry_stock_mapping_df = industry_stock_mapping_df
         self.stock_zh_a_spot_em_df = stock_zh_a_spot_em_df
         self.stock_market_df_filtered: Optional[pd.DataFrame] = None
         self.industry_arr: Optional[np.ndarray] = None
 
-    def _get_analysis_columns(self, days: int) -> List[str]:
-        """
-        Generate analysis column names with dynamic days parameter.
+        # Initialize date-related attributes for consistent date handling
+        self._initialize_analysis_date()
 
-        Args:
-            days: Number of days for fund flow analysis
+    def _initialize_analysis_date(self) -> None:
+        """
+        Initialize the actual analysis date for consistent date handling across all methods.
+
+        This method determines the actual analysis date based on config.date and available data,
+        ensuring all methods use the same reference date for fund flow calculations.
+        """
+        from datetime import datetime
+
+        try:
+            if self.akshare_config.date:
+                # Use the configured date
+                self.analysis_date = datetime.strptime(
+                    self.akshare_config.date, "%Y%m%d"
+                )
+                self.analysis_date_str = self.akshare_config.date
+                logger.debug(
+                    "Using configured analysis date: %s", self.analysis_date_str
+                )
+            else:
+                # Use current date as fallback
+                self.analysis_date = datetime.now().replace(
+                    hour=0, minute=0, second=0, microsecond=0
+                )
+                self.analysis_date_str = self.analysis_date.strftime("%Y%m%d")
+                logger.info(
+                    "No analysis date configured, using current date: %s",
+                    self.analysis_date_str,
+                )
+
+        except Exception as e:
+            logger.error("Failed to initialize analysis date: %s", str(e))
+            # Set a fallback date if initialization fails
+            from datetime import datetime
+
+            self.analysis_date = datetime.now().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+            self.analysis_date_str = self.analysis_date.strftime("%Y%m%d")
+
+    def _get_analysis_columns(self) -> List[str]:
+        """
+        Generate analysis column names with dynamic periods from config.
 
         Returns:
-            List of column names for analysis results
+            List of column names for analysis results including all periods
         """
-        return [
+        base_columns = [
             "行业",
             "代码",
             "名称",
@@ -99,11 +263,22 @@ class StockFilter:
             "市盈率-动态",
             "市净率",
             "收盘价",
-            f"{days}日主力净流入-总净额(亿)",
-            f"{days}日涨跌幅(%)",
+        ]
+
+        # Add dynamic fund flow columns for each period
+        fund_flow_columns = []
+        price_change_columns = []
+        for period in self.akshare_config.period_count:
+            fund_flow_columns.append(f"{period}日主力净流入-总净额(亿)")
+            price_change_columns.append(f"{period}日涨跌幅(%)")
+
+        # Add fixed period columns
+        fixed_columns = [
             "60日涨跌幅(%)",
             "年初至今涨跌幅(%)",
         ]
+
+        return base_columns + fund_flow_columns + price_change_columns + fixed_columns
 
     def _get_market_by_stock_code(self, stock_code: str) -> str:
         """
@@ -122,21 +297,15 @@ class StockFilter:
         else:
             return "bj"  # Beijing Stock Exchange
 
-    def _save_reports(self, all_industries_df: pd.DataFrame, days: int) -> None:
+    def _save_reports(self, all_industries_df: pd.DataFrame) -> None:
         """
         Save analysis reports to CSV files.
 
         Args:
             all_industries_df: DataFrame containing all analysis results
-            days: Number of days used for analysis (for filtering and naming)
         """
-        # TODO: Get last date from shared function to avoid redundant API calls
-        # Define the report date with retry mechanism
-        sector_fund_flow = API_RETRY_CONFIG.retry(
-            ak.stock_sector_fund_flow_hist, symbol="证券"
-        )
-        last_date = sector_fund_flow.iloc[-1]["日期"]
-        last_date_str = last_date.strftime("%Y%m%d")
+        # Use the consistent analysis date initialized during construction
+        last_date_str = self.analysis_date_str
 
         # Output the all_industries_df to a CSV file with error handling
         try:
@@ -147,9 +316,14 @@ class StockFilter:
             logger.error("Failed to save raw report: %s", str(e))
             raise
 
-        # Apply additional filters to all_industries_df
-        main_net_inflow_col = f"{days}日主力净流入-总净额(亿)"
-        price_change_col = f"{days}日涨跌幅(%)"
+        # Apply additional filters using the first period for consistency
+        first_period = (
+            self.akshare_config.period_count[0]
+            if self.akshare_config.period_count
+            else 1
+        )
+        main_net_inflow_col = f"{first_period}日主力净流入-总净额(亿)"
+        price_change_col = f"{first_period}日涨跌幅(%)"
         df = all_industries_df[
             (all_industries_df[main_net_inflow_col] > self.MIN_MAIN_NET_INFLOW_YI)
             & (all_industries_df[price_change_col] < self.MAX_PRICE_CHANGE_PERCENT)
@@ -239,24 +413,22 @@ class StockFilter:
         stock_code: str,
         stock_name: str,
         industry_name: str,
-        days: int = 29,
     ) -> Optional[List[Any]]:
         """
-        Process a single stock asynchronously with fund flow analysis.
+        Process a single stock asynchronously with multi-period fund flow analysis.
 
         This method fetches historical fund flow data for a stock, calculates
-        key financial metrics, and applies filtering criteria. It respects API
-        rate limits using semaphores.
+        key financial metrics for multiple time periods, and applies filtering criteria.
+        It respects API rate limits using semaphores.
 
         Args:
             stock_code: Stock code (e.g., "000001")
             stock_name: Stock name for display purposes
             industry_name: Industry classification
-            days: Number of days to analyze for fund flow (default: 29)
 
         Returns:
-            List containing stock analysis results, or None if stock doesn't
-            meet criteria or has insufficient data
+            List containing stock analysis results with data for all configured periods,
+            or None if stock doesn't meet criteria or has insufficient data
         """
         async with REQUEST_SEMAPHORE:
             logger.debug(
@@ -281,7 +453,7 @@ class StockFilter:
                     self.stock_market_df_filtered["代码"] == stock_code
                 ].iloc[0]  # More efficient than multiple queries
 
-                stock_total_market_value = round(c["总市值"] / 1e8, 0)
+                stock_total_market_value = round(stock_data["总市值"] / 1e8, 0)
                 stock_circulating_market_value = round(stock_data["流通市值"] / 1e8, 0)
                 stock_pe_dynamic = stock_data["市盈率-动态"]
                 stock_pb = stock_data["市净率"]
@@ -304,41 +476,66 @@ class StockFilter:
                     )
                     return None
 
-                if len(stock_individual_fund_flow_df) < days:
+                # Get the maximum period to ensure we have enough data
+                max_period = max(self.akshare_config.period_count)
+
+                if len(stock_individual_fund_flow_df) < max_period:
                     logger.warning(
-                        "Skipping %s (%s) due to insufficient data for the last %d days",
+                        "Skipping %s (%s) due to insufficient data for max period %d days",
                         stock_name,
                         stock_code,
-                        days,
+                        max_period,
                     )
                     return None
 
-                stock_individual_fund_flow_df = stock_individual_fund_flow_df.iloc[
-                    -days:
-                ]
-
-                # Get the main net inflow data
-                stock_main_net_flow = round(
-                    stock_individual_fund_flow_df["主力净流入-净额"].sum() / 1e8, 1
-                )
-
-                # Calculate change percentage with division by zero protection
-                stock_1st_price = stock_individual_fund_flow_df.iloc[0]["收盘价"]
-                stock_last_price = stock_individual_fund_flow_df.iloc[-1]["收盘价"]
-
-                if stock_1st_price == 0:
+                # For multi-period analysis, we need at least max_period + 1 data points
+                full_data_needed = max_period + 1
+                if len(stock_individual_fund_flow_df) >= full_data_needed:
+                    # Use full data for calculations
+                    analysis_df = stock_individual_fund_flow_df
+                else:
+                    # Use what we have with warning
                     logger.warning(
-                        "First price is zero for %s (%s), skipping price change calculation",
+                        "Limited data for %s (%s): have %d days, need %d for optimal analysis",
                         stock_name,
                         stock_code,
+                        len(stock_individual_fund_flow_df),
+                        full_data_needed,
                     )
-                    return None
+                    analysis_df = stock_individual_fund_flow_df
 
-                stock_price_change_percentage = round(
-                    (stock_last_price - stock_1st_price) / stock_1st_price * 100, 1
-                )
+                # Calculate fund flows and price changes for each period
+                fund_flows = []
+                price_changes = []
 
-                return [
+                for period in self.akshare_config.period_count:
+                    # Calculate fund flow for this period (sum of last N days)
+                    if len(analysis_df) >= period:
+                        period_fund_df = analysis_df.iloc[-period:]
+                        fund_flow = round(
+                            period_fund_df["主力净流入-净额"].sum() / 1e8, 1
+                        )
+                    else:
+                        fund_flow = 0.0
+                    fund_flows.append(fund_flow)
+
+                    # Calculate price change for this period (N days ago vs today)
+                    required_data_points = period + 1
+                    if len(analysis_df) >= required_data_points:
+                        first_price = analysis_df.iloc[-required_data_points]["收盘价"]
+                        last_price = analysis_df.iloc[-1]["收盘价"]
+                        if first_price == 0:
+                            price_change = 0.0
+                        else:
+                            price_change = round(
+                                (last_price - first_price) / first_price * 100, 1
+                            )
+                    else:
+                        price_change = 0.0
+                    price_changes.append(price_change)
+
+                # Build return data with dynamic structure
+                base_data = [
                     industry_name,
                     stock_code,
                     stock_name,
@@ -346,12 +543,18 @@ class StockFilter:
                     stock_circulating_market_value,
                     stock_pe_dynamic,
                     stock_pb,
-                    stock_last_price,
-                    stock_main_net_flow,
-                    stock_price_change_percentage,
-                    stock_60d_change,
-                    stock_ytd_change,
+                    analysis_df.iloc[-1]["收盘价"],  # Latest closing price
                 ]
+
+                # Add fund flows and price changes for all periods
+                result = (
+                    base_data
+                    + fund_flows
+                    + price_changes
+                    + [stock_60d_change, stock_ytd_change]
+                )
+
+                return result
 
             except Exception as e:
                 logger.error(
@@ -359,23 +562,22 @@ class StockFilter:
                 )
                 return None
 
-    async def process_single_industry_async(
-        self, industry_name: str, days: int = 29
-    ) -> pd.DataFrame:
+    async def process_single_industry_async(self, industry_name: str) -> pd.DataFrame:
         """
-        Analyze stocks in a given industry by extracting fund flow and price metrics.
+        Analyze stocks in a given industry with multi-period fund flow and price metrics.
 
         This method processes all stocks within a specific industry, fetching
-        their fund flow data and calculating key financial metrics. It uses
-        concurrent processing to improve performance while respecting API limits.
+        their fund flow data and calculating key financial metrics for multiple
+        time periods. It uses concurrent processing to improve performance while
+        respecting API limits.
 
         Args:
             industry_name: The industry name to analyze (e.g., "银行")
-            days: Number of days to analyze for fund flow calculation (default: 29)
 
         Returns:
             DataFrame containing analysis results for all stocks in the industry,
-            with columns for market cap, P/E ratio, fund flow, and price changes
+            with columns for market cap, P/E ratio, and fund flows/price changes
+            for all configured periods
         """
         # Ensure data is prepared
         if self.stock_market_df_filtered is None:
@@ -389,7 +591,7 @@ class StockFilter:
         ][["代码", "名称"]]
 
         # Define columns for consistency
-        columns = self._get_analysis_columns(days)
+        columns = self._get_analysis_columns()
 
         df = pd.DataFrame(columns=columns)
 
@@ -397,7 +599,7 @@ class StockFilter:
         tasks = []
         for row in stocks.itertuples():
             task = self.process_single_stock_async(
-                str(row.代码), str(row.名称), industry_name, days
+                str(row.代码), str(row.名称), industry_name
             )
             tasks.append(task)
 
@@ -443,7 +645,7 @@ class StockFilter:
             with complete financial metrics and fund flow data
         """
         # Define columns for consistency
-        columns = self._get_analysis_columns(days)
+        columns = self._get_analysis_columns()
 
         # Store results in a list to avoid repeated concatenation
         result_dfs = []
@@ -493,7 +695,7 @@ class StockFilter:
 
             # Create tasks for the current batch
             tasks = [
-                self.process_single_industry_async(industry_name, days)
+                self.process_single_industry_async(industry_name)
                 for industry_name in batch
             ]
 
@@ -541,9 +743,9 @@ class StockFilter:
     async def run_analysis(
         self,
         days: int = 29,
-        progress: Optional["Progress"] = None,
-        parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
-        batch_task_id: Optional["TaskID"] = None,
+        _progress: Optional["Progress"] = None,
+        _parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
+        _batch_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
         Run the complete stock filtering pipeline.
@@ -563,21 +765,24 @@ class StockFilter:
         # Process all industries with progress tracking
         all_industries_df = await self.process_all_industries_async(
             days,
-            progress,
-            parent_task_id,
-            batch_task_id,
+            _progress,
+            _parent_task_id,
+            _batch_task_id,
         )
 
         # Save reports (raw and filtered)
-        self._save_reports(all_industries_df, days)
+        self._save_reports(all_industries_df)
 
 
 async def main(
     industry_stock_mapping_df: pd.DataFrame,
     stock_zh_a_spot_em_df: pd.DataFrame,
-    progress: Optional["Progress"] = None,
-    parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
-    batch_task_id: Optional["TaskID"] = None,
+    config_name: Optional[str] = None,
+    _progress: Optional["Progress"] = None,
+    _parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
+    _batch_task_id: Optional["TaskID"] = None,
+    *args,
+    **kwargs,
 ) -> None:
     """
     Main async function to execute the complete stock filtering pipeline.
@@ -588,9 +793,18 @@ async def main(
     Args:
         industry_stock_mapping_df: DataFrame containing industry-stock mapping
         stock_zh_a_spot_em_df: DataFrame containing stock market data
-        progress: Optional Rich Progress instance for hierarchical progress tracking
-        parent_task_id: Optional parent task ID for hierarchical progress structure
-        batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+        config_name: YAML config file name. If None, uses default config
+        _progress: Optional Rich Progress instance for hierarchical progress tracking
+        _parent_task_id: Optional parent task ID for hierarchical progress structure
+        _batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+        *args: Additional positional arguments
+        **kwargs: Additional keyword arguments including backtesting parameters
     """
-    stock_filter = StockFilter(industry_stock_mapping_df, stock_zh_a_spot_em_df)
-    await stock_filter.run_analysis(29, progress, parent_task_id, batch_task_id)
+    stock_filter = StockFilter(
+        industry_stock_mapping_df, stock_zh_a_spot_em_df, config_name, *args, **kwargs
+    )
+    await stock_filter.run_analysis(
+        _progress=_progress,
+        _parent_task_id=_parent_task_id,
+        _batch_task_id=_batch_task_id,
+    )

@@ -17,7 +17,7 @@ akshare:
 
     # Date for fund flow data (format: YYYYMMDD)
     # If empty, will use the latest trading date
-    date: "20250831"
+    date: "20250731"
 
     # Number of days for fund flow analysis
     # Used for calculating the specific periods based on selected date

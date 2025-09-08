@@ -43,23 +43,3 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ## v1.7.0 TODO
 
-### Features
-
-#### Refactor Specific Python Scripts with Config Files
-
-Target:
-
-- Script: `industry_filter.py`
-- Config: `config/industry_filter/test.yml`
-
-Reference:
-
-- Script: `watchlist_analyzer.py`
-- Config: `config/watchlist_analyzer/test.yml`
-
-TODO:
-
-- `watchlist_analyzer.py` now uses nested config file, and it works very well. You need to make `industry_filter.py` use similar logic.
-- `industry_filter.py` has outdated logic and function or variable name, make sure you follow the latest naming convention from `watchlist_analyzer.py`
-- Similar to `watchlist_analyzer.py`, the output csv for `industry_filter.py` now should contain dynmaic period_count
-- Similar to `watchlist_analyzer.py`'s `last_date`, make sure the `end_date` in `industry_filter.py` works
