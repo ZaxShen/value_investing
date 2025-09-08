@@ -281,7 +281,7 @@ class StockFilter:
                     self.stock_market_df_filtered["代码"] == stock_code
                 ].iloc[0]  # More efficient than multiple queries
 
-                stock_total_market_value = round(stock_data["总市值"] / 1e8, 0)
+                stock_total_market_value = round(c["总市值"] / 1e8, 0)
                 stock_circulating_market_value = round(stock_data["流通市值"] / 1e8, 0)
                 stock_pe_dynamic = stock_data["市盈率-动态"]
                 stock_pb = stock_data["市净率"]

@@ -67,11 +67,11 @@ class IndustryFilterConfig(BaseModel):
     report_dir: str = "data/stocks/reports"  # Report directory
 
 
-class IndustryConfig(BaseModel):
+class Config(BaseModel):
     """
     Configuration model for nested YAML structure supporting both akshare and IndustryFilter configs.
 
-    This model handles the nested structure from test_5.yml format.
+    This model handles the nested structure from data/config/industry_filter.
     """
 
     akshare: Dict[str, Dict[str, Any]] = {}
@@ -114,7 +114,7 @@ def load_config(
     # Check if it's nested format (has 'akshare' key) or flat format
     if "akshare" in config_data:
         # Nested format - extract each section
-        configs = IndustryConfig(**config_data)
+        configs = Config(**config_data)
 
         # Extract akshare config
         akshare_config = configs.akshare.get("stock_board_industry_hist_em", {})

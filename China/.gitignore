@@ -47,14 +47,14 @@ test*.ipynb
 # DATA FILES (China-specific generated content)
 # ============================================================================
 
-# Stock market data (cached CSV files)
+# Stock market data (CSV files)
 data/stocks/*.csv
 data/stocks/reports/*.csv
-data/watchlists/reports/*.csv
+data/watchlist/reports/*.csv
 data/today/*.csv
 
-# Holding stock data (JSON files)
-data/watchlists/*.json
+# Watchlist stock data from specific accounts (JSON files)
+data/watchlist/*-*.json
 
 # Application log files
 logs/*.log

@@ -1,8 +1,8 @@
 """
-Stock analysis and holding report generation for Chinese equity markets.
+Stock analysis from watchlist report generation for Chinese equity markets.
 
-This module provides a WatchlistsAnalyzer class that encapsulates comprehensive
-analysis of individual stocks and generates detailed holding reports. It analyzes
+This module provides a WatchlistAnalyzer class that encapsulates comprehensive
+analysis of individual stocks and generates detailed watchlist reports. It analyzes
 stock performance, fund flows, and calculates key financial metrics for
 investment decision making.
 """
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from rich.progress import Progress, TaskID
 
 # Initialize logger for this module
-logger = get_logger("watchlists_analyzer")
+logger = get_logger("watchlist_analyzer")
 
 # Create a semaphore to limit concurrent requests
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
@@ -47,53 +47,51 @@ class StockIndividualFundFlowConfig(BaseModel):
     stock: str = "000001"  # Stock code (6-digit code without market prefix)
     market: str = ""  # Market identifier: "sh", "sz", "bj"
     date: str = ""  # Date of fund flow data (format: YYYYMMDD)
-    start_date: str = ""  # Start date for analysis (format: YYYYMMDD)
-    end_date: str = ""  # End date for analysis (format: YYYYMMDD)
     period_count: list = [1, 5, 29]  # Number of days for fund flow analysis
     config_name: str = "PROD"  # If this config for PROD or other purpose
 
 
-class WatchlistsAnalyzerConfig(BaseModel):
+class WatchlistAnalyzerConfig(BaseModel):
     """
-    Configuration model for WatchlistsAnalyzer class parameters.
-    
-    This model validates and provides default values for the WatchlistsAnalyzer class constants.
+    Configuration model for WatchlistAnalyzer class parameters.
+
+    This model validates and provides default values for the WatchlistAnalyzer class constants.
     """
-    
+
     days_lookback_period: int = 100  # Days to look back for sufficient trading data
-    watchlists_dir: str = "data/watchlists"  # Source data directory
-    report_dir: str = "data/watchlists/reports"  # Report directory
+    watchlist_dir: str = ""  # Source data directory
+    report_dir: str = ""  # Report directory
 
 
-class NestedWatchlistsConfig(BaseModel):
+class Config(BaseModel):
     """
-    Configuration model for nested YAML structure supporting both akshare and WatchlistsAnalyzer configs.
-    
-    This model handles the nested structure from test.yml format.
+    Configuration model for nested YAML structure supporting both akshare and WatchlistAnalyzer configs.
+
+    This model handles the nested structure from data/config/watchlist_analyzer.
     """
-    
+
     akshare: Dict[str, Dict[str, Any]] = {}
-    watchlists_analyzer: Dict[str, Any] = {}
+    watchlist_analyzer: Dict[str, Any] = {}
     file_config: Dict[str, Any] = {}
 
 
-def load_nested_watchlists_config(
+def load_config(
     config_name: Optional[str] = None,
-) -> tuple[StockIndividualFundFlowConfig, WatchlistsAnalyzerConfig, dict]:
+) -> tuple[StockIndividualFundFlowConfig, WatchlistAnalyzerConfig, dict]:
     """
     Load nested configuration from YAML file supporting test.yml format.
-    
+
     Args:
         config_name: YAML config file name. If None, uses default config
-        
+
     Returns:
-        tuple: (akshare_config, watchlists_analyzer_config, file_config)
-        
+        tuple: (akshare_config, watchlist_analyzer_config, file_config)
+
     Raises:
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    config_dir = Path("data/config/watchlists_analyzer/")
+    config_dir = Path("data/config/watchlist_analyzer/")
     if config_name is None:
         config_name = "config.yml"
     config_path = Path(config_dir, config_name)
@@ -108,33 +106,33 @@ def load_nested_watchlists_config(
     # Load YAML config
     with open(config_path, "r", encoding="utf-8") as f:
         config_data = yaml.safe_load(f)
-    
+
     # Check if it's nested format (has 'akshare' key) or flat format
-    if 'akshare' in config_data:
+    if "akshare" in config_data:
         # Nested format - extract each section
-        nested_config = NestedWatchlistsConfig(**config_data)
-        
+        config = Config(**config_data)
+
         # Extract akshare config
-        akshare_data = nested_config.akshare.get('stock_individual_fund_flow', {})
+        akshare_data = config.akshare.get("stock_individual_fund_flow", {})
         # Add file config name to akshare config
-        akshare_data['config_name'] = nested_config.file_config.get('config_name', 'PROD')
+        akshare_data["config_name"] = config.file_config.get("config_name", "PROD")
         akshare_config = StockIndividualFundFlowConfig(**akshare_data)
-        
-        # Extract watchlists analyzer config
-        watchlists_config = WatchlistsAnalyzerConfig(**nested_config.watchlists_analyzer)
-        
+
+        # Extract watchlist analyzer config
+        watchlist_config = WatchlistAnalyzerConfig(**config.watchlist_analyzer)
+
         # Return file config as dict
-        file_config = nested_config.file_config
-        
-        return akshare_config, watchlists_config, file_config
+        file_config = config.file_config
+
+        return akshare_config, watchlist_config, file_config
     else:
         # Flat format - use existing logic for backward compatibility
         akshare_config = StockIndividualFundFlowConfig(**config_data)
-        # Use default watchlists analyzer config
-        watchlists_config = WatchlistsAnalyzerConfig()
+        # Use default watchlist analyzer config
+        watchlist_config = WatchlistAnalyzerConfig()
         file_config = {"config_name": akshare_config.config_name}
-        
-        return akshare_config, watchlists_config, file_config
+
+        return akshare_config, watchlist_config, file_config
 
 
 def load_stock_individual_fund_flow_config(
@@ -142,7 +140,7 @@ def load_stock_individual_fund_flow_config(
 ) -> StockIndividualFundFlowConfig:
     """
     Load configuration for stock_individual_fund_flow API from YAML file.
-    
+
     Maintains backward compatibility by returning only the akshare config.
 
     Args:
@@ -155,24 +153,23 @@ def load_stock_individual_fund_flow_config(
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    akshare_config, _, _ = load_nested_watchlists_config(config_name)
+    akshare_config, _, _ = load_config(config_name)
     return akshare_config
 
 
-class WatchlistsAnalyzer:
+class WatchlistAnalyzer:
     """
-    A class to encapsulate holding stock analysis functionality.
+    A class to encapsulate watchlist stock analysis functionality.
 
-    This class manages the analysis of individual stocks for holding reports,
+    This class manages the analysis of individual stocks reports,
     providing comprehensive financial metrics, fund flow analysis, and
     performance tracking for investment portfolios.
     """
 
     # Class constants for analysis parameters
-    # TODO: Make Class constants to config.yml
-    REPORT_DIR = "data/watchlists/reports"
-    WATCHLISTS_DIR = "data/watchlists"
-    DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
+    # REPORT_DIR = "data/watchlist/reports"
+    # WATCHLIST_DIR = "data/watchlist"
+    # DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
 
     def __init__(
         self,
@@ -183,7 +180,7 @@ class WatchlistsAnalyzer:
         **kwargs,
     ):
         """
-        Initialize the WatchlistsAnalyzer with market data.
+        Initialize the WatchlistAnalyzer with market data.
 
         Args:
             industry_stock_mapping_df: DataFrame containing industry-stock mapping
@@ -194,13 +191,13 @@ class WatchlistsAnalyzer:
         """
         self.industry_stock_mapping_df = industry_stock_mapping_df
         self.stock_zh_a_spot_em_df = stock_zh_a_spot_em_df
-        
-        # Load both akshare and watchlists analyzer configs
-        self.config, self.analyzer_config, self.file_config = load_nested_watchlists_config(config_name)
-        
+
+        # Load both akshare and watchlist analyzer configs
+        self.config, self.analyzer_config, self.file_config = load_config(config_name)
+
         # Apply class constants from config
         self.DAYS_LOOKBACK_PERIOD = self.analyzer_config.days_lookback_period
-        self.WATCHLISTS_DIR = self.analyzer_config.watchlists_dir
+        self.WATCHLIST_DIR = self.analyzer_config.watchlist_dir
         self.REPORT_DIR = self.analyzer_config.report_dir
 
         # Store additional arguments for flexibility
@@ -228,7 +225,7 @@ class WatchlistsAnalyzer:
     def _resolve_config(self) -> None:
         """
         Resolve config based on kwargs if provided.
-        For watchlists analyzer, we fetch all available data and slice dynamically.
+        For watchlist analyzer, we fetch all available data and slice dynamically.
         """
         config = self.config
 
@@ -237,7 +234,7 @@ class WatchlistsAnalyzer:
             config.period_count = self.kwargs["period_count"]
         if "date" in self.kwargs:
             config.date = self.kwargs["date"]
-        
+
         # Set market automatically if empty
         if not config.market and config.stock:
             config.market = self._get_market_by_stock_code(config.stock)
@@ -251,7 +248,7 @@ class WatchlistsAnalyzer:
         """
         base_columns = [
             "账户",
-            "行业", 
+            "行业",
             "代码",
             "名称",
             "总市值(亿)",
@@ -260,20 +257,20 @@ class WatchlistsAnalyzer:
             "市净率",
             "收盘价",
         ]
-        
+
         # Add dynamic fund flow columns for each period
         fund_flow_columns = []
         price_change_columns = []
         for period in self.config.period_count:
             fund_flow_columns.append(f"{period}日主力净流入-总净额(亿)")
             price_change_columns.append(f"{period}日涨跌幅(%)")
-        
+
         # Add fixed period columns
         fixed_columns = [
             "60日涨跌幅(%)",
             "年初至今涨跌幅(%)",
         ]
-        
+
         return base_columns + fund_flow_columns + price_change_columns + fixed_columns
 
     def _get_market_by_stock_code(self, stock_code: str) -> str:
@@ -315,11 +312,11 @@ class WatchlistsAnalyzer:
         except (IndexError, KeyError):
             raise ValueError(f"Stock code {stock_code} not found")
 
-    def load_watchlists_from_files(
+    def load_watchlist_from_files(
         self, dir_path: Optional[str] = None
     ) -> Dict[str, Dict[str, str]]:
         """
-        Load holding stocks data from JSON files in the specified directory.
+        Load watchlist stocks data from JSON files in the specified directory.
 
         Args:
             dir_path: Directory path containing JSON files (default: class constant)
@@ -333,31 +330,31 @@ class WatchlistsAnalyzer:
             ValueError: If JSON files are malformed
         """
         if dir_path is None:
-            dir_path = self.WATCHLISTS_DIR
+            dir_path = self.WATCHLIST_DIR
 
         if not os.path.exists(dir_path):
-            raise FileNotFoundError(f"Holding stocks directory not found: {dir_path}")
+            raise FileNotFoundError(f"Watchlist stocks directory not found: {dir_path}")
 
-        watchlists_data = {}
+        watchlist_data = {}
         json_files = glob.glob(os.path.join(dir_path, "*.json"))
 
         if not json_files:
             logger.warning("No JSON files found in directory: %s", dir_path)
-            return watchlists_data
+            return watchlist_data
 
         for file_path in json_files:
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     account_name = os.path.splitext(os.path.basename(file_path))[0]
-                    watchlists = json.load(f)
+                    watchlist = json.load(f)
 
                     # Validate JSON structure
-                    if not isinstance(watchlists, dict):
+                    if not isinstance(watchlist, dict):
                         raise ValueError(
                             f"JSON file {file_path} should contain a dictionary"
                         )
 
-                    for stock_code, stock_name in watchlists.items():
+                    for stock_code, stock_name in watchlist.items():
                         if not isinstance(stock_code, str) or not isinstance(
                             stock_name, str
                         ):
@@ -365,10 +362,10 @@ class WatchlistsAnalyzer:
                                 f"Invalid stock data in {file_path}: {stock_code} -> {stock_name}"
                             )
 
-                    watchlists_data[account_name] = watchlists
+                    watchlist_data[account_name] = watchlist
                     logger.info(
                         "Loaded %d stocks for account '%s'",
-                        len(watchlists),
+                        len(watchlist),
                         account_name,
                     )
 
@@ -379,8 +376,8 @@ class WatchlistsAnalyzer:
                 logger.error("Error reading file %s: %s", file_path, str(e))
                 raise
 
-        logger.info("Loaded holding stocks for %d accounts", len(watchlists_data))
-        return watchlists_data
+        logger.info("Loaded watchlist stocks for %d accounts", len(watchlist_data))
+        return watchlist_data
 
     def _fetch_stock_fund_flow_sync(self, stock_code: str, market: str) -> pd.DataFrame:
         """
@@ -427,7 +424,7 @@ class WatchlistsAnalyzer:
             stock_name: Stock name for validation and display
 
         Returns:
-            List containing analysis results with financial metrics for all periods, 
+            List containing analysis results with financial metrics for all periods,
             or None if analysis fails or stock doesn't meet criteria
         """
         logger.debug(
@@ -475,25 +472,27 @@ class WatchlistsAnalyzer:
                 stock_circulating_market_value,
                 stock_pe_dynamic,
                 stock_pb,
-                stock_individual_fund_flow_df.iloc[-1]["收盘价"],  # Latest closing price
+                stock_individual_fund_flow_df.iloc[-1][
+                    "收盘价"
+                ],  # Latest closing price
             ]
 
             # Calculate fund flows and price changes for each period
             fund_flows = []
             price_changes = []
-            
+
             for period in self.config.period_count:
                 # Get data for this period
                 period_data = stock_individual_fund_flow_df.iloc[-period:]
-                
+
                 # Calculate fund flow for this period
                 fund_flow = round(period_data["主力净流入-净额"].sum() / 1e8, 2)
                 fund_flows.append(fund_flow)
-                
+
                 # Calculate price change for this period
                 period_1st_price = period_data.iloc[0]["收盘价"]
                 period_last_price = period_data.iloc[-1]["收盘价"]
-                
+
                 if period_1st_price == 0:
                     logger.warning(
                         "Zero first price for %s (%s) in %d-day period, using 0%% change",
@@ -504,7 +503,8 @@ class WatchlistsAnalyzer:
                     price_change = 0.0
                 else:
                     price_change = round(
-                        (period_last_price - period_1st_price) / period_1st_price * 100, 2
+                        (period_last_price - period_1st_price) / period_1st_price * 100,
+                        2,
                     )
                 price_changes.append(price_change)
 
@@ -519,12 +519,16 @@ class WatchlistsAnalyzer:
 
     def _save_report(self, df: pd.DataFrame, last_date_str: str) -> None:
         """
-        Save holding analysis report to CSV file.
+        Save watchlist analysis report to CSV file.
 
         Args:
             df: DataFrame containing analysis results
             last_date_str: Date string for report naming
         """
+        # Remove 1日涨跌幅(%)
+        if "1日涨跌幅(%)" in df.columns:
+            df.drop(columns=["1日涨跌幅(%)"], inplace=True)
+
         config = self.config
         # Check if config file for PROD
         if config.config_name.upper() == "PROD":
@@ -536,28 +540,30 @@ class WatchlistsAnalyzer:
             config_name = f"-{config.config_name}"
 
         try:
-            report_path = f"{self.REPORT_DIR}/持股报告-{last_date_str}{config_name}.csv"
+            report_path = (
+                f"{self.REPORT_DIR}/自选股分析-{last_date_str}{config_name}.csv"
+            )
             df.to_csv(report_path, index=True)
             logger.info("Report saved to %s", report_path)
         except (OSError, PermissionError) as e:
-            logger.error("Failed to save holding report: %s", str(e))
+            logger.error("Failed to save watchlist report: %s", str(e))
             raise
 
     async def run_analysis(
         self,
-        watchlists_data: Dict[str, Dict[str, str]],
+        watchlist_data: Dict[str, Dict[str, str]],
         _progress: Optional["Progress"] = None,
         _parent_task_id: Optional["TaskID"] = None,
         _batch_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
-        Run the complete watchlists analysis pipeline.
+        Run the complete watchlist analysis pipeline.
 
-        This method orchestrates the entire watchlists analysis process including
+        This method orchestrates the entire watchlist analysis process including
         stock validation, analysis, and report generation with dynamic periods.
 
         Args:
-            watchlists_data: Dictionary with account names as keys and
+            watchlist_data: Dictionary with account names as keys and
                                 {stock_code: stock_name} dictionaries as values
             progress: Optional Rich Progress instance for hierarchical progress tracking
             parent_task_id: Optional parent task ID for hierarchical progress structure
@@ -567,9 +573,9 @@ class WatchlistsAnalyzer:
         columns = self._get_analysis_columns()
         df = pd.DataFrame(columns=columns)
 
-        # Process each account's holdings
-        for account_name, watchlists in watchlists_data.items():
-            for stock_code, stock_name in watchlists.items():
+        # Process each watchlist
+        for account_name, watchlist in watchlist_data.items():
+            for stock_code, stock_name in watchlist.items():
                 try:
                     # Validate stock name
                     self.validate_stock_name(stock_code, stock_name)
@@ -617,7 +623,7 @@ class WatchlistsAnalyzer:
         batch_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
-        Load watchlists from JSON files and run the complete analysis pipeline.
+        Load watchlist from JSON files and run the complete analysis pipeline.
 
         This is a convenience method that combines loading JSON files and running analysis.
 
@@ -627,16 +633,16 @@ class WatchlistsAnalyzer:
             parent_task_id: Optional parent task ID for hierarchical progress structure
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
-        # Load watchlists data from JSON files
-        watchlists_data = self.load_watchlists_from_files(dir_path)
+        # Load watchlist data from JSON files
+        watchlist_data = self.load_watchlist_from_files(dir_path)
 
-        if not watchlists_data:
-            logger.warning("No watchlists data loaded, skipping analysis")
+        if not watchlist_data:
+            logger.warning("No watchlist data loaded, skipping analysis")
             return
 
         # Run the analysis with loaded data (periods are now from config)
         await self.run_analysis(
-            watchlists_data=watchlists_data,
+            watchlist_data=watchlist_data,
             _progress=progress,
             _parent_task_id=parent_task_id,
             _batch_task_id=batch_task_id,
@@ -654,9 +660,9 @@ async def main(
     **kwargs,
 ) -> None:
     """
-    Main function to execute holding stock analysis and generate reports.
+    Main function to execute watchlist stock analysis and generate reports.
 
-    This function creates a WatchlistsAnalyzer instance and runs the complete analysis.
+    This function creates a WatchlistAnalyzer instance and runs the complete analysis.
     Maintained for backward compatibility.
 
     Args:
@@ -669,12 +675,12 @@ async def main(
         *args: Additional positional arguments
         **kwargs: Additional keyword arguments including backtesting parameters
     """
-    watchlists_analyzer = WatchlistsAnalyzer(
+    watchlist_analyzer = WatchlistAnalyzer(
         industry_stock_mapping_df, stock_zh_a_spot_em_df, config_name, *args, **kwargs
     )
-    watchlists_data = watchlists_analyzer.load_watchlists_from_files()
-    await watchlists_analyzer.run_analysis(
-        watchlists_data=watchlists_data,
+    watchlist_data = watchlist_analyzer.load_watchlist_from_files()
+    await watchlist_analyzer.run_analysis(
+        watchlist_data=watchlist_data,
         _progress=progress,
         _parent_task_id=parent_task_id,
         _batch_task_id=batch_task_id,

@@ -17,7 +17,7 @@ akshare:
 
     # Date for fund flow data (format: YYYYMMDD)
     # If empty, will use the latest trading date
-    date: ""
+    date: "20250831"
 
     # Number of days for fund flow analysis
     # Used for calculating the specific periods based on selected date
@@ -32,9 +32,9 @@ watchlist_analyzer:
   days_lookback_period: 100  # Days to look back for sufficient trading data
   
   # Source data directory
-  watchlist_dir: "data/watchlist/reports"
+  watchlist_dir: "data/watchlist/"
   # Report directory
-  report_dir: "data/stocks/reports"
+  report_dir: "data/watchlist/reports"
 
 # =============================================================================
 # File Configuration Metadata
