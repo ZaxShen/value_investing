@@ -691,9 +691,9 @@ class WatchlistAnalyzer:
         Args:
             watchlist_data: Dictionary with account names as keys and
                                 {stock_code: stock_name} dictionaries as values
-            progress: Optional Rich Progress instance for hierarchical progress tracking
-            parent_task_id: Optional parent task ID for hierarchical progress structure
-            batch_task_id: Optional pre-created batch task ID for proper hierarchy display
+            _progress: Optional Rich Progress instance for hierarchical progress tracking
+            _parent_task_id: Optional parent task ID for hierarchical progress structure
+            _batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
         # Initialize DataFrame with dynamic analysis columns
         columns = self._get_analysis_columns()

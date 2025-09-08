@@ -30,18 +30,32 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## Features
+## v1.7.0 TODO
 
 ### Reconstruct Specific Python Scripts
 
 Target scripts:
 
-- holding_stock_analyzer.py
+- watchlist_analyzer.py
 - industry_filter.py
 - stock_filter.py
 
-Changes:
+New Features:
 
-- Add date/days parameters for backtesting
+- Add period_count parameters for backtesting
 - Use `*args, **kwargs` with JSON config files
-- Find MACD near 0 stocks
+- Replace hardcoded arguments with config files for more flexible and morden ux
+
+---
+
+## v1.8.0 TODO
+
+### Apply more technical metrics for stock filtering
+
+Target scripts:
+
+- stock_filter.py
+
+New Features:
+
+- Add technical features to config files to filter stocks by tech metrics, for example, stocks with MACD near 0
