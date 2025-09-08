@@ -653,10 +653,6 @@ class WatchlistAnalyzer:
             df: DataFrame containing analysis results
             last_date_str: Date string for report naming
         """
-        # Remove 1日涨跌幅(%)
-        if "1日涨跌幅(%)" in df.columns:
-            df.drop(columns=["1日涨跌幅(%)"], inplace=True)
-
         file_config = self.file_config
         # Check if config file for PROD
         if file_config.config_name.upper() == "PROD":

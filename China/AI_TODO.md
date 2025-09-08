@@ -47,15 +47,19 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 #### Refactor Specific Python Scripts with Config Files
 
-Target scripts:
+Target:
 
-- `watchlists_analyzer.py` (notice this one was renamed from holding_stocks_analyzer.py)
+- Script: `industry_filter.py`
+- Config: `config/industry_filter/test.yml`
 
-Config file path:
+Reference:
 
-- `config/watchlists_analyzer/config.yml`
+- Script: `watchlist_analyzer.py`
+- Config: `config/watchlist_analyzer/test.yml`
 
 TODO:
 
-- `watchlists_analyzer.py` now uses nested config file, you need to make sure it can read the new config file. Use similar new code from `industry_filter.py` to replace with the old code.
-- function `_get_analysis_columns` is used to make the output csv's columns. One parameter and variable here is `days`, which is used to define the fund flow of a specif period of days. Now I want to output more period, for exmaple, in the past is 29 days; now I want 1, 5, 29 days, which are from the config file `period_count`. So the output csv's columns should be dynmaic
+- `watchlist_analyzer.py` now uses nested config file, and it works very well. You need to make `industry_filter.py` use similar logic.
+- `industry_filter.py` has outdated logic and function or variable name, make sure you follow the latest naming convention from `watchlist_analyzer.py`
+- Similar to `watchlist_analyzer.py`, the output csv for `industry_filter.py` now should contain dynmaic period_count
+- Similar to `watchlist_analyzer.py`'s `last_date`, make sure the `end_date` in `industry_filter.py` works
