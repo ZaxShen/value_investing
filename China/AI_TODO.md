@@ -49,14 +49,13 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 Target scripts:
 
-- holding_stock_analyzer.py
+- `watchlists_analyzer.py` (notice this one was renamed from holding_stocks_analyzer.py)
 
-Before implement:
+Config file path:
 
-- Review industry_filter.py and apply similar features/updates to holding_stock_analyzer.py
+- `config/watchlists_analyzer/config.yml`
 
-New Features:
+TODO:
 
-- Add date parameters for backtesting
-- Use `*args, **kwargs` with JSON config files
-- In `data/input/holding_stock_analyzer/akshare/stock_individual_fund_flow`, create a `config.yml` and `test.yml`. Sample files are in `data/input/industry_filter/akshare/stock_board_industry_hist_em`
+- `watchlists_analyzer.py` now uses nested config file, you need to make sure it can read the new config file. Use similar new code from `industry_filter.py` to replace with the old code.
+- function `_get_analysis_columns` is used to make the output csv's columns. One parameter and variable here is `days`, which is used to define the fund flow of a specif period of days. Now I want to output more period, for exmaple, in the past is 29 days; now I want 1, 5, 29 days, which are from 

@@ -98,7 +98,7 @@ class WatchlistsAnalyzer:
     # Class constants for analysis parameters
     # TODO: Make Class constants to config.yml
     REPORT_DIR = "data/watchlists/reports"
-    watchlists_DIR = "data/watchlists"
+    WATCHLISTS_DIR = "data/watchlists"
     DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
 
     def __init__(
@@ -271,7 +271,7 @@ class WatchlistsAnalyzer:
             ValueError: If JSON files are malformed
         """
         if dir_path is None:
-            dir_path = self.watchlists_DIR
+            dir_path = self.WATCHLISTS_DIR
 
         if not os.path.exists(dir_path):
             raise FileNotFoundError(f"Holding stocks directory not found: {dir_path}")

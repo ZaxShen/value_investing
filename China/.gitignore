@@ -50,11 +50,11 @@ test*.ipynb
 # Stock market data (cached CSV files)
 data/stocks/*.csv
 data/stocks/reports/*.csv
-data/holding_stocks/reports/*.csv
+data/watchlists/reports/*.csv
 data/today/*.csv
 
 # Holding stock data (JSON files)
-data/holding_stocks/*.json
+data/watchlists/*.json
 
 # Application log files
 logs/*.log
