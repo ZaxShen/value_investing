@@ -605,7 +605,8 @@ class WatchlistAnalyzer:
 
             for period in self.config.period_count:
                 # Get data for this period, working backwards from the target date
-                start_idx = max(0, target_idx - period + 1)
+                # For N-day change, we need N+1 data points to compare day N with day 0
+                start_idx = max(0, target_idx - period)
                 end_idx = target_idx + 1
                 period_data = stock_individual_fund_flow_df.iloc[start_idx:end_idx]
 
@@ -614,10 +615,11 @@ class WatchlistAnalyzer:
                 fund_flows.append(fund_flow)
 
                 # Calculate price change for this period
-                if len(period_data) > 0:
+                if len(period_data) > 1:  # Need at least 2 data points for price change
                     period_1st_price = period_data.iloc[0]["收盘价"]
                     period_last_price = period_data.iloc[-1]["收盘价"]
                 else:
+                    # Not enough data for meaningful price change calculation
                     period_1st_price = actual_data_row["收盘价"]
                     period_last_price = actual_data_row["收盘价"]
 
