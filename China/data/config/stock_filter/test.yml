@@ -1,0 +1,50 @@
+# Configuration for stock_filter.py - test
+# This file contains parameters for akshare APIs, StockFilter class, and file metadata
+
+# =============================================================================
+# akshare API Configuration - ak.stock_individual_fund_flow
+# =============================================================================
+akshare:
+  stock_individual_fund_flow:
+    # Stock code (6-digit code without market prefix)
+    # Examples: "000001", "600000", "300001"
+    stock: ""
+
+    # Market identifier
+    # Options: "sh" (Shanghai), "sz" (Shenzhen), "bj" (Beijing)
+    # Note: This will be auto-determined from stock code if not specified
+    market: ""
+
+    # Date for fund flow data (format: YYYYMMDD)
+    # If empty, will use the latest trading date
+    date: "20250831"
+
+    # Number of days for fund flow analysis
+    # Used for calculating multiple periods (replaces single 'days' parameter)
+    period_count: [1, 5, 29]
+
+# =============================================================================
+# StockFilter Class Configuration
+# =============================================================================
+stock_filter:
+  # Class constants for filtering criteria
+  target_period_count: 29      # Specific period from period_count list to use for filtering
+  max_market_cap_yi: 200       # Maximum market cap in 100 million RMB
+  min_pe_ratio: 0              # Minimum P/E ratio
+  max_pe_ratio: 50             # Maximum P/E ratio
+  min_main_net_inflow_yi: 1    # Minimum main net inflow in 100 million RMB
+  max_price_change_percent: 10 # Maximum price change percentage
+  batch_size: 3                # Batch size for concurrent processing
+  
+  # Report directory
+  report_dir: "data/stocks/reports"
+
+# =============================================================================
+# File Configuration Metadata
+# =============================================================================
+file_config:
+  # (Customized Arg) If this config for PROD or other purpose
+  config_name: "test"
+  description: "Test configuration for stock_filter with nested structure and dynamic periods"
+  # Follow main function's version
+  version: "1.7.0"

@@ -30,27 +30,23 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## Features
+## v1.8.0 TODO
 
-### Refactor Dir Structre
-
-Move to specific dir:
-
-- holding_stock_analyzer.py
-- industry_filter.py
-- stock_filter.py
-
----
-
-### Reconstruct Specific Python Scripts
+### Apply more technical metrics for stock filtering
 
 Target scripts:
 
-- holding_stock_analyzer.py
-- industry_filter.py
 - stock_filter.py
 
-Changes:
+New Features:
 
-- Add date/days parameters for backtesting
-- Use `*args, **kwargs` with JSON config files
+- Add technical features to config files to filter stocks by tech metrics, for example, stocks with MACD near 0
+
+---
+
+## v1.9.0 TODO
+
+### Use DB to cache data and extend maximum available data
+
+- Use DB like PostgreSQL to store batch data from akshare.
+- As 东方财富 has maximum data period like the past 120 days, we may have longer period locally for better stock related calculation availability.

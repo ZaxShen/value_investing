@@ -1,0 +1,47 @@
+# Configuration for watchlist_analyzer.py
+# This file contains parameters for akshare APIs, WatchlistAnalyzer class, and file metadata
+
+# =============================================================================
+# akshare API Configuration - ak.stock_individual_fund_flow
+# =============================================================================
+akshare:
+  stock_individual_fund_flow:
+    # Stock code (6-digit code without market prefix)
+    # Examples: "000001", "600000", "300001"
+    stock: ""
+
+    # Market identifier
+    # Options: "sh" (Shanghai), "sz" (Shenzhen), "bj" (Beijing)
+    # Note: This will be auto-determined from stock code if not specified
+    market: ""
+
+    # Date for fund flow data (format: YYYYMMDD)
+    # If empty, will use the latest trading date
+    date: ""
+
+    # Number of days for fund flow analysis
+    # Used for calculating the specific periods based on selected date
+    # Also used as the default analysis period for holding stocks
+    period_count: [1, 5, 29]
+
+# =============================================================================
+# WatchlistAnalyzer Class Configuration
+# =============================================================================
+watchlist_analyzer:
+  # Class constants for filtering criteria
+  days_lookback_period: 100  # Days to look back for sufficient trading data
+  
+  # Source data directory
+  watchlist_dir: "data/watchlist/"
+  # Report directory
+  report_dir: "data/watchlist/reports"
+
+# =============================================================================
+# File Configuration Metadata
+# =============================================================================
+file_config:
+  # (Customized Arg) If this config for PROD or other purpose
+  config_name: "PROD"
+  description: "PROD configuration with nested structure"
+  # Follow main function's version
+  version: "1.7.0"
