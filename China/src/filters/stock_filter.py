@@ -622,7 +622,6 @@ class StockFilter:
 
     async def process_all_industries_async(
         self,
-        days: int = 29,
         progress: Optional["Progress"] = None,
         parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
         batch_task_id: Optional["TaskID"] = None,
@@ -635,7 +634,6 @@ class StockFilter:
         and result aggregation.
 
         Args:
-            days: Number of days to analyze for fund flow (default: 29)
             progress: Optional Rich Progress instance for hierarchical progress tracking
             parent_task_id: Optional parent task ID for hierarchical progress structure
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
@@ -742,7 +740,6 @@ class StockFilter:
 
     async def run_analysis(
         self,
-        days: int = 29,
         _progress: Optional["Progress"] = None,
         _parent_task_id: Optional["TaskID"] = None,  # noqa: ARG002
         _batch_task_id: Optional["TaskID"] = None,
@@ -754,7 +751,6 @@ class StockFilter:
         data preparation, industry analysis, result filtering, and report generation.
 
         Args:
-            days: Number of days to analyze for fund flow (default: 29)
             progress: Optional Rich Progress instance for hierarchical progress tracking
             parent_task_id: Optional parent task ID for hierarchical progress structure
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
@@ -764,7 +760,6 @@ class StockFilter:
 
         # Process all industries with progress tracking
         all_industries_df = await self.process_all_industries_async(
-            days,
             _progress,
             _parent_task_id,
             _batch_task_id,
