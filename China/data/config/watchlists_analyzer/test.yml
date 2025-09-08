@@ -1,5 +1,5 @@
-# Configuration for watchlists_analyzer.py - test
-# This file contains parameters for akshare APIs, WatchlistsAnalyzer class, and file metadata
+# Configuration for watchlist_analyzer.py - test
+# This file contains parameters for akshare APIs, WatchlistAnalyzer class, and file metadata
 
 # =============================================================================
 # akshare API Configuration - ak.stock_individual_fund_flow
@@ -25,14 +25,14 @@ akshare:
     period_count: [1, 5, 29]
 
 # =============================================================================
-# WatchlistsAnalyzer Class Configuration
+# WatchlistAnalyzer Class Configuration
 # =============================================================================
-watchlists_analyzer:
+watchlist_analyzer:
   # Class constants for filtering criteria
   days_lookback_period: 100  # Days to look back for sufficient trading data
   
   # Source data directory
-  watchlists_dir: "data/watchlists/reports"
+  watchlist_dir: "data/watchlist/reports"
   # Report directory
   report_dir: "data/stocks/reports"
 

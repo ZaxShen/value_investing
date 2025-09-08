@@ -1,7 +1,7 @@
 """
 Unit tests for the class-based architecture.
 
-This module tests the StockFilter, IndustryFilter, and WatchlistsAnalyzer classes
+This module tests the StockFilter, IndustryFilter, and WatchlistAnalyzer classes
 with comprehensive mocking to avoid external API dependencies. It focuses on:
 - Class initialization and dependency injection
 - Method interfaces and parameter handling
@@ -18,7 +18,7 @@ import pandas as pd
 import pytest
 from rich.progress import Progress
 
-from src.analyzers.watchlists_analyzer import WatchlistsAnalyzer
+from src.analyzers.watchlist_analyzer import WatchlistAnalyzer
 from src.filters.industry_filter import IndustryFilter
 from src.filters.stock_filter import StockFilter
 
@@ -266,8 +266,8 @@ class TestIndustryFilter:
         assert columns_30_days != columns_60_days
 
 
-class TestWatchlistsAnalyzer:
-    """Test the WatchlistsAnalyzer class functionality."""
+class TestWatchlistAnalyzer:
+    """Test the WatchlistAnalyzer class functionality."""
 
     @pytest.fixture
     def sample_holding_data(self):
@@ -304,11 +304,11 @@ class TestWatchlistsAnalyzer:
         )
 
     @pytest.mark.unit
-    def test_watchlists_analyzer_initialization(
+    def test_watchlist_analyzer_initialization(
         self, sample_industry_mapping, sample_stock_data
     ):
-        """Test WatchlistsAnalyzer initializes correctly."""
-        analyzer = WatchlistsAnalyzer(sample_industry_mapping, sample_stock_data)
+        """Test WatchlistAnalyzer initializes correctly."""
+        analyzer = WatchlistAnalyzer(sample_industry_mapping, sample_stock_data)
 
         assert analyzer.industry_stock_mapping_df is not None
         assert analyzer.stock_zh_a_spot_em_df is not None
@@ -316,11 +316,11 @@ class TestWatchlistsAnalyzer:
         assert len(analyzer.stock_zh_a_spot_em_df) == 4
 
     @pytest.mark.unit
-    async def test_watchlists_analyzer_run_analysis_with_data(
+    async def test_watchlist_analyzer_run_analysis_with_data(
         self, sample_industry_mapping, sample_stock_data, sample_holding_data
     ):
-        """Test WatchlistsAnalyzer.run_analysis with provided data."""
-        analyzer = WatchlistsAnalyzer(sample_industry_mapping, sample_stock_data)
+        """Test WatchlistAnalyzer.run_analysis with provided data."""
+        analyzer = WatchlistAnalyzer(sample_industry_mapping, sample_stock_data)
 
         # Mock the internal analysis method and _save_report
         with (
@@ -333,23 +333,23 @@ class TestWatchlistsAnalyzer:
             ),
         ):
             result = await analyzer.run_analysis(
-                watchlists_data=sample_holding_data, days=30, _progress=None
+                watchlist_data=sample_holding_data, days=30, _progress=None
             )
 
             # Should complete without error
             assert result is None
 
     @pytest.mark.unit
-    async def test_watchlists_analyzer_run_analysis_from_files(
+    async def test_watchlist_analyzer_run_analysis_from_files(
         self, sample_industry_mapping, sample_stock_data, sample_holding_data
     ):
-        """Test WatchlistsAnalyzer.run_analysis_from_files method."""
-        analyzer = WatchlistsAnalyzer(sample_industry_mapping, sample_stock_data)
+        """Test WatchlistAnalyzer.run_analysis_from_files method."""
+        analyzer = WatchlistAnalyzer(sample_industry_mapping, sample_stock_data)
 
-        # Mock the load_watchlists_from_files method and run_analysis
+        # Mock the load_watchlist_from_files method and run_analysis
         with (
             patch.object(
-                analyzer, "load_watchlists_from_files", return_value=sample_holding_data
+                analyzer, "load_watchlist_from_files", return_value=sample_holding_data
             ),
             patch.object(analyzer, "run_analysis", return_value=None),
         ):
@@ -360,11 +360,11 @@ class TestWatchlistsAnalyzer:
             assert result is None
 
     @pytest.mark.unit
-    async def test_watchlists_analyzer_with_progress_tracking(
+    async def test_watchlist_analyzer_with_progress_tracking(
         self, sample_industry_mapping, sample_stock_data, sample_holding_data
     ):
-        """Test WatchlistsAnalyzer integrates with progress tracking."""
-        analyzer = WatchlistsAnalyzer(sample_industry_mapping, sample_stock_data)
+        """Test WatchlistAnalyzer integrates with progress tracking."""
+        analyzer = WatchlistAnalyzer(sample_industry_mapping, sample_stock_data)
 
         mock_progress = Mock(spec=Progress)
         mock_progress.add_task.return_value = 1
@@ -395,22 +395,22 @@ class TestWatchlistsAnalyzer:
             ),
         ):
             await analyzer.run_analysis(
-                watchlists_data=sample_holding_data,
+                watchlist_data=sample_holding_data,
                 _progress=mock_progress,
                 _parent_task_id=1,
                 _batch_task_id=2,
             )
 
-            # Progress integration should work - but WatchlistsAnalyzer doesn't use progress bars currently
+            # Progress integration should work - but WatchlistAnalyzer doesn't use progress bars currently
             # Just verify the test runs without error
             assert True
 
     @pytest.mark.unit
-    async def test_watchlists_analyzer_single_stock_analysis(
+    async def test_watchlist_analyzer_single_stock_analysis(
         self, sample_industry_mapping, sample_stock_data
     ):
-        """Test WatchlistsAnalyzer.analyze_single_stock method."""
-        analyzer = WatchlistsAnalyzer(sample_industry_mapping, sample_stock_data)
+        """Test WatchlistAnalyzer.analyze_single_stock method."""
+        analyzer = WatchlistAnalyzer(sample_industry_mapping, sample_stock_data)
 
         # Mock the async fetch method with enough data (30+ days)
         with patch.object(analyzer, "_fetch_stock_fund_flow_sync") as mock_fund_flow:
@@ -459,7 +459,7 @@ class TestClassIntegration:
         # Mock all external API calls
         with patch("src.filters.stock_filter.ak") as mock_ak:
             with patch("src.filters.industry_filter.ak") as mock_ak2:
-                with patch("src.analyzers.watchlists_analyzer.ak") as mock_ak3:
+                with patch("src.analyzers.watchlist_analyzer.ak") as mock_ak3:
                     # Setup mock returns
                     mock_ak.stock_sector_fund_flow_hist.return_value = pd.DataFrame(
                         {"日期": ["2025-01-01"]}
@@ -477,7 +477,7 @@ class TestClassIntegration:
                     # Test all classes can be instantiated
                     stock_filter = StockFilter(industry_mapping, stock_data)
                     industry_filter = IndustryFilter()
-                    holding_analyzer = WatchlistsAnalyzer(industry_mapping, stock_data)
+                    holding_analyzer = WatchlistAnalyzer(industry_mapping, stock_data)
 
                     assert stock_filter is not None
                     assert industry_filter is not None

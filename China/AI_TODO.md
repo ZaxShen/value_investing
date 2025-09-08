@@ -58,4 +58,4 @@ Config file path:
 TODO:
 
 - `watchlists_analyzer.py` now uses nested config file, you need to make sure it can read the new config file. Use similar new code from `industry_filter.py` to replace with the old code.
-- function `_get_analysis_columns` is used to make the output csv's columns. One parameter and variable here is `days`, which is used to define the fund flow of a specif period of days. Now I want to output more period, for exmaple, in the past is 29 days; now I want 1, 5, 29 days, which are from 
+- function `_get_analysis_columns` is used to make the output csv's columns. One parameter and variable here is `days`, which is used to define the fund flow of a specif period of days. Now I want to output more period, for exmaple, in the past is 29 days; now I want 1, 5, 29 days, which are from the config file `period_count`. So the output csv's columns should be dynmaic
