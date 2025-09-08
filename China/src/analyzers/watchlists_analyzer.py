@@ -1,7 +1,7 @@
 """
 Stock analysis and holding report generation for Chinese equity markets.
 
-This module provides a HoldingStockAnalyzer class that encapsulates comprehensive
+This module provides a WatchlistsAnalyzer class that encapsulates comprehensive
 analysis of individual stocks and generates detailed holding reports. It analyzes
 stock performance, fund flows, and calculates key financial metrics for
 investment decision making.
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
     from rich.progress import Progress, TaskID
 
 # Initialize logger for this module
-logger = get_logger("holding_stock_analyzer")
+logger = get_logger("watchlists_analyzer")
 
 # Create a semaphore to limit concurrent requests
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
@@ -66,7 +66,7 @@ def load_stock_individual_fund_flow_config(
         ValueError: If config validation fails
     """
     config_dir = Path(
-        "data/input/holding_stock_analyzer/akshare/stock_individual_fund_flow/"
+        "data/input/watchlists_analyzer/akshare/stock_individual_fund_flow/"
     )
     if config_name is None:
         config_name = "config.yml"
@@ -86,7 +86,7 @@ def load_stock_individual_fund_flow_config(
     return StockIndividualFundFlowConfig(**config_data)
 
 
-class HoldingStockAnalyzer:
+class WatchlistsAnalyzer:
     """
     A class to encapsulate holding stock analysis functionality.
 
@@ -97,8 +97,8 @@ class HoldingStockAnalyzer:
 
     # Class constants for analysis parameters
     # TODO: Make Class constants to config.yml
-    REPORT_DIR = "data/holding_stocks/reports"
-    HOLDING_STOCKS_DIR = "data/holding_stocks"
+    REPORT_DIR = "data/watchlists/reports"
+    watchlists_DIR = "data/watchlists"
     DAYS_LOOKBACK_PERIOD = 100  # Days to look back for sufficient trading data
 
     def __init__(
@@ -110,7 +110,7 @@ class HoldingStockAnalyzer:
         **kwargs,
     ):
         """
-        Initialize the HoldingStockAnalyzer with market data.
+        Initialize the WatchlistsAnalyzer with market data.
 
         Args:
             industry_stock_mapping_df: DataFrame containing industry-stock mapping
@@ -253,7 +253,7 @@ class HoldingStockAnalyzer:
         except (IndexError, KeyError):
             raise ValueError(f"Stock code {stock_code} not found")
 
-    def load_holding_stocks_from_files(
+    def load_watchlists_from_files(
         self, dir_path: Optional[str] = None
     ) -> Dict[str, Dict[str, str]]:
         """
@@ -271,31 +271,31 @@ class HoldingStockAnalyzer:
             ValueError: If JSON files are malformed
         """
         if dir_path is None:
-            dir_path = self.HOLDING_STOCKS_DIR
+            dir_path = self.watchlists_DIR
 
         if not os.path.exists(dir_path):
             raise FileNotFoundError(f"Holding stocks directory not found: {dir_path}")
 
-        holding_stocks_data = {}
+        watchlists_data = {}
         json_files = glob.glob(os.path.join(dir_path, "*.json"))
 
         if not json_files:
             logger.warning("No JSON files found in directory: %s", dir_path)
-            return holding_stocks_data
+            return watchlists_data
 
         for file_path in json_files:
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     account_name = os.path.splitext(os.path.basename(file_path))[0]
-                    holding_stocks = json.load(f)
+                    watchlists = json.load(f)
 
                     # Validate JSON structure
-                    if not isinstance(holding_stocks, dict):
+                    if not isinstance(watchlists, dict):
                         raise ValueError(
                             f"JSON file {file_path} should contain a dictionary"
                         )
 
-                    for stock_code, stock_name in holding_stocks.items():
+                    for stock_code, stock_name in watchlists.items():
                         if not isinstance(stock_code, str) or not isinstance(
                             stock_name, str
                         ):
@@ -303,10 +303,10 @@ class HoldingStockAnalyzer:
                                 f"Invalid stock data in {file_path}: {stock_code} -> {stock_name}"
                             )
 
-                    holding_stocks_data[account_name] = holding_stocks
+                    watchlists_data[account_name] = watchlists
                     logger.info(
                         "Loaded %d stocks for account '%s'",
-                        len(holding_stocks),
+                        len(watchlists),
                         account_name,
                     )
 
@@ -317,8 +317,8 @@ class HoldingStockAnalyzer:
                 logger.error("Error reading file %s: %s", file_path, str(e))
                 raise
 
-        logger.info("Loaded holding stocks for %d accounts", len(holding_stocks_data))
-        return holding_stocks_data
+        logger.info("Loaded holding stocks for %d accounts", len(watchlists_data))
+        return watchlists_data
 
     def _fetch_stock_fund_flow_sync(self, stock_code: str, market: str) -> pd.DataFrame:
         """
@@ -477,7 +477,7 @@ class HoldingStockAnalyzer:
 
     async def run_analysis(
         self,
-        holding_stocks_data: Dict[str, Dict[str, str]],
+        watchlists_data: Dict[str, Dict[str, str]],
         days: Optional[int] = None,
         _progress: Optional["Progress"] = None,
         _parent_task_id: Optional["TaskID"] = None,
@@ -490,7 +490,7 @@ class HoldingStockAnalyzer:
         stock validation, analysis, and report generation.
 
         Args:
-            holding_stocks_data: Dictionary with account names as keys and
+            watchlists_data: Dictionary with account names as keys and
                                 {stock_code: stock_name} dictionaries as values
             days: Number of days to analyze (default: class constant)
             progress: Optional Rich Progress instance for hierarchical progress tracking
@@ -505,8 +505,8 @@ class HoldingStockAnalyzer:
         df = pd.DataFrame(columns=columns)
 
         # Process each account's holdings
-        for account_name, holding_stocks in holding_stocks_data.items():
-            for stock_code, stock_name in holding_stocks.items():
+        for account_name, watchlists in watchlists_data.items():
+            for stock_code, stock_name in watchlists.items():
                 try:
                     # Validate stock name
                     self.validate_stock_name(stock_code, stock_name)
@@ -568,15 +568,15 @@ class HoldingStockAnalyzer:
             batch_task_id: Optional pre-created batch task ID for proper hierarchy display
         """
         # Load holding stocks data from JSON files
-        holding_stocks_data = self.load_holding_stocks_from_files(dir_path)
+        watchlists_data = self.load_watchlists_from_files(dir_path)
 
-        if not holding_stocks_data:
+        if not watchlists_data:
             logger.warning("No holding stocks data loaded, skipping analysis")
             return
 
         # Run the analysis with loaded data
         await self.run_analysis(
-            holding_stocks_data=holding_stocks_data,
+            watchlists_data=watchlists_data,
             days=days,
             _progress=progress,
             _parent_task_id=parent_task_id,
@@ -597,7 +597,7 @@ async def main(
     """
     Main function to execute holding stock analysis and generate reports.
 
-    This function creates a HoldingStockAnalyzer instance and runs the complete analysis.
+    This function creates a WatchlistsAnalyzer instance and runs the complete analysis.
     Maintained for backward compatibility.
 
     Args:
@@ -610,12 +610,12 @@ async def main(
         *args: Additional positional arguments
         **kwargs: Additional keyword arguments including backtesting parameters
     """
-    holding_stock_analyzer = HoldingStockAnalyzer(
+    watchlists_analyzer = WatchlistsAnalyzer(
         industry_stock_mapping_df, stock_zh_a_spot_em_df, config_name, *args, **kwargs
     )
-    holding_stocks_data = holding_stock_analyzer.load_holding_stocks_from_files()
-    await holding_stock_analyzer.run_analysis(
-        holding_stocks_data=holding_stocks_data,
+    watchlists_data = watchlists_analyzer.load_watchlists_from_files()
+    await watchlists_analyzer.run_analysis(
+        watchlists_data=watchlists_data,
         _progress=progress,
         _parent_task_id=parent_task_id,
         _batch_task_id=batch_task_id,

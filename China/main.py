@@ -28,7 +28,7 @@ from rich.progress import (
     TimeElapsedColumn,  # Shows elapsed time since task started
 )
 
-from src.analyzers.holding_stock_analyzer import HoldingStockAnalyzer
+from src.analyzers.watchlists_analyzer import WatchlistsAnalyzer
 from src.filters.industry_filter import IndustryFilter
 from src.filters.stock_filter import StockFilter
 from src.utilities.get_stock_data import (
@@ -161,7 +161,7 @@ class StockAnalysisPipeline:
 
     async def run_holding_stock_analyzer(
         self,
-        holding_stocks_data: dict = None,
+        watchlists_data: dict = None,
         progress: Optional[Progress] = None,
         **kwargs,
     ) -> None:
@@ -169,15 +169,13 @@ class StockAnalysisPipeline:
         if self.industry_stock_mapping_df is None or self.stock_zh_a_spot_em_df is None:
             raise ValueError("Market data not fetched. Call fetch_market_data() first.")
 
-        analyzer = HoldingStockAnalyzer(
+        analyzer = WatchlistsAnalyzer(
             self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df
         )
 
-        if holding_stocks_data:
+        if watchlists_data:
             # Use provided data
-            await analyzer.run_analysis(
-                holding_stocks_data, progress=progress, **kwargs
-            )
+            await analyzer.run_analysis(watchlists_data, progress=progress, **kwargs)
         else:
             # Use file-based approach (load JSON files)
             await analyzer.run_analysis_from_files(progress=progress, **kwargs)
@@ -229,7 +227,7 @@ async def copy_latest_reports() -> None:
     # Define report patterns to copy
     report_patterns = [
         {
-            "pattern": "data/holding_stocks/reports/持股报告-[0-9]*.csv",
+            "pattern": "data/watchlists/reports/持股报告-[0-9]*.csv",
             "description": "持股报告",
         },
         {
