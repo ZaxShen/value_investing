@@ -30,24 +30,6 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## v1.7.0 TODO
-
-### Reconstruct Specific Python Scripts
-
-Target scripts:
-
-- watchlist_analyzer.py
-- industry_filter.py
-- stock_filter.py
-
-New Features:
-
-- Add period_count parameters for backtesting
-- Use `*args, **kwargs` with JSON config files
-- Replace hardcoded arguments with config files for more flexible and morden ux
-
----
-
 ## v1.8.0 TODO
 
 ### Apply more technical metrics for stock filtering

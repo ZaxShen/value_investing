@@ -5,16 +5,14 @@
 ### v1.7.0
 
 - :tada: **New Features:**
-  - Restructured codebase for scalable architecture:
+  - Refactored codebase for scalable architecture:
     - `src/analyzers/`: Analyzer modules for stocks and industries
     - `src/filters/`: Filter modules for screening and analysis
     - Maintained backward compatibility with updated imports and tests
   - Handling uncertain arguments from JSON to analyzers and filters
+    - Signifiicantly improved total flexibility from hardcoded paras to flexible paras from `config.yml`
     - Enable automatic data types check
-    - Fill out empty key-value with default value
-  - Upgraded `industry_filter.py` with Lazy Initialization for better performance
-- :warning: **Potential Bugs**:
-  - `industry_filter.py` needs to update the logic and code for `月k` and `周k`
+  - Upgraded `industry_filter.py` with Lazy Initialization for better performanc
 
 ### v1.6.0
 
