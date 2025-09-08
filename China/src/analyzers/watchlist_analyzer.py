@@ -91,7 +91,7 @@ def load_config(
     config_name: Optional[str] = None,
 ) -> tuple[StockIndividualFundFlowConfig, WatchlistAnalyzerConfig, FileConfig]:
     """
-    Load nested configuration from YAML file supporting test.yml format.
+    Load nested configuration from YAML file.
 
     Args:
         config_name: YAML config file name. If None, uses default config
@@ -216,8 +216,15 @@ class WatchlistAnalyzer:
         self.args = args
         self.kwargs = kwargs
 
+        # Initialize date-related attributes
+        self.last_date = None
+        self.last_date_str = None
+
         # Resolve dates in the class config
         self._resolve_config()
+
+        # Initialize the actual last date for consistent date handling across methods
+        self._initialize_last_date()
 
     def _date_converter(self, date_str: str, period_count: int) -> str:
         """
@@ -250,6 +257,86 @@ class WatchlistAnalyzer:
         # Set market automatically if empty
         if not config.market and config.stock:
             config.market = self._get_market_by_stock_code(config.stock)
+
+    def _initialize_last_date(self) -> None:
+        """
+        Initialize the actual last date for consistent date handling across all methods.
+
+        This method determines the actual last date based on config.date and available data,
+        ensuring all methods use the same reference date instead of iloc[-1].
+        """
+        try:
+            # Fetch sector data synchronously during initialization
+            stock_sector_data = self._fetch_sector_fund_flow_sync("证券")
+
+            # Use specified date from config if provided, otherwise use latest date
+            if self.config.date:
+                # Convert config date to datetime for comparison
+                target_date = datetime.strptime(self.config.date, "%Y%m%d")
+
+                # Find the closest available date (same or previous)
+                available_dates = pd.to_datetime(stock_sector_data["日期"])
+                valid_dates = available_dates[available_dates <= target_date]
+
+                if len(valid_dates) > 0:
+                    # Use the latest date that's not later than the target date
+                    self.last_date = valid_dates.max()
+                    logger.info(
+                        "Using specified date %s (actual: %s)",
+                        self.config.date,
+                        self.last_date.strftime("%Y%m%d"),
+                    )
+                else:
+                    # Fallback to earliest available date if target is before all data
+                    self.last_date = available_dates.min()
+                    logger.warning(
+                        "Target date %s is before all available data, using earliest date: %s",
+                        self.config.date,
+                        self.last_date.strftime("%Y%m%d"),
+                    )
+            else:
+                # Use the latest available date (default behavior)
+                self.last_date = stock_sector_data.iloc[-1]["日期"]
+
+            self.last_date_str = self.last_date.strftime("%Y%m%d")
+            logger.debug("Initialized last_date: %s", self.last_date_str)
+
+        except Exception as e:
+            logger.error("Failed to initialize last_date: %s", str(e))
+            # Set a fallback date if initialization fails
+            self.last_date = datetime.now().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+            self.last_date_str = self.last_date.strftime("%Y%m%d")
+
+    def _get_data_for_date(self, df: pd.DataFrame, target_date: datetime) -> pd.Series:
+        """
+        Get the row from a DataFrame that corresponds to the target date or the closest previous date.
+
+        Args:
+            df: DataFrame with a '日期' column
+            target_date: Target date to find
+
+        Returns:
+            Series corresponding to the target date or closest previous date
+        """
+        # Convert dates to datetime if they aren't already
+        df_dates = pd.to_datetime(df["日期"])
+
+        # Find dates that are <= target_date
+        valid_dates = df_dates[df_dates <= target_date]
+
+        if len(valid_dates) > 0:
+            # Get the latest valid date
+            actual_date = valid_dates.max()
+            # Return the row for that date
+            return df[df_dates == actual_date].iloc[
+                -1
+            ]  # Use iloc[-1] in case of duplicates
+        else:
+            # Fallback to earliest available date
+            earliest_date = df_dates.min()
+            return df[df_dates == earliest_date].iloc[0]
 
     def _get_analysis_columns(self) -> List[str]:
         """
@@ -475,6 +562,20 @@ class WatchlistAnalyzer:
                 )
                 return None
 
+            # Get the actual data row for the target date instead of always using iloc[-1]
+            # Ensure last_date is a datetime object
+            if self.last_date is None:
+                # Fallback to latest date if initialization failed
+                actual_target_date = pd.to_datetime(
+                    stock_individual_fund_flow_df.iloc[-1]["日期"]
+                )
+            else:
+                actual_target_date = pd.to_datetime(self.last_date)
+
+            actual_data_row = self._get_data_for_date(
+                stock_individual_fund_flow_df, actual_target_date
+            )
+
             # Base stock data
             base_data = [
                 industry_name,
@@ -484,26 +585,41 @@ class WatchlistAnalyzer:
                 stock_circulating_market_value,
                 stock_pe_dynamic,
                 stock_pb,
-                stock_individual_fund_flow_df.iloc[-1][
-                    "收盘价"
-                ],  # Latest closing price
+                actual_data_row["收盘价"],  # Closing price for the actual target date
             ]
 
             # Calculate fund flows and price changes for each period
             fund_flows = []
             price_changes = []
 
+            # Get the index of the actual target date in the DataFrame
+            df_dates = pd.to_datetime(stock_individual_fund_flow_df["日期"])
+            target_idx = None
+            for idx, date in enumerate(df_dates):
+                if date <= actual_target_date:
+                    target_idx = idx
+
+            if target_idx is None:
+                # If no valid date found, use the first available
+                target_idx = 0
+
             for period in self.config.period_count:
-                # Get data for this period
-                period_data = stock_individual_fund_flow_df.iloc[-period:]
+                # Get data for this period, working backwards from the target date
+                start_idx = max(0, target_idx - period + 1)
+                end_idx = target_idx + 1
+                period_data = stock_individual_fund_flow_df.iloc[start_idx:end_idx]
 
                 # Calculate fund flow for this period
                 fund_flow = round(period_data["主力净流入-净额"].sum() / 1e8, 2)
                 fund_flows.append(fund_flow)
 
                 # Calculate price change for this period
-                period_1st_price = period_data.iloc[0]["收盘价"]
-                period_last_price = period_data.iloc[-1]["收盘价"]
+                if len(period_data) > 0:
+                    period_1st_price = period_data.iloc[0]["收盘价"]
+                    period_last_price = period_data.iloc[-1]["收盘价"]
+                else:
+                    period_1st_price = actual_data_row["收盘价"]
+                    period_last_price = actual_data_row["收盘价"]
 
                 if period_1st_price == 0:
                     logger.warning(
@@ -617,15 +733,22 @@ class WatchlistAnalyzer:
                     )
                     continue
 
-        # Get report date with retry mechanism
-        stock_sector_data = await asyncio.to_thread(
-            self._fetch_sector_fund_flow_sync, "证券"
-        )
-        last_date = stock_sector_data.iloc[-1]["日期"]
-        last_date_str = last_date.strftime("%Y%m%d")
+        # Use the pre-determined last_date from initialization
+        # This ensures consistency across all analysis methods
+        if self.last_date_str is None:
+            logger.warning("last_date_str not initialized, re-initializing...")
+            self._initialize_last_date()
+
+        # Ensure last_date_str is not None before saving
+        if self.last_date_str is None:
+            # Ultimate fallback if initialization still fails
+            self.last_date_str = datetime.now().strftime("%Y%m%d")
+            logger.error(
+                "Failed to determine last_date, using current date as fallback"
+            )
 
         # Save the report
-        self._save_report(df, last_date_str)
+        self._save_report(df, self.last_date_str)
 
     async def run_analysis_from_files(
         self,

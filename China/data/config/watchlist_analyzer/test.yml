@@ -8,7 +8,7 @@ akshare:
   stock_individual_fund_flow:
     # Stock code (6-digit code without market prefix)
     # Examples: "000001", "600000", "300001"
-    stock: "000001"
+    stock: ""
 
     # Market identifier
     # Options: "sh" (Shanghai), "sz" (Shenzhen), "bj" (Beijing)
