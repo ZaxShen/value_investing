@@ -28,7 +28,7 @@ from rich.progress import (
     TimeElapsedColumn,  # Shows elapsed time since task started
 )
 
-from src.analyzers.watchlists_analyzer import WatchlistsAnalyzer
+from src.analyzers.watchlist_analyzer import WatchlistAnalyzer
 from src.filters.industry_filter import IndustryFilter
 from src.filters.stock_filter import StockFilter
 from src.utilities.get_stock_data import (
@@ -50,7 +50,7 @@ class StockAnalysisPipeline:
 
     This class manages data fetching, analysis execution, and report generation
     for all components of the stock analysis system including stock filtering,
-    industry analysis, and holding stock analysis.
+    industry analysis, and watchlist stock analysis.
     """
 
     def __init__(self, data_dir: str = "data/stocks"):
@@ -141,44 +141,78 @@ class StockAnalysisPipeline:
         self.logger.info("Market data fetching completed successfully")
 
     async def run_stock_filter(
-        self, progress: Optional[Progress] = None, **kwargs
+        self,
+        config_name: Optional[str] = None,
+        progress: Optional[Progress] = None,
+        _parent_task_id: Optional[TaskID] = None,
+        _batch_task_id: Optional[TaskID] = None,
+        **kwargs,
     ) -> None:
         """Run stock filter analysis with the fetched data."""
         if self.industry_stock_mapping_df is None or self.stock_zh_a_spot_em_df is None:
             raise ValueError("Market data not fetched. Call fetch_market_data() first.")
 
         stock_filter = StockFilter(
-            self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df
+            self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df, config_name
         )
-        await stock_filter.run_analysis(progress=progress, **kwargs)
+        await stock_filter.run_analysis(
+            _progress=progress,
+            _parent_task_id=_parent_task_id,
+            _batch_task_id=_batch_task_id,
+            **kwargs,
+        )
 
     async def run_industry_filter(
-        self, progress: Optional[Progress] = None, **kwargs
-    ) -> None:
-        """Run industry filter analysis."""
-        industry_filter = IndustryFilter()
-        await industry_filter.run_analysis(progress=progress, **kwargs)
-
-    async def run_holding_stock_analyzer(
         self,
-        watchlists_data: dict = None,
+        config_name: Optional[str] = None,
         progress: Optional[Progress] = None,
+        _parent_task_id: Optional[TaskID] = None,
+        _batch_task_id: Optional[TaskID] = None,
         **kwargs,
     ) -> None:
-        """Run holding stock analysis with the fetched data."""
+        """Run industry filter analysis."""
+        industry_filter = IndustryFilter(config_name)
+        await industry_filter.run_analysis(
+            _progress=progress,
+            _parent_task_id=_parent_task_id,
+            _batch_task_id=_batch_task_id,
+            **kwargs,
+        )
+
+    async def run_watchlist_analyzer(
+        self,
+        config_name: Optional[str] = None,
+        watchlist_data: Optional[dict] = None,
+        progress: Optional[Progress] = None,
+        _parent_task_id: Optional[TaskID] = None,
+        _batch_task_id: Optional[TaskID] = None,
+        **kwargs,
+    ) -> None:
+        """Run watchlist stock analysis with the fetched data."""
         if self.industry_stock_mapping_df is None or self.stock_zh_a_spot_em_df is None:
             raise ValueError("Market data not fetched. Call fetch_market_data() first.")
 
-        analyzer = WatchlistsAnalyzer(
-            self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df
+        analyzer = WatchlistAnalyzer(
+            self.industry_stock_mapping_df, self.stock_zh_a_spot_em_df, config_name
         )
 
-        if watchlists_data:
+        if watchlist_data:
             # Use provided data
-            await analyzer.run_analysis(watchlists_data, progress=progress, **kwargs)
+            await analyzer.run_analysis(
+                watchlist_data,
+                _progress=progress,
+                _parent_task_id=_parent_task_id,
+                _batch_task_id=_batch_task_id,
+                **kwargs,
+            )
         else:
             # Use file-based approach (load JSON files)
-            await analyzer.run_analysis_from_files(progress=progress, **kwargs)
+            await analyzer.run_analysis_from_files(
+                _progress=progress,
+                _parent_task_id=_parent_task_id,
+                _batch_task_id=_batch_task_id,
+                **kwargs,
+            )
 
 
 # @timer
@@ -227,8 +261,8 @@ async def copy_latest_reports() -> None:
     # Define report patterns to copy
     report_patterns = [
         {
-            "pattern": "data/watchlists/reports/持股报告-[0-9]*.csv",
-            "description": "持股报告",
+            "pattern": "data/watchlist/reports/自选股报告-[0-9]*.csv",
+            "description": "自选股报告",
         },
         {
             "pattern": "data/stocks/reports/股票筛选报告-[0-9]*.csv",  # Filtered stock reports
@@ -267,7 +301,7 @@ async def run_all_scripts() -> None:
     """
     Run all analysis scripts sequentially with progress tracking using the pipeline class.
 
-    This function executes data fetching, stock filtering, holding stock analysis,
+    This function executes data fetching, stock filtering, watchlist stock analysis,
     and industry analysis in sequence, providing detailed progress feedback.
     """
     logger.info("Starting sequential execution of all scripts")
@@ -295,9 +329,9 @@ async def run_all_scripts() -> None:
         await pipeline.run_stock_filter()
         progress.advance(task)
 
-        # Step 3: Run holding stock analyzer
-        progress.update(task, description="Running holding stock analyzer")
-        await pipeline.run_holding_stock_analyzer()
+        # Step 3: Run watchlist stock analyzer
+        progress.update(task, description="Running watchlist stock analyzer")
+        await pipeline.run_watchlist_analyzer()
         progress.advance(task)
 
         # Step 4: Run industry_filter
@@ -320,7 +354,7 @@ async def run_all_scripts_parallel() -> None:
     """
     Run all analysis scripts in parallel with detailed hierarchical progress tracking using the pipeline class.
 
-    This function first fetches market data, then executes stock filtering, holding stock analysis,
+    This function first fetches market data, then executes stock filtering, watchlist stock analysis,
     and industry analysis concurrently for better performance. It uses Rich Progress to provide
     real-time progress feedback with a hierarchical structure:
     - Main pipeline progress (high-level stages)
@@ -400,12 +434,12 @@ async def run_all_scripts_parallel() -> None:
             "    📊 Stock Filter batches", total=100, visible=False
         )
 
-        holding_stock_task = progress.add_task(
-            "💼 Holding Stock Analyzer", total=100, visible=True
+        watchlist_analyzer_task = progress.add_task(
+            "💼 Watchlist Stock Analyzer", total=100, visible=True
         )
-        # Pre-create batch processing task for Holding Stock Analyzer (initially hidden)
-        holding_stock_batch_task = progress.add_task(
-            "    💼 Holding Stock processing", total=100, visible=False
+        # Pre-create batch processing task for Watchlist Stock Analyzer (initially hidden)
+        watchlist_analyzer_batch_task = progress.add_task(
+            "    💼 Watchlist Stock processing", total=100, visible=False
         )
 
         industry_filter_task = progress.add_task(
@@ -449,8 +483,8 @@ async def run_all_scripts_parallel() -> None:
                 # Pass progress instance and task_id to enable hierarchical progress
                 await script_func(
                     progress=progress_instance,
-                    parent_task_id=task_id,
-                    batch_task_id=batch_task_id,
+                    _parent_task_id=task_id,
+                    _batch_task_id=batch_task_id,
                 )
                 # Mark top-level task as completed but DON'T remove it
                 # According to TODO.md: "Don't make the progress bar disappear for the top level tasks"
@@ -481,11 +515,11 @@ async def run_all_scripts_parallel() -> None:
                 stock_filter_batch_task,
             ),
             run_with_detailed_progress(
-                pipeline.run_holding_stock_analyzer,
-                holding_stock_task,
-                "Holding Stock Analyzer",
+                pipeline.run_watchlist_analyzer,
+                watchlist_analyzer_task,
+                "Watchlist Analyzer",
                 progress,
-                holding_stock_batch_task,
+                watchlist_analyzer_batch_task,
             ),
             run_with_detailed_progress(
                 pipeline.run_industry_filter,

@@ -667,7 +667,7 @@ class WatchlistAnalyzer:
 
         try:
             report_path = (
-                f"{self.REPORT_DIR}/自选股分析-{last_date_str}{config_name}.csv"
+                f"{self.REPORT_DIR}/自选股报告-{last_date_str}{config_name}.csv"
             )
             df.to_csv(report_path, index=True)
             logger.info("Report saved to %s", report_path)

@@ -59,3 +59,12 @@ Target scripts:
 New Features:
 
 - Add technical features to config files to filter stocks by tech metrics, for example, stocks with MACD near 0
+
+---
+
+## v1.9.0 TODO
+
+### Use DB to cache data and extend maximum available data
+
+- Use DB like PostgreSQL to store batch data from akshare.
+- As 东方财富 has maximum data period like the past 120 days, we may have longer period locally for better stock related calculation availability.

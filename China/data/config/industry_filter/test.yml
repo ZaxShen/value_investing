@@ -41,6 +41,7 @@ akshare:
 # =============================================================================
 industry_filter:
   # Class constants for filtering criteria
+  target_period_count: 29           # Specific period from period_count list to use for filtering
   min_main_net_inflow_yi: 20        # Minimum main net inflow in 100 million RMB
   max_price_change_percent: 8       # Maximum price change percentage
   batch_size: 3                     # Batch size for concurrent processing

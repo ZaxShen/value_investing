@@ -73,6 +73,7 @@ class StockFilterConfig(BaseModel):
     max_pe_ratio: int = 50
     min_main_net_inflow_yi: int = 1
     max_price_change_percent: int = 10
+    target_period_count: int = 5
     batch_size: int = 3
     report_dir: str = "data/stocks/reports"
 
@@ -195,8 +196,16 @@ class StockFilter:
         self.MAX_PE_RATIO = self.filter_config.max_pe_ratio
         self.MIN_MAIN_NET_INFLOW_YI = self.filter_config.min_main_net_inflow_yi
         self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
+        self.TARGET_PERIOD_COUNT = self.filter_config.target_period_count
         self.BATCH_SIZE = self.filter_config.batch_size
         self.REPORT_DIR = self.filter_config.report_dir
+
+        # Validate target_period_count is in period_count list
+        if self.TARGET_PERIOD_COUNT not in self.akshare_config.period_count:
+            raise ValueError(
+                f"target_period_count ({self.TARGET_PERIOD_COUNT}) must be one of the "
+                f"period_count values: {self.akshare_config.period_count}"
+            )
 
         # Store market data
         self.industry_stock_mapping_df = industry_stock_mapping_df
@@ -316,18 +325,43 @@ class StockFilter:
             logger.error("Failed to save raw report: %s", str(e))
             raise
 
-        # Apply additional filters using the first period for consistency
-        first_period = (
-            self.akshare_config.period_count[0]
-            if self.akshare_config.period_count
-            else 1
+        # Apply additional filters using the target period from config
+        target_period_count = self.TARGET_PERIOD_COUNT
+        main_net_inflow_col = f"{target_period_count}日主力净流入-总净额(亿)"
+        price_change_col = f"{target_period_count}日涨跌幅(%)"
+        
+        logger.info(
+            "Applying filters using %d-day period: %s > %.1f and %s < %.1f",
+            target_period_count,
+            main_net_inflow_col, 
+            self.MIN_MAIN_NET_INFLOW_YI,
+            price_change_col,
+            self.MAX_PRICE_CHANGE_PERCENT
         )
-        main_net_inflow_col = f"{first_period}日主力净流入-总净额(亿)"
-        price_change_col = f"{first_period}日涨跌幅(%)"
+        
+        # Check if the required columns exist
+        missing_cols = []
+        if main_net_inflow_col not in all_industries_df.columns:
+            missing_cols.append(main_net_inflow_col)
+        if price_change_col not in all_industries_df.columns:
+            missing_cols.append(price_change_col)
+            
+        if missing_cols:
+            logger.error("Missing required columns for filtering: %s", missing_cols)
+            logger.info("Available columns: %s", list(all_industries_df.columns))
+            raise ValueError(f"Missing columns for {target_period_count}-day filtering: {missing_cols}")
+        
         df = all_industries_df[
             (all_industries_df[main_net_inflow_col] > self.MIN_MAIN_NET_INFLOW_YI)
             & (all_industries_df[price_change_col] < self.MAX_PRICE_CHANGE_PERCENT)
         ]
+        
+        logger.info(
+            "Filtered from %d to %d stocks using %d-day criteria",
+            len(all_industries_df),
+            len(df),
+            target_period_count
+        )
 
         # Sort the DataFrame by price change percentage
         df = df.sort_values(by=[price_change_col])

@@ -28,6 +28,7 @@ akshare:
 # =============================================================================
 stock_filter:
   # Class constants for filtering criteria
+  target_period_count: 29      # Specific period from period_count list to use for filtering
   max_market_cap_yi: 200       # Maximum market cap in 100 million RMB
   min_pe_ratio: 0              # Minimum P/E ratio
   max_pe_ratio: 50             # Maximum P/E ratio

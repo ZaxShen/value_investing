@@ -71,6 +71,7 @@ class IndustryFilterConfig(BaseModel):
     This model validates and provides default values for the IndustryFilter class constants.
     """
 
+    target_period_count: int = 29  # Specific period from period_count list to use for filtering
     min_main_net_inflow_yi: int = 20  # Minimum main net inflow in 100 million RMB
     max_price_change_percent: int = 8  # Maximum price change percentage
     batch_size: int = 3  # Batch size for concurrent processing
@@ -177,12 +178,20 @@ class IndustryFilter:
         )
 
         # Apply class constants from config
+        self.TARGET_PERIOD_COUNT = self.filter_config.target_period_count
         self.MIN_MAIN_NET_INFLOW_YI = self.filter_config.min_main_net_inflow_yi
         self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
         self.BATCH_SIZE = self.filter_config.batch_size
         self.DAYS_LOOKBACK_PERIOD = self.filter_config.days_lookback_period
         self.TRADING_DAYS_60 = self.filter_config.trading_days_60
         self.REPORT_DIR = self.filter_config.report_dir
+
+        # Validate target_period_count is in period_count list
+        if self.TARGET_PERIOD_COUNT not in self.akshare_config.period_count:
+            raise ValueError(
+                f"target_period_count ({self.TARGET_PERIOD_COUNT}) must be one of the "
+                f"period_count values: {self.akshare_config.period_count}"
+            )
 
         # Initialize date-related attributes
         self.end_date = None
@@ -741,16 +750,33 @@ class IndustryFilter:
         else:
             config_name = f"-{file_config.config_name}"
 
-        # Use the first period for backward compatibility
-        first_period = (
-            self.akshare_config.period_count[0]
-            if self.akshare_config.period_count
-            else 1
-        )
-
+        # Use the target period from config for filtering
+        target_period_count = self.TARGET_PERIOD_COUNT
+        
         # Define column names for filtering and sorting
-        main_net_inflow_col = f"{first_period}{self.period_unit}主力净流入-总净额(亿)"
-        price_change_col = f"{first_period}{self.period_unit}涨跌幅(%)"
+        main_net_inflow_col = f"{target_period_count}{self.period_unit}主力净流入-总净额(亿)"
+        price_change_col = f"{target_period_count}{self.period_unit}涨跌幅(%)"
+        
+        logger.info(
+            "Applying filters using %d-day period: %s > %.1f and %s < %.1f",
+            target_period_count,
+            main_net_inflow_col, 
+            self.MIN_MAIN_NET_INFLOW_YI,
+            price_change_col,
+            self.MAX_PRICE_CHANGE_PERCENT
+        )
+        
+        # Check if the required columns exist
+        missing_cols = []
+        if main_net_inflow_col not in all_industries_df.columns:
+            missing_cols.append(main_net_inflow_col)
+        if price_change_col not in all_industries_df.columns:
+            missing_cols.append(price_change_col)
+            
+        if missing_cols:
+            logger.error("Missing required columns for filtering: %s", missing_cols)
+            logger.info("Available columns: %s", list(all_industries_df.columns))
+            raise ValueError(f"Missing columns for {target_period_count}-day filtering: {missing_cols}")
 
         # Sort all_industries_df (columns already have correct names from _get_analysis_columns)
         all_industries_df = all_industries_df.sort_values(
@@ -764,6 +790,13 @@ class IndustryFilter:
             (all_industries_df[main_net_inflow_col] > self.MIN_MAIN_NET_INFLOW_YI)
             & (all_industries_df[price_change_col] < self.MAX_PRICE_CHANGE_PERCENT)
         ].copy()
+        
+        logger.info(
+            "Filtered from %d to %d industries using %d-day criteria",
+            len(all_industries_df),
+            len(filtered_df),
+            target_period_count
+        )
 
         # Sort filtered DataFrame
         filtered_df = filtered_df.sort_values(
