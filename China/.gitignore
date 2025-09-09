@@ -47,14 +47,27 @@ test*.ipynb
 # DATA FILES (China-specific generated content)
 # ============================================================================
 
-# Stock market data (CSV files)
-data/stocks/*.csv
-data/stocks/reports/*.csv
-data/watchlist/reports/*.csv
-data/today/*.csv
+# Cached market and industry data
+data/market/
+data/industry/
+data/reference/
+data/*.csv
 
-# Watchlist stock data from specific accounts (JSON files)
-data/watchlist/*-*.json
+# Generated output reports
+output/reports/
+output/today/
+output/filtered/
+output/analytics/
+
+# API cache files
+cache/api/
+
+# Watchlist stock data except 自选股.json (JSON files)
+!input/watchlists/自选股.json
+
+# Legacy directory patterns (for safety)
+data/stocks/
+data/watchlist/
 
 # Application log files
 logs/*.log
