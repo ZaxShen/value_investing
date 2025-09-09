@@ -53,7 +53,7 @@ class StockAnalysisPipeline:
     industry analysis, and watchlist stock analysis.
     """
 
-    def __init__(self, data_dir: str = "data/stocks"):
+    def __init__(self, data_dir: str = "data"):
         """
         Initialize the StockAnalysisPipeline.
 
@@ -254,22 +254,25 @@ async def copy_latest_reports() -> None:
     """
     logger.info("Starting report copying process")
 
-    # Create data/today directory if it doesn't exist
-    today_dir = "data/today"
+    # Create output/reports/today directory if it doesn't exist
+    today_dir = "output/reports/today"
     os.makedirs(today_dir, exist_ok=True)
 
     # Define report patterns to copy
     report_patterns = [
         {
-            "pattern": "data/watchlist/reports/自选股报告-[0-9]*.csv",
+            # Filtered watchlist reports
+            "pattern": "output/reports/analyzers/watchlist_analyzer/自选股报告-[0-9]*.csv",
             "description": "自选股报告",
         },
         {
-            "pattern": "data/stocks/reports/股票筛选报告-[0-9]*.csv",  # Filtered stock reports
+            # Filtered stock reports
+            "pattern": "output/reports/filters/stock_filter/股票筛选报告-[0-9]*.csv",
             "description": "股票筛选报告",
         },
         {
-            "pattern": "data/stocks/reports/行业筛选报告-raw-[0-9]*.csv",  # Filtered industry reports
+            # Filtered industry reports
+            "pattern": "output/reports/filters/industry_filter/行业筛选报告-raw-[0-9]*.csv",
             "description": "行业筛选报告",
         },
     ]

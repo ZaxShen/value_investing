@@ -37,7 +37,7 @@ stock_filter:
   batch_size: 3                # Batch size for concurrent processing
   
   # Report directory
-  report_dir: "data/stocks/reports"
+  report_dir: "output/reports/filters/fhps_filter"
 
 # =============================================================================
 # File Configuration Metadata
@@ -46,5 +46,5 @@ file_config:
   # (Customized Arg) If this config for PROD or other purpose
   config_name: "test"
   description: "Test configuration for refactored code."
-  # Follow main function's version
-  version: "1.8.0"
+  # Follow main branch's version
+  version: "1.9.0"

@@ -61,6 +61,7 @@ Above are the final file structures. You need to follow those structure to compl
 - Update `watchlist_analyzer.py` code to make sure it can correctly load watchlist data from `input/watchlists`
 - Update `main.py` to make sure it can correctly output csv files to `output/reports`
 - Update `main.py` to make sure it can correctly output csv files to `output/today` with latest output
+- Make tests to ensure everthing works well
 
 ---
 

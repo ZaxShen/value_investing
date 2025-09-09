@@ -98,10 +98,10 @@ def load_config(
         config_name = "config.yml"
 
     # Handle both relative and absolute paths
-    if config_name.startswith("config/"):
+    if config_name.startswith("input/config/"):
         config_path = Path(config_name)
     else:
-        config_dir = Path("config/filters/stock_filter/")
+        config_dir = Path("input/config/filters/stock_filter/")
         config_path = config_dir / config_name
 
     # Create directory if it doesn't exist
