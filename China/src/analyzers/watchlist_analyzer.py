@@ -23,6 +23,7 @@ from pydantic import BaseModel
 from src.settings import configure_environment
 from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG
+from src.api.akshare import StockIndividualFundFlowAPI, StockIndividualFundFlowConfig, get_market_by_stock_code
 
 configure_environment()
 import akshare as ak
@@ -50,17 +51,7 @@ class FileConfig(BaseModel):
     version: str = ""  # Configuration version
 
 
-class StockIndividualFundFlowConfig(BaseModel):
-    """
-    Configuration model for ak.stock_individual_fund_flow API parameters.
-
-    This model validates and provides default values for the API parameters.
-    """
-
-    stock: str = "000001"  # Stock code (6-digit code without market prefix)
-    market: str = ""  # Market identifier: "sh", "sz", "bj"
-    date: str = ""  # Date of fund flow data (format: YYYYMMDD)
-    period_count: list = [1, 5, 29]  # Number of days for fund flow analysis
+# StockIndividualFundFlowConfig now imported from centralized API module
 
 
 class WatchlistAnalyzerConfig(BaseModel):
@@ -215,6 +206,9 @@ class WatchlistAnalyzer:
         # Store additional arguments for flexibility
         self.args = args
         self.kwargs = kwargs
+        
+        # Initialize centralized API handler
+        self.fund_flow_api = StockIndividualFundFlowAPI(self.config)
 
         # Initialize date-related attributes
         self.last_date = None
@@ -375,19 +369,9 @@ class WatchlistAnalyzer:
     def _get_market_by_stock_code(self, stock_code: str) -> str:
         """
         Determine the market based on stock code prefix.
-
-        Args:
-            stock_code: Stock code (e.g., "000001", "600001", "301001")
-
-        Returns:
-            Market identifier: "sh" for Shanghai, "sz" for Shenzhen, "bj" for Beijing
+        Delegates to centralized API module.
         """
-        if stock_code.startswith("6"):
-            return "sh"  # Shanghai Stock Exchange
-        elif stock_code.startswith("0") or stock_code.startswith("3"):
-            return "sz"  # Shenzhen Stock Exchange
-        else:
-            return "bj"  # Beijing Stock Exchange
+        return get_market_by_stock_code(stock_code)
 
     def validate_stock_name(self, stock_code: str, stock_name: str) -> None:
         """
@@ -481,17 +465,9 @@ class WatchlistAnalyzer:
     def _fetch_stock_fund_flow_sync(self, stock_code: str, market: str) -> pd.DataFrame:
         """
         Fetch stock individual fund flow data with retry mechanism.
-
-        Args:
-            stock_code: Stock code (e.g., "000001")
-            market: Market identifier (e.g., "sz", "sh", "bj")
-
-        Returns:
-            DataFrame containing historical fund flow data for the specified stock
+        Delegates to centralized API module.
         """
-        return API_RETRY_CONFIG.retry(
-            ak.stock_individual_fund_flow, stock=stock_code, market=market
-        )
+        return self.fund_flow_api.fetch_sync(stock_code, market)
 
     def _fetch_sector_fund_flow_sync(self, symbol: str) -> pd.DataFrame:
         """
@@ -588,10 +564,7 @@ class WatchlistAnalyzer:
                 actual_data_row["收盘价"],  # Closing price for the actual target date
             ]
 
-            # Calculate fund flows and price changes for each period
-            fund_flows = []
-            price_changes = []
-
+            # Calculate fund flows and price changes using centralized processing
             # Get the index of the actual target date in the DataFrame
             df_dates = pd.to_datetime(stock_individual_fund_flow_df["日期"])
             target_idx = None
@@ -602,41 +575,15 @@ class WatchlistAnalyzer:
             if target_idx is None:
                 # If no valid date found, use the first available
                 target_idx = 0
-
-            for period in self.config.period_count:
-                # Get data for this period, working backwards from the target date
-                # For N-day change, we need N+1 data points to compare day N with day 0
-                start_idx = max(0, target_idx - period)
-                end_idx = target_idx + 1
-                period_data = stock_individual_fund_flow_df.iloc[start_idx:end_idx]
-
-                # Calculate fund flow for this period
-                fund_flow = round(period_data["主力净流入-净额"].sum() / 1e8, 2)
-                fund_flows.append(fund_flow)
-
-                # Calculate price change for this period
-                if len(period_data) > 1:  # Need at least 2 data points for price change
-                    period_1st_price = period_data.iloc[0]["收盘价"]
-                    period_last_price = period_data.iloc[-1]["收盘价"]
-                else:
-                    # Not enough data for meaningful price change calculation
-                    period_1st_price = actual_data_row["收盘价"]
-                    period_last_price = actual_data_row["收盘价"]
-
-                if period_1st_price == 0:
-                    logger.warning(
-                        "Zero first price for %s (%s) in %d-day period, using 0%% change",
-                        stock_name,
-                        stock_code,
-                        period,
-                    )
-                    price_change = 0.0
-                else:
-                    price_change = round(
-                        (period_last_price - period_1st_price) / period_1st_price * 100,
-                        2,
-                    )
-                price_changes.append(price_change)
+            
+            # Use centralized processing with target date index
+            fund_flows, price_changes = self.fund_flow_api.process_periods(
+                stock_individual_fund_flow_df, self.config.period_count, target_idx
+            )
+            
+            # Round to 2 decimal places to match original behavior
+            fund_flows = [round(ff, 2) for ff in fund_flows]
+            price_changes = [round(pc, 2) for pc in price_changes]
 
             # Fixed period data (60-day and YTD are from market data)
             fixed_data = [stock_60d_change, stock_ytd_change]
