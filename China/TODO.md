@@ -30,9 +30,9 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## v1.8.0 TODO
+## v1.9.0 TODO
 
-Created centralized akshare API module for `ak.stock_individual_fund_flow` functionality, eliminating code duplication between `stock_filter.py` and `watchlist_analyzer.py`. All existing functionality preserved with improved maintainability.
+Create `fhps_filter.py`
 
 ---
 
