@@ -47,7 +47,20 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 Target dir:
 
-- `data`
+- `data/`
+- `input/`
+- `output/`
+- `cache`
+
+Tasks:
+
+Above are the final file structures. You need to follow those structure to complete the following tasks:
+
+- Scan above four paths to make sure you understand the structure.
+- Update all code to make sure all configs in `input/config/` can be correctly read.
+- Update `watchlist_analyzer.py` code to make sure it can correctly load watchlist data from `input/watchlists`
+- Update `main.py` to make sure it can correctly output csv files to `output/reports`
+- Update `main.py` to make sure it can correctly output csv files to `output/today` with latest output
 
 ---
 

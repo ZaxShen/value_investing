@@ -50,7 +50,7 @@ def fetch_industry_constituents_sync(industry_name: str) -> pd.DataFrame:
     """
     logger.debug("Fetching constituents for industry: %s", industry_name)
     
-    return API_RETRY_CONFIG.retry(ak.stock_board_industry_cons_em)(symbol=industry_name)
+    return API_RETRY_CONFIG.retry(ak.stock_board_industry_cons_em, symbol=industry_name)
 
 
 async def fetch_industry_constituents_async(industry_name: str) -> pd.DataFrame:

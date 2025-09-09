@@ -317,6 +317,9 @@ class WatchlistAnalyzer:
         Returns:
             Series corresponding to the target date or closest previous date
         """
+        if df.empty:
+            raise ValueError("DataFrame is empty, cannot get data for date")
+        
         # Convert dates to datetime if they aren't already
         df_dates = pd.to_datetime(df["日期"])
 
@@ -327,13 +330,19 @@ class WatchlistAnalyzer:
             # Get the latest valid date
             actual_date = valid_dates.max()
             # Return the row for that date
-            return df[df_dates == actual_date].iloc[
-                -1
-            ]  # Use iloc[-1] in case of duplicates
+            filtered_data = df[df_dates == actual_date]
+            if filtered_data.empty:
+                raise ValueError(f"No data found for date {actual_date}")
+            return filtered_data.iloc[-1]  # Use iloc[-1] in case of duplicates
         else:
             # Fallback to earliest available date
             earliest_date = df_dates.min()
-            return df[df_dates == earliest_date].iloc[0]
+            if pd.isna(earliest_date):
+                raise ValueError("No valid dates found in DataFrame")
+            filtered_data = df[df_dates == earliest_date]
+            if filtered_data.empty:
+                raise ValueError(f"No data found for earliest date {earliest_date}")
+            return filtered_data.iloc[0]
 
     def _get_analysis_columns(self) -> List[str]:
         """
@@ -388,9 +397,13 @@ class WatchlistAnalyzer:
             ValueError: If stock name doesn't match or stock code not found
         """
         try:
-            actual_name = self.stock_zh_a_spot_em_df[
+            stock_filtered = self.stock_zh_a_spot_em_df[
                 self.stock_zh_a_spot_em_df["代码"] == stock_code
-            ]["名称"].values[0]
+            ]
+            if stock_filtered.empty:
+                raise ValueError(f"Stock code {stock_code} not found in market data")
+            
+            actual_name = stock_filtered["名称"].values[0]
             if actual_name != stock_name:
                 raise ValueError(
                     f"Stock name mismatch for {stock_code}: {stock_name} != {actual_name}"
@@ -514,9 +527,13 @@ class WatchlistAnalyzer:
 
         try:
             # Extract the stock's market data
-            stock_data = self.stock_zh_a_spot_em_df[
+            stock_data_filtered = self.stock_zh_a_spot_em_df[
                 self.stock_zh_a_spot_em_df["代码"] == stock_code
-            ].iloc[0]
+            ]
+            if stock_data_filtered.empty:
+                logger.warning("Stock %s (%s) not found in market data", stock_name, stock_code)
+                return None
+            stock_data = stock_data_filtered.iloc[0]
 
             stock_total_market_value = round(stock_data["总市值"] / 1e8, 0)
             stock_circulating_market_value = round(stock_data["流通市值"] / 1e8, 0)
@@ -529,6 +546,15 @@ class WatchlistAnalyzer:
             stock_individual_fund_flow_df = await asyncio.to_thread(
                 self._fetch_stock_fund_flow_sync, stock_code, market
             )
+
+            # Check if we have any data at all
+            if stock_individual_fund_flow_df.empty:
+                logger.warning(
+                    "Skipping %s (%s) due to no fund flow data available",
+                    stock_name,
+                    stock_code,
+                )
+                return None
 
             # Check if we have enough data for the maximum period required
             max_period = max(self.config.period_count)
@@ -657,9 +683,13 @@ class WatchlistAnalyzer:
                     self.validate_stock_name(stock_code, stock_name)
 
                     # Get industry name
-                    industry_name = self.industry_stock_mapping_df[
+                    industry_filtered = self.industry_stock_mapping_df[
                         self.industry_stock_mapping_df["代码"] == stock_code
-                    ]["行业"].values[0]
+                    ]
+                    if industry_filtered.empty:
+                        logger.warning("Stock %s not found in industry mapping, skipping", stock_code)
+                        continue
+                    industry_name = industry_filtered["行业"].values[0]
 
                     # Analyze the stock (now handles multiple periods automatically)
                     result = await self.analyze_single_stock(

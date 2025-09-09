@@ -88,7 +88,7 @@ async def get_stock_market_data(
     async def fetch_market_data(market_func, task_id, market_name):
         """Fetch data for a specific market and update its progress."""
         try:
-            result = await asyncio.to_thread(retry_call, market_func, timeout=None)
+            result = await market_func()
             progress.update(
                 task_id,
                 completed=1,
@@ -128,9 +128,6 @@ async def get_stock_market_data(
         logger.info("Successfully saved stock market data to %s", file_path)
         return stock_df
     except Exception as e:
-        progress.update(
-            task, description="    [red]✗ Failed to fetch stock market data"
-        )
         logger.error("Failed to fetch stock market data: %s", str(e))
         raise
     finally:
