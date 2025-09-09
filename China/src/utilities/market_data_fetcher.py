@@ -37,7 +37,7 @@ REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 console = Console()
 
 # Initialize logger for this module
-logger = get_logger("get_stock_data")
+logger = get_logger("market_data_fetcher")
 
 
 # @timer
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     When running this script directly, execute the main function.
     
     Usage:
-        uv run python src/utilities/get_stock_data.py
+        uv run python src/utilities/market_data_fetcher.py
     
     Note: Use 'uv run' to ensure all dependencies are available.
     """
