@@ -67,3 +67,16 @@ Questions:
 - If do so, suggest the folder name
 - If do so, should I do the same thing for all heavy-use external apis?
 
+---
+
+### Improve usability - phase 2
+
+Target scripts and configs:
+
+- `src/filters/stock_filter.py`, `data/config/stock_filter/test.yml`
+- `src/anazlyers/watchlist_analyzer.py`, `data/config/watchlist_analyzer/test.yml`
+- `src/filters/industry_filter.py`, `data/config/industry_filter/test.yml`
+
+Tasks:
+
+- Now you can scan above three scripts and see if there any other external apis worth to be centralized. Notice you don't have to centerlize every external api. Just the heavy-use ones.
