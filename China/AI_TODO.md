@@ -80,3 +80,17 @@ Target scripts and configs:
 Tasks:
 
 - Now you can scan above three scripts and see if there any other external apis worth to be centralized. Notice you don't have to centerlize every external api. Just the heavy-use ones.
+
+---
+
+### Improve usability - phase 3
+
+Target scripts and configs:
+
+- `src/filters/stock_filter.py`, `data/config/stock_filter/test.yml`
+- `src/anazlyers/watchlist_analyzer.py`, `data/config/watchlist_analyzer/test.yml`
+- `src/filters/industry_filter.py`, `data/config/industry_filter/test.yml`
+
+Tasks:
+
+- Like what you did to `industry_filter.py`, scan `stock_filter.py` and `watchlist_analyzer.py` to see is there any external apis worth to be centrallized.

@@ -15,16 +15,20 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import pandas as pd
 import yaml
-from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel
 
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
 from src.utilities.logger import get_logger
-from src.utilities.retry import API_RETRY_CONFIG
+from src.api.akshare import (
+    StockBoardIndustryAPI,
+    StockBoardIndustryHistConfig,
+    StockSectorFundFlowAPI,
+    date_converter,
+    resolve_date_range,
+)
 
 configure_environment()
-import akshare as ak
 
 if TYPE_CHECKING:
     from rich.progress import Progress
@@ -49,19 +53,7 @@ class FileConfig(BaseModel):
     version: str = ""  # Configuration version
 
 
-class StockBoardIndustryHistConfig(BaseModel):
-    """
-    Configuration model for ak.stock_board_industry_hist_em API parameters.
-
-    This model validates and provides default values for the API parameters.
-    """
-
-    symbol: str = ""  # Industry symbol
-    start_date: str = ""  # Start date in YYYYMMDD format
-    end_date: str = ""  # End date in YYYYMMDD format
-    period: str = "日k"  # Period: "日k", "周k", "月k"
-    period_count: List[int] = [1, 5, 29]  # Period Count list for multiple periods
-    adjust: str = ""  # Adjustment: "", "qfq", "hfq"
+# StockBoardIndustryHistConfig now imported from centralized API module
 
 
 class IndustryFilterConfig(BaseModel):
@@ -199,6 +191,10 @@ class IndustryFilter:
 
         # Initialize dynamic period counts (will be set based on available data)
         self.fund_period_counts = {}  # Will store actual counts for each period
+        
+        # Initialize centralized API handlers
+        self.industry_api = StockBoardIndustryAPI(self.akshare_config)
+        self.sector_flow_api = StockSectorFundFlowAPI()
 
         # Resolve dates in the class config
         self._resolve_akshare_config()
@@ -210,21 +206,11 @@ class IndustryFilter:
         self._get_dates
 
     def _date_converter(self, date_str: str, period: str, period_count: int) -> str:
-        date_obj = datetime.strptime(date_str, "%Y%m%d")
-        if period == "日k":
-            new_date = date_obj + timedelta(days=period_count)
-        elif period == "周k":
-            new_date = date_obj + timedelta(weeks=period_count)
-        elif period == "月k":
-            new_date = date_obj + relativedelta(months=period_count)
-        else:
-            error_msg = (
-                f"Invalid period '{period}'. Must be one of: '日k', '周k', '月k'"
-            )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-
-        return new_date.strftime("%Y%m%d")
+        """
+        Convert date by adding/subtracting periods.
+        Delegates to centralized API module.
+        """
+        return date_converter(date_str, period, period_count)
 
     def _resolve_akshare_config(self) -> None:
         """
@@ -261,23 +247,10 @@ class IndustryFilter:
                 config.end_date, config.period, -max_period_count
             )
         else:
-            # Both dates empty - get latest date from API call first
-            today = datetime.today()
-            temp_start = (today - timedelta(days=365)).strftime("%Y%m%d")
-            temp_end = today.strftime("%Y%m%d")
-
-            temp_data = API_RETRY_CONFIG.retry(
-                ak.stock_board_industry_hist_em,
-                symbol=config.symbol,
-                start_date=temp_start,
-                end_date=temp_end,
-                period=config.period,
-                adjust=config.adjust,
-            )
-
-            # Get the latest available date and set as end_date
-            latest_date = temp_data["日期"].iloc[-1].replace("-", "")
-            config.end_date = latest_date
+            # Both dates empty - use centralized date resolution
+            start_date, end_date = resolve_date_range(config)
+            config.start_date = start_date
+            config.end_date = end_date
 
     def _initialize_end_date(self) -> None:
         """
@@ -351,8 +324,8 @@ class IndustryFilter:
         Returns:
             Series of industry names
         """
-        # Get the list of industry names with retry
-        industry_data = API_RETRY_CONFIG.retry(ak.stock_board_industry_name_em)
+        # Get the list of industry names using centralized API
+        industry_data = self.industry_api.fetch_names_sync()
         industry_arr = industry_data["板块名称"]
 
         # Get date related variables
@@ -368,14 +341,11 @@ class IndustryFilter:
         first_date_str = first_date.strftime("%Y%m%d")
         last_date_str = today.strftime("%Y%m%d")
 
-        # Define last_date, the range to fetch industry data with retry
-        hist_data = API_RETRY_CONFIG.retry(
-            ak.stock_board_industry_hist_em,
+        # Define last_date, the range to fetch industry data using centralized API
+        hist_data = self.industry_api.fetch_hist_sync(
             symbol=industry_arr[0],  # use any industry to get the latest date
             start_date=first_date_str,
             end_date=last_date_str,
-            period=self.akshare_config.period,
-            adjust=self.akshare_config.adjust,
         )
         dates = hist_data["日期"].values
 
@@ -392,15 +362,12 @@ class IndustryFilter:
     def _validate_industry_capital_flow_data_sync(self) -> bool:
         """
         Validate industry capital flow data.
+        Delegates to centralized API module.
 
         Returns:
             bool if capital flow data available
         """
-        # Fund flow data only available in recent 120 days
-        if self.period_unit != "日":
-            return False
-        else:
-            return True
+        return self.sector_flow_api.validate_availability(self.period_unit)
 
     def _fetch_industry_capital_flow_data_sync(
         self,
@@ -415,51 +382,12 @@ class IndustryFilter:
         Returns:
             DataFrame containing recent capital flow data for the industry
         """
-        if not self._validate_industry_capital_flow_data_sync():
-            flow_data = pd.DataFrame(
-                {
-                    "日期": "0000-01-01",
-                    "主力净流入-净额": [None],
-                    "主力净流入-净占比": [None],
-                    "超大单净流入-净额": [None],
-                    "超大单净流入-净占比": [None],
-                    "大单净流入-净额": [None],
-                    "大单净流入-净占比": [None],
-                    "中单净流入-净额": [None],
-                    "中单净流入-净占比": [None],
-                    "小单净流入-净额": [None],
-                    "小单净流入-净占比": [None],
-                }
-            )
-            return flow_data
-
-        config = self.akshare_config
-
-        # Fetch all available flow data (API returns ~120 days automatically)
-        flow_data = API_RETRY_CONFIG.retry(
-            ak.stock_sector_fund_flow_hist, symbol=industry_name
+        # Use centralized API with validation and filtering
+        return self.sector_flow_api.fetch_with_validation(
+            symbol=industry_name,
+            period_unit=self.period_unit,
+            end_date=self.akshare_config.end_date
         )
-
-        # Convert "日期" from str to datetime object
-        flow_data["日期"] = pd.to_datetime(flow_data["日期"], format="%Y-%m-%d")
-
-        # Filter data up to the configured end_date if specified and if it results in valid data
-        if config.end_date:
-            end_date = datetime.strptime(config.end_date, "%Y%m%d")
-            filtered_flow_data = flow_data[flow_data["日期"] <= end_date]
-
-            # If filtering results in no data, use all available data instead
-            if len(filtered_flow_data) == 0:
-                logger.warning(
-                    f"Config end_date {config.end_date} filters out all data for {industry_name}. "
-                    f"Using all available data (range: {flow_data['日期'].min()} to {flow_data['日期'].max()})"
-                )
-                filtered_flow_data = flow_data
-        else:
-            filtered_flow_data = flow_data
-
-        # Return all available data - period slicing will be done in the analysis method
-        return filtered_flow_data
 
     def _fetch_industry_index_data_sync(
         self,
@@ -474,14 +402,7 @@ class IndustryFilter:
         Returns:
             DataFrame containing historical index data for the industry
         """
-        return API_RETRY_CONFIG.retry(
-            ak.stock_board_industry_hist_em,
-            symbol=industry_name,
-            start_date=self.akshare_config.start_date,
-            end_date=self.akshare_config.end_date,
-            period=self.akshare_config.period,
-            adjust=self.akshare_config.adjust,
-        )
+        return self.industry_api.fetch_hist_sync(symbol=industry_name)
 
     async def process_single_industry_async(
         self,
@@ -517,20 +438,11 @@ class IndustryFilter:
                         industry_name,
                     )
                     return None
-                # Calculate fund flows for each period in period_count
-                fund_flows = []
-                for period in self.akshare_config.period_count:
-                    if len(stock_sector_fund_flow_hist_df) >= period:
-                        period_data = stock_sector_fund_flow_hist_df.iloc[-period:]
-                        fund_flow = round(period_data["主力净流入-净额"].sum() / 1e8, 1)
-                    else:
-                        # Use all available data if not enough for the period
-                        fund_flow = round(
-                            stock_sector_fund_flow_hist_df["主力净流入-净额"].sum()
-                            / 1e8,
-                            1,
-                        )
-                    fund_flows.append(fund_flow)
+                # Calculate fund flows using centralized processing
+                fund_flows = self.sector_flow_api.process_periods(
+                    stock_sector_fund_flow_hist_df, 
+                    self.akshare_config.period_count
+                )
 
                 # Fetch industry index data with timeout
                 try:
@@ -550,26 +462,12 @@ class IndustryFilter:
                 # Get the index of the last trading date
                 industry_last_index = stock_board_industry_hist_em_df["收盘"].iloc[-1]
 
-                # Calculate price changes for each period in period_count
-                df_len = len(stock_board_industry_hist_em_df)
-                price_changes = []
-
-                for period in self.akshare_config.period_count:
-                    # For N-day change, we need to go back N+1 positions to compare with N days ago
-                    period_lookback = min(period + 1, df_len)
-                    if period_lookback > 1:  # Need at least 2 data points
-                        industry_period_index = stock_board_industry_hist_em_df[
-                            "收盘"
-                        ].iloc[-period_lookback]
-                        price_change = round(
-                            (industry_last_index - industry_period_index)
-                            / industry_period_index
-                            * 100,
-                            2,
-                        )
-                    else:
-                        price_change = 0.0
-                    price_changes.append(price_change)
+                # Calculate price changes using centralized processing
+                price_changes = self.industry_api.calculate_price_changes(
+                    stock_board_industry_hist_em_df,
+                    self.akshare_config.period_count,
+                    close_column="收盘"
+                )
 
                 # Calculate fixed period changes (60-day and YTD)
                 days_60_lookback = min(self.TRADING_DAYS_60 + 1, df_len)

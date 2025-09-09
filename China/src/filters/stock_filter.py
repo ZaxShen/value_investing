@@ -15,15 +15,12 @@ from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 from src.settings import configure_environment
 
 configure_environment()
-
-import akshare as ak
 import numpy as np
 import pandas as pd
 import yaml
 from pydantic import BaseModel
 
 from src.utilities.logger import get_logger
-from src.utilities.retry import API_RETRY_CONFIG
 from src.api.akshare import StockIndividualFundFlowAPI, StockIndividualFundFlowConfig, get_market_by_stock_code
 
 if TYPE_CHECKING:

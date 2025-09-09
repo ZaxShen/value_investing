@@ -17,10 +17,17 @@ from typing import List
 from src.settings import configure_environment
 from src.utilities.logger import get_logger
 from src.utilities.retry import API_RETRY_CONFIG, retry_call
+from src.api.akshare import (
+    fetch_shanghai_spot_async,
+    fetch_shenzhen_spot_async,
+    fetch_beijing_spot_async,
+    fetch_industry_constituents_sync,
+    fetch_industry_names_sync
+)
 
 configure_environment()  # Ensure tqdm is disabled
 
-import akshare as ak
+# akshare imports now handled through centralized API modules
 import pandas as pd
 from rich.console import Console
 from rich.progress import Progress
@@ -99,9 +106,9 @@ async def get_stock_market_data(
     try:
         # Fetch data from three markets concurrently with individual progress tracking
         sh_df, sz_df, bj_df = await asyncio.gather(
-            fetch_market_data(ak.stock_sh_a_spot_em, sh_task, "SH"),
-            fetch_market_data(ak.stock_sz_a_spot_em, sz_task, "SZ"),
-            fetch_market_data(ak.stock_bj_a_spot_em, bj_task, "BJ"),
+            fetch_market_data(fetch_shanghai_spot_async, sh_task, "SH"),
+            fetch_market_data(fetch_shenzhen_spot_async, sz_task, "SZ"),
+            fetch_market_data(fetch_beijing_spot_async, bj_task, "BJ"),
         )
 
         await asyncio.sleep(0.5)  # Brief pause to show all completions
@@ -144,9 +151,8 @@ async def _fetch_industry_stocks(industry_name: str) -> List[tuple]:
     async with REQUEST_SEMAPHORE:
         try:
             industry_stocks = await asyncio.to_thread(
-                API_RETRY_CONFIG.retry,
-                ak.stock_board_industry_cons_em,
-                symbol=industry_name,
+                fetch_industry_constituents_sync,
+                industry_name
             )
             return [(industry_name, code) for code in industry_stocks["代码"]]
         except Exception as e:
@@ -185,9 +191,7 @@ async def get_industry_stock_mapping_data(
     # Fetch industry names with retry mechanism
     logger.info("Fetching industry names from akshare API")
     try:
-        industry_data = await asyncio.to_thread(
-            API_RETRY_CONFIG.retry, ak.stock_board_industry_name_em
-        )
+        industry_data = await asyncio.to_thread(fetch_industry_names_sync)
         industry_names = industry_data["板块名称"]
         logger.info("Found %d industries to process", len(industry_names))
     except Exception as e:

@@ -22,11 +22,14 @@ from pydantic import BaseModel
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
 from src.utilities.logger import get_logger
-from src.utilities.retry import API_RETRY_CONFIG
-from src.api.akshare import StockIndividualFundFlowAPI, StockIndividualFundFlowConfig, get_market_by_stock_code
+from src.api.akshare import (
+    StockIndividualFundFlowAPI, 
+    StockIndividualFundFlowConfig, 
+    get_market_by_stock_code,
+    fetch_sector_fund_flow_sync
+)
 
 configure_environment()
-import akshare as ak
 
 if TYPE_CHECKING:
     from rich.progress import Progress, TaskID
@@ -479,7 +482,7 @@ class WatchlistAnalyzer:
         Returns:
             DataFrame containing historical sector fund flow data
         """
-        return API_RETRY_CONFIG.retry(ak.stock_sector_fund_flow_hist, symbol=symbol)
+        return fetch_sector_fund_flow_sync(symbol)
 
     async def analyze_single_stock(
         self,

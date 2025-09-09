@@ -25,6 +25,11 @@ try:
     configure_environment()
     from src.utilities.logger import get_logger
     from src.utilities.retry import API_RETRY_CONFIG, retry_call
+    from src.api.akshare import (
+        fetch_all_a_shares_spot_sync,
+        fetch_industry_constituents_sync,
+        fetch_industry_names_sync
+    )
 except ModuleNotFoundError:
     # When running as standalone script, add project root to path
     project_root = Path(__file__).parent.parent.parent
@@ -34,8 +39,13 @@ except ModuleNotFoundError:
     configure_environment()
     from src.utilities.logger import get_logger
     from src.utilities.retry import API_RETRY_CONFIG, retry_call
+    from src.api.akshare import (
+        fetch_all_a_shares_spot_sync,
+        fetch_industry_constituents_sync,
+        fetch_industry_names_sync
+    )
 
-import akshare as ak
+# akshare imports now handled through centralized API modules
 import pandas as pd
 from rich.console import Console
 from rich.progress import Progress
@@ -215,7 +225,7 @@ class StockDataFetcher:
             def fetch_with_logging():
                 self.detailed_logger.info("Executing akshare API call with retry mechanism")
                 with self._capture_tqdm_to_logger(self.detailed_logger):
-                    return retry_call(ak.stock_zh_a_spot_em, timeout=None)
+                    return fetch_all_a_shares_spot_sync(timeout=None)
             
             self.detailed_logger.info("Starting threaded execution of akshare API call")
             stock_df = await asyncio.to_thread(fetch_with_logging)
@@ -266,7 +276,7 @@ class StockDataFetcher:
                 def fetch_industry_stocks():
                     self.detailed_logger.debug("Executing industry stocks API call for: %s", industry_name)
                     with self._capture_tqdm_to_logger(self.detailed_logger):
-                        return API_RETRY_CONFIG.retry(ak.stock_board_industry_cons_em)(symbol=industry_name)
+                        return fetch_industry_constituents_sync(industry_name)
                 
                 industry_stocks = await asyncio.to_thread(fetch_industry_stocks)
                 self.detailed_logger.debug("Industry %s returned %d stocks", industry_name, len(industry_stocks))
@@ -320,7 +330,7 @@ class StockDataFetcher:
             def fetch_industry_names():
                 self.detailed_logger.info("Executing akshare industry names API call")
                 with self._capture_tqdm_to_logger(self.detailed_logger):
-                    return API_RETRY_CONFIG.retry(ak.stock_board_industry_name_em)()
+                    return fetch_industry_names_sync()
             
             self.detailed_logger.info("Starting threaded execution of industry names API call")
             industry_data = await asyncio.to_thread(fetch_industry_names)
