@@ -63,7 +63,12 @@ Above are the final file structures. You need to follow those structure to compl
 - Update `main.py` to make sure it can correctly output csv files to `output/today` with latest output
 - Make tests to ensure everthing works well
 
----
+### Update main.py with config
+
+Tasks:
+
+- Add config to main.py to better customize output
+
 
 ### Develop fhps
 

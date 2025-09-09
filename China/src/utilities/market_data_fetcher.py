@@ -13,17 +13,17 @@ import os
 from datetime import datetime
 from typing import List
 
+from src.api.akshare import (
+    fetch_beijing_spot_async,
+    fetch_industry_constituents_sync,
+    fetch_industry_names_sync,
+    fetch_shanghai_spot_async,
+    fetch_shenzhen_spot_async,
+)
+
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
 from src.utilities.logger import get_logger
-from src.utilities.retry import API_RETRY_CONFIG, retry_call
-from src.api.akshare import (
-    fetch_shanghai_spot_async,
-    fetch_shenzhen_spot_async,
-    fetch_beijing_spot_async,
-    fetch_industry_constituents_sync,
-    fetch_industry_names_sync
-)
 
 configure_environment()  # Ensure tqdm is disabled
 
@@ -42,7 +42,7 @@ logger = get_logger("get_stock_data")
 
 # @timer
 async def get_stock_market_data(
-    data_dir: str = "data/stocks", progress: Progress = None
+    data_dir: str = "data/market", progress: Progress = None
 ) -> pd.DataFrame:
     """
     Fetch stock market data with caching and progress tracking.
@@ -148,8 +148,7 @@ async def _fetch_industry_stocks(industry_name: str) -> List[tuple]:
     async with REQUEST_SEMAPHORE:
         try:
             industry_stocks = await asyncio.to_thread(
-                fetch_industry_constituents_sync,
-                industry_name
+                fetch_industry_constituents_sync, industry_name
             )
             return [(industry_name, code) for code in industry_stocks["代码"]]
         except Exception as e:
@@ -161,7 +160,7 @@ async def _fetch_industry_stocks(industry_name: str) -> List[tuple]:
 
 # @timer
 async def get_industry_stock_mapping_data(
-    data_dir: str = "data/stocks", progress: Progress = None
+    data_dir: str = "data/industry", progress: Progress = None
 ) -> pd.DataFrame:
     """
     Fetch industry-stock mapping data with caching and optimized concurrent processing.

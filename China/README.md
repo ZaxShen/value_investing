@@ -20,7 +20,7 @@
     - `src/api/akshare/stock_market_data.py` - Market data operations (SH/SZ/BJ exchanges)
     - `src/api/akshare/stock_board_constituents.py` - Industry constituents operations
     - `src/utilities/stock_data_fetcher.py`: Replaced `ak.stock_zh_a_spot_em`, `ak.stock_board_industry_cons_em`, `ak.stock_board_industry_name_em`
-    - `src/utilities/get_stock_data.py`: Replaced `ak.stock_sh_a_spot_em`, `ak.stock_sz_a_spot_em`, `ak.stock_bj_a_spot_em`, `ak.stock_board_industry_cons_em, ak.stock_board_industry_name_em`
+    - `src/utilities/market_data_fetcher.py`: Replaced `ak.stock_sh_a_spot_em`, `ak.stock_sz_a_spot_em`, `ak.stock_bj_a_spot_em`, `ak.stock_board_industry_cons_em, ak.stock_board_industry_name_em`
 
 ### v1.7.0
 

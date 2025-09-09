@@ -2,7 +2,7 @@
 
 ## Data Preprocessing
 
-### src/utilities/get_stock_data.py
+### src/utilities/market_data_fetcher.py
 
 |Package|API|Description|
 |:-|:-|:-|
