@@ -42,3 +42,62 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 ---
 
 ## v1.9.0 TODO
+
+### Upgrade config organization
+
+Old path:
+
+- `China/data/config/`
+  - `industry_filter`
+  - `stock_filter`
+  - `watchlist_analyzer`
+
+New path:
+
+- `China/config/`
+  - `filters`
+    - `industry_filter`
+    - `stock_filter`
+    - `fhps_filter` ignore this dir
+  - `analyzers`
+    - `watchlist_analyzer`
+
+Description:
+
+- I've move `config/` outside `data/` for better organization
+- Additionaly, I seperate filters and analzyers configs for better organization
+
+Tasks:
+
+- You need to scan all corresponding scripts or other files who use above three config dir and configs, re-map the old path to new path to make sure every script works.
+
+
+---
+
+### Upgrade file organization
+
+Target dir:
+
+- `data`
+
+
+
+---
+
+### Develop fhps
+
+Target script:
+
+- `src/filters/fhps_filter.py`, with config `data/config/fhps_filter/test.yml`
+
+Reference:
+
+- `src/analyzers/watchlist_analyzer.py`
+
+Sample output:
+
+- `
+
+Description:
+
+- 

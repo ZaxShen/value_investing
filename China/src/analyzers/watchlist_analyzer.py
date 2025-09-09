@@ -97,7 +97,7 @@ def load_config(
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    config_dir = Path("data/config/watchlist_analyzer/")
+    config_dir = Path("config/analyzers/watchlist_analyzer/")
     if config_name is None:
         config_name = "config.yml"
     config_path = Path(config_dir, config_name)
