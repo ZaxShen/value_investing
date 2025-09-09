@@ -42,3 +42,29 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 ---
 
 ## v1.9.0 TODO
+
+### Upgrade file organization
+
+Target dir:
+
+- `data`
+
+---
+
+### Develop fhps
+
+Target script:
+
+- `src/filters/fhps_filter.py`, with config `config/filters/fhps_filter/test.yml`
+
+Reference:
+
+- `src/analyzers/watchlist_analyzer.py`
+
+Sample output:
+
+- `
+
+Description:
+
+-
