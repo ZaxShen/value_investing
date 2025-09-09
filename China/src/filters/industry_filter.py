@@ -468,6 +468,9 @@ class IndustryFilter:
                     self.akshare_config.period_count,
                     close_column="收盘"
                 )
+                
+                # Get DataFrame length for fixed period calculations
+                df_len = len(stock_board_industry_hist_em_df)
 
                 # Calculate fixed period changes (60-day and YTD)
                 days_60_lookback = min(self.TRADING_DAYS_60 + 1, df_len)

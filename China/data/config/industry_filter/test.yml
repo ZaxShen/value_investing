@@ -57,6 +57,6 @@ industry_filter:
 file_config:
   # (Customized Arg) If this config for PROD or other purpose
   config_name: "test"
-  description: "Test configuration version 5 with nested structure"
+  description: "Test configuration for refactored code."
   # Follow main function's version
-  version: "1.7.0"
+  version: "1.8.0"
