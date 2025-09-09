@@ -41,5 +41,7 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## v1.7.0 TODO
+## v1.8.0 TODO
+
+### Improve usability
 
