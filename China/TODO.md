@@ -30,7 +30,13 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## v1.8.0 TODO
+## v1.9.0 TODO
+
+Create `fhps_filter.py`
+
+---
+
+## Future
 
 ### Apply more technical metrics for stock filtering
 
@@ -43,8 +49,6 @@ New Features:
 - Add technical features to config files to filter stocks by tech metrics, for example, stocks with MACD near 0
 
 ---
-
-## v1.9.0 TODO
 
 ### Use DB to cache data and extend maximum available data
 

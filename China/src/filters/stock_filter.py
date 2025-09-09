@@ -15,15 +15,13 @@ from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 from src.settings import configure_environment
 
 configure_environment()
-
-import akshare as ak
 import numpy as np
 import pandas as pd
 import yaml
 from pydantic import BaseModel
 
 from src.utilities.logger import get_logger
-from src.utilities.retry import API_RETRY_CONFIG
+from src.api.akshare import StockIndividualFundFlowAPI, StockIndividualFundFlowConfig, get_market_by_stock_code
 
 if TYPE_CHECKING:
     from rich.progress import Progress, TaskID
@@ -48,17 +46,7 @@ class FileConfig(BaseModel):
     version: str = ""
 
 
-class StockIndividualFundFlowConfig(BaseModel):
-    """
-    Configuration model for ak.stock_individual_fund_flow API parameters.
-
-    This model validates and provides default values for the API parameters.
-    """
-
-    stock: str = ""
-    market: str = ""
-    date: str = ""
-    period_count: List[int] = [1, 5, 29]
+# StockIndividualFundFlowConfig now imported from centralized API module
 
 
 class StockFilterConfig(BaseModel):
@@ -212,6 +200,9 @@ class StockFilter:
         self.stock_zh_a_spot_em_df = stock_zh_a_spot_em_df
         self.stock_market_df_filtered: Optional[pd.DataFrame] = None
         self.industry_arr: Optional[np.ndarray] = None
+        
+        # Initialize centralized API handler
+        self.fund_flow_api = StockIndividualFundFlowAPI(self.akshare_config)
 
         # Initialize date-related attributes for consistent date handling
         self._initialize_analysis_date()
@@ -292,19 +283,9 @@ class StockFilter:
     def _get_market_by_stock_code(self, stock_code: str) -> str:
         """
         Determine the market based on stock code prefix.
-
-        Args:
-            stock_code: Stock code (e.g., "000001", "600001", "301001")
-
-        Returns:
-            Market identifier: "sh" for Shanghai, "sz" for Shenzhen, "bj" for Beijing
+        Delegates to centralized API module.
         """
-        if stock_code.startswith("6"):
-            return "sh"  # Shanghai Stock Exchange
-        elif stock_code.startswith("0") or stock_code.startswith("3"):
-            return "sz"  # Shenzhen Stock Exchange
-        else:
-            return "bj"  # Beijing Stock Exchange
+        return get_market_by_stock_code(stock_code)
 
     def _save_reports(self, all_industries_df: pd.DataFrame) -> None:
         """
@@ -430,17 +411,9 @@ class StockFilter:
     def _fetch_stock_fund_flow_sync(self, stock_code: str, market: str) -> pd.DataFrame:
         """
         Fetch stock individual fund flow data with retry mechanism.
-
-        Args:
-            stock_code: Stock code (e.g., "000001")
-            market: Market identifier (e.g., "sz" for Shenzhen, "sh" for Shanghai)
-
-        Returns:
-            DataFrame containing historical fund flow data for the specified stock
+        Delegates to centralized API module.
         """
-        return API_RETRY_CONFIG.retry(
-            ak.stock_individual_fund_flow, stock=stock_code, market=market
-        )
+        return self.fund_flow_api.fetch_sync(stock_code, market)
 
     async def process_single_stock_async(
         self,
@@ -538,35 +511,10 @@ class StockFilter:
                     )
                     analysis_df = stock_individual_fund_flow_df
 
-                # Calculate fund flows and price changes for each period
-                fund_flows = []
-                price_changes = []
-
-                for period in self.akshare_config.period_count:
-                    # Calculate fund flow for this period (sum of last N days)
-                    if len(analysis_df) >= period:
-                        period_fund_df = analysis_df.iloc[-period:]
-                        fund_flow = round(
-                            period_fund_df["主力净流入-净额"].sum() / 1e8, 1
-                        )
-                    else:
-                        fund_flow = 0.0
-                    fund_flows.append(fund_flow)
-
-                    # Calculate price change for this period (N days ago vs today)
-                    required_data_points = period + 1
-                    if len(analysis_df) >= required_data_points:
-                        first_price = analysis_df.iloc[-required_data_points]["收盘价"]
-                        last_price = analysis_df.iloc[-1]["收盘价"]
-                        if first_price == 0:
-                            price_change = 0.0
-                        else:
-                            price_change = round(
-                                (last_price - first_price) / first_price * 100, 1
-                            )
-                    else:
-                        price_change = 0.0
-                    price_changes.append(price_change)
+                # Calculate fund flows and price changes using centralized processing
+                fund_flows, price_changes = self.fund_flow_api.process_periods(
+                    analysis_df, self.akshare_config.period_count
+                )
 
                 # Build return data with dynamic structure
                 base_data = [

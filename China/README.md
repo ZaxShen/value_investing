@@ -2,6 +2,26 @@
 
 ## v1
 
+### v1.8.0
+
+- :tada: **New Features:** Successfully created centralized external API module such as `akshare`, eliminating code duplication for `stock_filter.py`,  `watchlist_analyzer.py`, and `industry_filter.py`. All existing functionality preserved with improved maintainability.
+  - APIs need to be centrallized:
+    - `ak.stock_board_industry_hist_em` (3+ calls per run)
+    - `ak.stock_sector_fund_flow_hist` (N calls per industry)
+    - `ak.stock_board_industry_name_em` (1 call but fundamental)
+    - `ak.stock_zh_a_spot_em` / `ak.stock_*_a_spot_em` (market data - fundamental to all analysis)
+    - `ak.stock_board_industry_cons_em` (industry constituents - used by multiple utilities)
+  - Created centralized API structure:
+    - `src/api/__init__.py` - Main API package
+    - `src/api/akshare/__init__.py` - Akshare package
+    - `src/api/akshare/stock_individual_fund_flow.py` - Main module
+    - `src/api/akshare/stock_board_industry.py` - Industry board operations
+    - `src/api/akshare/stock_sector_fund_flow.py` - Sector fund flow operations
+    - `src/api/akshare/stock_market_data.py` - Market data operations (SH/SZ/BJ exchanges)
+    - `src/api/akshare/stock_board_constituents.py` - Industry constituents operations
+    - `src/utilities/stock_data_fetcher.py`: Replaced `ak.stock_zh_a_spot_em`, `ak.stock_board_industry_cons_em`, `ak.stock_board_industry_name_em`
+    - `src/utilities/get_stock_data.py`: Replaced `ak.stock_sh_a_spot_em`, `ak.stock_sz_a_spot_em`, `ak.stock_bj_a_spot_em`, `ak.stock_board_industry_cons_em, ak.stock_board_industry_name_em`
+
 ### v1.7.0
 
 - :tada: **New Features:**
