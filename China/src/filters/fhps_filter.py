@@ -190,14 +190,18 @@ class FhpsFilter:
 
         # Check if cached file exists
         if os.path.exists(cache_path):
-            self.logger.info(f"✅ CACHED DATA FOUND! Loading FHPS data from: {cache_path}")
+            self.logger.info(
+                f"✅ CACHED DATA FOUND! Loading FHPS data from: {cache_path}"
+            )
             print(f"✅ CACHED DATA FOUND! Loading FHPS data from: {cache_path}")
             try:
                 df = pd.read_csv(cache_path, encoding="utf-8-sig")
                 # Ensure stock codes are strings with proper 6-digit format
                 if "代码" in df.columns:
                     df["代码"] = df["代码"].apply(lambda x: str(x).zfill(6))
-                self.logger.info(f"✅ Successfully loaded {len(df)} FHPS records from cache")
+                self.logger.info(
+                    f"✅ Successfully loaded {len(df)} FHPS records from cache"
+                )
                 print(f"✅ Successfully loaded {len(df)} FHPS records from cache")
                 return df
             except Exception as e:
@@ -208,8 +212,12 @@ class FhpsFilter:
                 # Fall through to fetch fresh data
 
         # Fetch fresh data from API
-        self.logger.info(f"🌐 NO CACHE FOUND - Fetching fresh FHPS data from API for date: {self.FHPS_DATE}")
-        print(f"🌐 NO CACHE FOUND - Fetching fresh FHPS data from API for date: {self.FHPS_DATE}")
+        self.logger.info(
+            f"🌐 NO CACHE FOUND - Fetching fresh FHPS data from API for date: {self.FHPS_DATE}"
+        )
+        print(
+            f"🌐 NO CACHE FOUND - Fetching fresh FHPS data from API for date: {self.FHPS_DATE}"
+        )
         try:
             stock_fhps_em_df = await asyncio.to_thread(
                 ak.stock_fhps_em, date=self.FHPS_DATE
@@ -218,11 +226,17 @@ class FhpsFilter:
             if stock_fhps_em_df is not None and not stock_fhps_em_df.empty:
                 # Ensure stock codes are strings with proper 6-digit format
                 if "代码" in stock_fhps_em_df.columns:
-                    stock_fhps_em_df["代码"] = stock_fhps_em_df["代码"].apply(lambda x: str(x).zfill(6))
-                
+                    stock_fhps_em_df["代码"] = stock_fhps_em_df["代码"].apply(
+                        lambda x: str(x).zfill(6)
+                    )
+
                 # Cache the data
-                self.logger.info(f"💾 Caching {len(stock_fhps_em_df)} FHPS records to: {cache_path}")
-                print(f"💾 Caching {len(stock_fhps_em_df)} FHPS records to: {cache_path}")
+                self.logger.info(
+                    f"💾 Caching {len(stock_fhps_em_df)} FHPS records to: {cache_path}"
+                )
+                print(
+                    f"💾 Caching {len(stock_fhps_em_df)} FHPS records to: {cache_path}"
+                )
                 stock_fhps_em_df.to_csv(cache_path, index=False, encoding="utf-8-sig")
                 self.logger.info("✅ FHPS data successfully cached for future use")
                 print("✅ FHPS data successfully cached for future use")
@@ -235,6 +249,120 @@ class FhpsFilter:
             )
             self.logger.error(error_msg)
             return None
+
+    async def _get_cached_filtered_fhps_data(self) -> Optional[pd.DataFrame]:
+        """
+        Caching: Get filtered FHPS data with pre-cached historical prices.
+
+        Returns:
+            DataFrame with filtered FHPS data including 除权除息日股价 column, or None if not available
+        """
+        # Define filtered cache paths
+        cache_dir = "data/fhps"
+        os.makedirs(cache_dir, exist_ok=True)
+        filtered_cache_filename = f"stock_fhps_em_filtered-{self.FHPS_DATE}.csv"
+        filtered_cache_path = os.path.join(cache_dir, filtered_cache_filename)
+
+        # Check if filtered cache exists
+        if os.path.exists(filtered_cache_path):
+            self.logger.info(
+                f"🚀 FILTERED CACHE FOUND! Loading filtered FHPS data from: {filtered_cache_path}"
+            )
+            print(
+                f"🚀 FILTERED CACHE FOUND! Loading filtered FHPS data from: {filtered_cache_path}"
+            )
+            try:
+                # Load as CSV
+                df = pd.read_csv(filtered_cache_path, encoding="utf-8-sig")
+                # Ensure stock codes are strings with proper 6-digit format
+                if "代码" in df.columns:
+                    df["代码"] = df["代码"].apply(lambda x: str(x).zfill(6))
+                # Convert date column back to datetime
+                if "除权除息日" in df.columns:
+                    df["除权除息日"] = pd.to_datetime(df["除权除息日"])
+                self.logger.info(
+                    f"🚀 Successfully loaded {len(df)} filtered FHPS records with cached prices"
+                )
+                print(
+                    f"🚀 Successfully loaded {len(df)} filtered FHPS records with cached prices"
+                )
+                return df
+            except Exception as e:
+                self.logger.error(f"❌ Error loading filtered FHPS cache: {e}")
+                print(f"❌ Error loading filtered FHPS cache: {e}")
+                # Fall through to create filtered cache
+
+        # No filtered cache found, need to create it
+        self.logger.info("📦 Creating filtered cache with historical prices...")
+        print("📦 Creating filtered cache with historical prices...")
+
+        # Get raw FHPS data first
+        stock_fhps_em_df = await self._get_cached_fhps_data()
+        if stock_fhps_em_df is None or stock_fhps_em_df.empty:
+            return None
+
+        # Filter stocks with transfer ratios (remove NaN values)
+        df = stock_fhps_em_df.dropna(subset=["送转股份-送转总比例"])
+        self.logger.info(
+            f"📊 After filtering: {len(df)} stocks with valid transfer ratios"
+        )
+        print(f"📊 After filtering: {len(df)} stocks with valid transfer ratios")
+
+        # Convert ex-dividend date to datetime if not already
+        if "除权除息日" in df.columns:
+            df.loc[:, "除权除息日"] = pd.to_datetime(
+                df["除权除息日"], format="%Y-%m-%d"
+            )
+
+        # Filter stocks with ex-dividend dates before today
+        today = datetime.today()
+        filter_past = df.loc[:, "除权除息日"] < today
+        df_filtered = df[filter_past]
+        self.logger.info(
+            f"📊 After date filtering: {len(df_filtered)} stocks with past ex-dividend dates"
+        )
+        print(
+            f"📊 After date filtering: {len(df_filtered)} stocks with past ex-dividend dates"
+        )
+
+        # Pre-fetch historical prices for all filtered stocks
+        self.logger.info("💰 Pre-fetching historical prices for all filtered stocks...")
+        print("💰 Pre-fetching historical prices for all filtered stocks...")
+
+        # Add 除权除息日股价 column
+        ex_prices = []
+        for _, row in df_filtered.iterrows():
+            stock_code = str(row["代码"]).zfill(6)
+            ex_date = row["除权除息日"]
+            try:
+                ex_price = await self.get_stock_price_async(stock_code, ex_date)
+                ex_prices.append(ex_price)
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to get price for {stock_code} on {ex_date}: {e}"
+                )
+                ex_prices.append(None)
+
+        # Add the historical prices column
+        df_filtered = df_filtered.copy()
+        df_filtered.loc[:, "除权除息日股价"] = ex_prices
+
+        # Cache the filtered data with historical prices
+        try:
+            self.logger.info(
+                f"💾 Caching {len(df_filtered)} filtered FHPS records with historical prices to: {filtered_cache_path}"
+            )
+            print(
+                f"💾 Caching {len(df_filtered)} filtered FHPS records with historical prices to: {filtered_cache_path}"
+            )
+            df_filtered.to_csv(filtered_cache_path, index=False, encoding="utf-8-sig")
+            self.logger.info("✅ Filtered cache created successfully!")
+            print("✅ Filtered cache created successfully!")
+        except Exception as e:
+            self.logger.error(f"❌ Error creating filtered cache: {e}")
+            print(f"❌ Error creating filtered cache: {e}")
+
+        return df_filtered
 
     async def get_stock_price_async(
         self, stock_code: str, date: datetime
@@ -434,11 +562,13 @@ class FhpsFilter:
                     description="📊 Fetching FHPS data...",
                 )
 
-            # Fetch FHPS data (with caching)
-            stock_fhps_em_df = await self._get_cached_fhps_data()
+            # Fetch filtered FHPS data with cached historical prices
+            df_filtered = await self._get_cached_filtered_fhps_data()
 
-            if stock_fhps_em_df is None or stock_fhps_em_df.empty:
-                self.logger.warning(f"No FHPS data found for date {self.FHPS_DATE}")
+            if df_filtered is None or df_filtered.empty:
+                self.logger.warning(
+                    f"No filtered FHPS data found for date {self.FHPS_DATE}"
+                )
                 if _progress and _parent_task_id:
                     _progress.update(
                         _parent_task_id,
@@ -448,22 +578,8 @@ class FhpsFilter:
                 return
 
             self.logger.info(
-                f"Initial FHPS data contains {len(stock_fhps_em_df)} records"
+                f"✅ Using filtered FHPS data with {len(df_filtered)} pre-processed records"
             )
-
-            # Filter stocks with transfer ratios (remove NaN values first)
-            df = stock_fhps_em_df.dropna(subset=["送转股份-送转总比例"])
-            self.logger.info(f"After removing NaN transfer ratios: {len(df)} stocks")
-
-            # Convert ex-dividend date to datetime
-            df.loc[:, "除权除息日"] = pd.to_datetime(
-                df["除权除息日"], format="%Y-%m-%d"
-            )
-
-            # Filter stocks with ex-dividend dates before today
-            today = datetime.today()
-            filter_past = df.loc[:, "除权除息日"] < today
-            df_filtered = df[filter_past]
 
             self.logger.info(
                 f"After ex-dividend date filter (< today): {len(df_filtered)} stocks"
@@ -526,7 +642,9 @@ class FhpsFilter:
 
                 # Get basic price data for this batch
                 for stock_idx, (original_idx, row) in enumerate(batch):
-                    stock_code = str(row["代码"]).zfill(6)  # Convert to string and pad to 6 digits
+                    stock_code = str(row["代码"]).zfill(
+                        6
+                    )  # Convert to string and pad to 6 digits
                     ex_date = row["除权除息日"]
 
                     # Update batch progress with current stock
@@ -537,8 +655,17 @@ class FhpsFilter:
                         )
 
                     try:
-                        # Get ex-dividend price from API (only what we need)
-                        ex_price = await self.get_stock_price_async(stock_code, ex_date)
+                        # Get ex-dividend price from cache if available (filtered cache optimization)
+                        ex_price = None
+                        if "除权除息日股价" in row and pd.notna(row["除权除息日股价"]):
+                            ex_price = row["除权除息日股价"]
+                            # print(f"🚀 Using cached ex-dividend price for {stock_code}: {ex_price}")
+                        else:
+                            # Fallback to API if not cached
+                            ex_price = await self.get_stock_price_async(
+                                stock_code, ex_date
+                            )
+                            # print(f"🌐 Fetched ex-dividend price from API for {stock_code}: {ex_price}")
 
                         # Get today's price from cached market data (much faster)
                         today_price = self.get_today_stock_price(stock_code)
@@ -632,7 +759,9 @@ class FhpsFilter:
 
             for i, stock_info in enumerate(filtered_stocks):
                 row = stock_info["row"]
-                stock_code = str(row["代码"]).zfill(6)  # Convert to string and pad to 6 digits
+                stock_code = str(row["代码"]).zfill(
+                    6
+                )  # Convert to string and pad to 6 digits
                 stock_name = row["名称"]
 
                 # Update main progress
@@ -691,7 +820,9 @@ class FhpsFilter:
                         # Column 11: 除权除息日股价
                         "除权除息日股价": stock_info["ex_price"],
                         # Column 12: {today}股价
-                        f"{today.strftime('%Y%m%d')}股价": stock_info["today_price"],
+                        f"{datetime.now().strftime('%Y%m%d')}股价": stock_info[
+                            "today_price"
+                        ],
                         # Column 13: 自除权出息日起涨跌幅(%)
                         "自除权出息日起涨跌幅(%)": stock_info["price_change_pct"],
                     }
