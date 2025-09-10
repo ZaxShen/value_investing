@@ -51,7 +51,7 @@ test*.ipynb
 data/market/
 data/industry/
 data/reference/
-data/*.csv
+data/fhps/
 
 # Generated output reports
 output/reports/
