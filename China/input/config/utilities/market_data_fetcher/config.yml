@@ -1,0 +1,33 @@
+# Configuration for market_data_fetcher.py
+# This file contains data directory paths and caching configuration
+
+# =============================================================================
+# Data Directory Configuration
+# =============================================================================
+data:
+  # Market data directory for cached stock market data
+  market_dir: "data/market"
+  
+  # Industry mapping data directory for cached industry-stock mapping data
+  industry_dir: "data/industry"
+  
+  # Reference data directory for additional cached reference data
+  reference_dir: "data/reference"
+
+# =============================================================================
+# Cache Configuration
+# =============================================================================
+cache:
+  # Enable/disable caching functionality
+  enabled: true
+  
+  # Auto-cleanup old cache files (older than current date)
+  auto_cleanup: true
+
+# =============================================================================
+# File Configuration Metadata
+# =============================================================================
+file_config:
+  config_name: "PROD"
+  description: "Market data fetcher configuration for data directories and caching"
+  version: "1.9.0"

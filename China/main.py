@@ -31,11 +31,11 @@ from rich.progress import (
 from src.analyzers.watchlist_analyzer import WatchlistAnalyzer
 from src.filters.industry_filter import IndustryFilter
 from src.filters.stock_filter import StockFilter
-from src.utilities.get_stock_data import (
-    get_industry_stock_mapping_data,
-    get_stock_market_data,
-)
 from src.utilities.logger import get_logger, set_console_log_level
+from src.utilities.market_data_fetcher import (
+    get_industry_stock_mapping_data,
+    get_market_data,
+)
 
 # Initialize logger and Rich console for styled output
 # The logger provides file and console logging for the main pipeline
@@ -53,14 +53,12 @@ class StockAnalysisPipeline:
     industry analysis, and watchlist stock analysis.
     """
 
-    def __init__(self, data_dir: str = "data/stocks"):
+    def __init__(self):
         """
         Initialize the StockAnalysisPipeline.
-
-        Args:
-            data_dir: Directory for storing cached data files
+        
+        Data directories are now configured via config files in input/config/utilities/market_data_fetcher/
         """
-        self.data_dir = data_dir
         self.industry_stock_mapping_df = None
         self.stock_zh_a_spot_em_df = None
         self.logger = get_logger("pipeline")
@@ -111,10 +109,8 @@ class StockAnalysisPipeline:
                 self.stock_zh_a_spot_em_df,
                 self.industry_stock_mapping_df,
             ) = await asyncio.gather(
-                get_stock_market_data(self.data_dir, progress=shared_progress),
-                get_industry_stock_mapping_data(
-                    self.data_dir, progress=shared_progress
-                ),
+                get_market_data(progress=shared_progress),
+                get_industry_stock_mapping_data(progress=shared_progress),
             )
 
             # Update progress after data is loaded
@@ -254,22 +250,25 @@ async def copy_latest_reports() -> None:
     """
     logger.info("Starting report copying process")
 
-    # Create data/today directory if it doesn't exist
-    today_dir = "data/today"
+    # Create output/reports/today directory if it doesn't exist
+    today_dir = "output/reports/today"
     os.makedirs(today_dir, exist_ok=True)
 
     # Define report patterns to copy
     report_patterns = [
         {
-            "pattern": "data/watchlist/reports/自选股报告-[0-9]*.csv",
+            # Filtered watchlist reports
+            "pattern": "output/reports/analyzers/watchlist_analyzer/自选股报告-[0-9]*.csv",
             "description": "自选股报告",
         },
         {
-            "pattern": "data/stocks/reports/股票筛选报告-[0-9]*.csv",  # Filtered stock reports
+            # Filtered stock reports
+            "pattern": "output/reports/filters/stock_filter/股票筛选报告-[0-9]*.csv",
             "description": "股票筛选报告",
         },
         {
-            "pattern": "data/stocks/reports/行业筛选报告-raw-[0-9]*.csv",  # Filtered industry reports
+            # Filtered industry reports
+            "pattern": "output/reports/filters/industry_filter/行业筛选报告-raw-[0-9]*.csv",
             "description": "行业筛选报告",
         },
     ]

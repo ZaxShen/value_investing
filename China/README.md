@@ -2,6 +2,24 @@
 
 ## v1
 
+### v1.9.0
+
+- :tada: **New Features:**
+  - **FHPS (分红派息送股) Analysis Filter**: Comprehensive dividend/split stock analysis module
+    - Tracks stocks with dividend payments, rights issues, and stock splits over historical periods
+    - Calculates performance metrics from ex-dividend date to current date
+    - Identifies outperforming and underperforming stocks post-corporate actions
+  - **Two-tier Caching System**: Dramatic performance improvement through intelligent data caching
+    - **Phase 1 Cache**: Raw FHPS data cached as `stock_fhps_em-{date}.csv` (~99% API call reduction)
+    - **Phase 2 Cache**: Pre-filtered data with historical prices as `stock_fhps_em_filtered-{date}.csv`
+    - Eliminates redundant API calls while maintaining data freshness
+
+- :zap: **Performance Improvements:**  
+  - ~99% reduction in API calls through comprehensive caching strategy
+  - Optimized historical price fetching using cached market data for current prices
+  - Enhanced user experience with explicit cache hit notifications
+  - Streamlined git operations by removing unnecessary file tracking
+
 ### v1.8.0
 
 - :tada: **New Features:** Successfully created centralized external API module such as `akshare`, eliminating code duplication for `stock_filter.py`,  `watchlist_analyzer.py`, and `industry_filter.py`. All existing functionality preserved with improved maintainability.
@@ -20,7 +38,7 @@
     - `src/api/akshare/stock_market_data.py` - Market data operations (SH/SZ/BJ exchanges)
     - `src/api/akshare/stock_board_constituents.py` - Industry constituents operations
     - `src/utilities/stock_data_fetcher.py`: Replaced `ak.stock_zh_a_spot_em`, `ak.stock_board_industry_cons_em`, `ak.stock_board_industry_name_em`
-    - `src/utilities/get_stock_data.py`: Replaced `ak.stock_sh_a_spot_em`, `ak.stock_sz_a_spot_em`, `ak.stock_bj_a_spot_em`, `ak.stock_board_industry_cons_em, ak.stock_board_industry_name_em`
+    - `src/utilities/market_data_fetcher.py`: Replaced `ak.stock_sh_a_spot_em`, `ak.stock_sz_a_spot_em`, `ak.stock_bj_a_spot_em`, `ak.stock_board_industry_cons_em, ak.stock_board_industry_name_em`
 
 ### v1.7.0
 

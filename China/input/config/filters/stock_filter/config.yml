@@ -1,4 +1,4 @@
-# Configuration for stock_filter.py - test
+# Configuration for stock_filter.py
 # This file contains parameters for akshare APIs, StockFilter class, and file metadata
 
 # =============================================================================
@@ -17,7 +17,7 @@ akshare:
 
     # Date for fund flow data (format: YYYYMMDD)
     # If empty, will use the latest trading date
-    date: "20250831"
+    date: ""
 
     # Number of days for fund flow analysis
     # Used for calculating multiple periods (replaces single 'days' parameter)
@@ -37,14 +37,14 @@ stock_filter:
   batch_size: 3                # Batch size for concurrent processing
   
   # Report directory
-  report_dir: "data/stocks/reports"
+  report_dir: "output/reports/filters/stock_filter"
 
 # =============================================================================
 # File Configuration Metadata
 # =============================================================================
 file_config:
   # (Customized Arg) If this config for PROD or other purpose
-  config_name: "test"
-  description: "Test configuration for refactored code."
-  # Follow main function's version
-  version: "1.8.0"
+  config_name: "PROD"
+  description: "PROD configuration for refactored code."
+  # Follow main branch's version
+  version: "1.9.0"

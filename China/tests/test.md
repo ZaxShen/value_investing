@@ -14,7 +14,7 @@ tests/
 ├── unit/                          # Unit tests (fast, mocked)
 │   ├── test_logger.py             # Logger functionality tests
 │   ├── test_decorators.py         # Decorator functionality tests
-│   └── test_get_stock_data.py     # Stock data utilities tests (mocked APIs)
+│   └── test_market_data_fetcher.py     # Stock data utilities tests (mocked APIs)
 ├── integration/                   # Integration tests (slow, real APIs)
 │   ├── test_logging_system.py    # End-to-end logging tests
 │   └── test_akshare_api.py        # Real akshare API connectivity tests
@@ -90,7 +90,7 @@ def test_logged_function_with_arguments()
 def test_timed_and_logged_combines_both()
 ```
 
-#### Stock Data Tests (`test_get_stock_data.py`)
+#### Stock Data Tests (`test_market_data_fetcher.py`)
 
 **Purpose**: Test stock market data fetching and caching utilities.
 
@@ -253,7 +253,7 @@ uv run pytest tests/unit/test_logger.py
 uv run pytest tests/unit/test_decorators.py
 
 # Test only stock data utilities (mocked)
-uv run pytest tests/unit/test_get_stock_data.py
+uv run pytest tests/unit/test_market_data_fetcher.py
 
 # Test real API connectivity
 uv run pytest tests/integration/test_akshare_api.py
@@ -617,7 +617,7 @@ The logging system test suite provides comprehensive coverage of:
 - `uv run pytest -m integration` - Run integration tests (slow, real APIs)
 - `uv run pytest -m "not slow"` - Development mode (fast tests only)
 - `uv run pytest -v --cov=src` - Verbose with coverage
-- `uv run pytest tests/unit/test_get_stock_data.py` - Test specific module
+- `uv run pytest tests/unit/test_market_data_fetcher.py` - Test specific module
 
 **Coverage Target**: >85% for core utilities
 

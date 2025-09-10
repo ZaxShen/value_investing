@@ -22,7 +22,7 @@ from rich.progress import Progress
 
 from src.filters.industry_filter import IndustryFilter
 from src.filters.stock_filter import StockFilter
-from src.utilities.get_stock_data import get_stock_market_data
+from src.utilities.market_data_fetcher import get_stock_market_data
 
 
 class TestAsyncioTimeoutIntegration:
@@ -120,8 +120,8 @@ class TestAsyncioTimeoutIntegration:
             )
 
     @pytest.mark.integration
-    async def test_get_stock_data_with_real_retry_timeout(self, temp_data_dir):
-        """Test get_stock_data functions with real retry timeout behavior."""
+    async def test_market_data_fetcher_with_real_retry_timeout(self, temp_data_dir):
+        """Test market_data_fetcher functions with real retry timeout behavior."""
 
         # Mock akshare to always raise a timeout exception
         def timeout_akshare_call(*args, **kwargs):
@@ -132,7 +132,7 @@ class TestAsyncioTimeoutIntegration:
             raise requests.exceptions.ConnectionError("Simulated connection timeout")
 
         with patch(
-            "src.utilities.get_stock_data.ak.stock_zh_a_spot_em",
+            "src.utilities.market_data_fetcher.ak.stock_zh_a_spot_em",
             side_effect=timeout_akshare_call,
         ):
             start_time = asyncio.get_event_loop().time()
