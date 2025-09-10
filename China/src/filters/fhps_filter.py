@@ -471,9 +471,19 @@ class FhpsFilter:
                 }
 
             row = stock_row.iloc[0]
+
+            # Convert market cap values to 亿 and round to 2 decimal places
+            total_market_cap = row.get("总市值", None)
+            if total_market_cap is not None:
+                total_market_cap = round(total_market_cap / 1e8, 2)
+
+            circulating_market_cap = row.get("流通市值", None)
+            if circulating_market_cap is not None:
+                circulating_market_cap = round(circulating_market_cap / 1e8, 2)
+
             return {
-                "总市值(亿)": row.get("总市值", None),
-                "流通市值(亿)": row.get("流通市值", None),
+                "总市值(亿)": total_market_cap,
+                "流通市值(亿)": circulating_market_cap,
                 "市盈率-动态": row.get("市盈率-动态", None),
                 "市净率": row.get("市净率", None),
                 "60日涨跌幅(%)": row.get("60日涨跌幅", None),
@@ -552,15 +562,23 @@ class FhpsFilter:
             _parent_task_id: Optional parent task ID
         """
         self.logger.info("Starting FHPS filter analysis")
+        self.logger.info(
+            f"Progress params: _progress={_progress is not None}, _parent_task_id={_parent_task_id}"
+        )
+        self.logger.info("About to enter try block")
 
         try:
             # Update progress
             if _progress and _parent_task_id:
-                _progress.update(
-                    _parent_task_id,
-                    completed=10,
-                    description="📊 Fetching FHPS data...",
-                )
+                try:
+                    _progress.update(
+                        _parent_task_id,
+                        completed=10,
+                        description="📊 Fetching FHPS data...",
+                    )
+                    self.logger.info("Progress updated to 10%")
+                except Exception as e:
+                    self.logger.error(f"Failed to update progress to 10%: {e}")
 
             # Fetch filtered FHPS data with cached historical prices
             df_filtered = await self._get_cached_filtered_fhps_data()
@@ -580,6 +598,18 @@ class FhpsFilter:
             self.logger.info(
                 f"✅ Using filtered FHPS data with {len(df_filtered)} pre-processed records"
             )
+
+            # Update progress immediately when cached data is found
+            if _progress and _parent_task_id:
+                try:
+                    _progress.update(
+                        _parent_task_id,
+                        completed=50,
+                        description="🚀 Using cached FHPS data, applying filters...",
+                    )
+                    self.logger.info("Progress updated to 50% - using cached data")
+                except Exception as e:
+                    self.logger.error(f"Failed to update progress to 50%: {e}")
 
             self.logger.info(
                 f"After ex-dividend date filter (< today): {len(df_filtered)} stocks"
@@ -623,13 +653,20 @@ class FhpsFilter:
                     visible=True,
                 )
 
+            # Check if we're using cached prices for faster progress updates
+            has_cached_prices = (
+                "除权除息日股价" in df_filtered.columns
+                and not df_filtered["除权除息日股价"].isna().all()
+            )
+
             for batch_idx, batch in enumerate(price_batches):
                 if _progress and _parent_task_id:
                     progress_pct = 30 + (batch_idx / len(price_batches)) * 40
+                    cache_indicator = " 🚀" if has_cached_prices else ""
                     _progress.update(
                         _parent_task_id,
                         completed=progress_pct,
-                        description=f"📈 Processing price batch {batch_idx + 1}/{len(price_batches)}...",
+                        description=f"📈 Processing price batch {batch_idx + 1}/{len(price_batches)}{cache_indicator}...",
                     )
 
                 # Update batch progress
@@ -657,8 +694,10 @@ class FhpsFilter:
                     try:
                         # Get ex-dividend price from cache if available (filtered cache optimization)
                         ex_price = None
+                        using_cached_price = False
                         if "除权除息日股价" in row and pd.notna(row["除权除息日股价"]):
                             ex_price = row["除权除息日股价"]
+                            using_cached_price = True
                             # print(f"🚀 Using cached ex-dividend price for {stock_code}: {ex_price}")
                         else:
                             # Fallback to API if not cached
@@ -666,6 +705,18 @@ class FhpsFilter:
                                 stock_code, ex_date
                             )
                             # print(f"🌐 Fetched ex-dividend price from API for {stock_code}: {ex_price}")
+
+                        # Update progress more frequently when using cached prices
+                        if (
+                            using_cached_price
+                            and _progress
+                            and batch_progress_task
+                            and stock_idx % 5 == 0
+                        ):
+                            _progress.update(
+                                batch_progress_task,
+                                description=f"Batch {batch_idx + 1}/{len(price_batches)}: {stock_code} ({stock_idx + 1}/{len(batch)}) [CACHED]",
+                            )
 
                         # Get today's price from cached market data (much faster)
                         today_price = self.get_today_stock_price(stock_code)
@@ -920,6 +971,7 @@ class FhpsFilter:
                     completed=100,
                     description="✅ FHPS analysis completed",
                 )
+                self.logger.info("Progress updated to 100% - Analysis completed")
 
         except Exception as e:
             error_msg = f"FHPS filter analysis failed: {str(e)}"

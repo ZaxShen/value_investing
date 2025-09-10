@@ -2,6 +2,12 @@
 
 ## v1
 
+### v1.9.1
+
+- :heavy_check_mark: **Bug Fix:**
+  - Fix bug: `fhps_filter.py` now can correctly output 总市值(亿), 流通市值(亿)
+  - Fix bug: `fhps_filter.py` now can output progress bar correctly
+
 ### v1.9.0
 
 - :tada: **New Features:**
