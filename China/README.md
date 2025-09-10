@@ -20,8 +20,6 @@
   - Enhanced user experience with explicit cache hit notifications
   - Streamlined git operations by removing unnecessary file tracking
 
-
-
 ### v1.8.0
 
 - :tada: **New Features:** Successfully created centralized external API module such as `akshare`, eliminating code duplication for `stock_filter.py`,  `watchlist_analyzer.py`, and `industry_filter.py`. All existing functionality preserved with improved maintainability.
