@@ -89,7 +89,7 @@ today_date = datetime.today()
 today_price_col = f"{today_date.strftime('%Y%m%d')}股价"
 
 # Calculate price change percentage
-price_df["涨跌幅%"] = (
+price_df["自除权出息日起涨跌幅%"] = (
     (price_df[today_price_col] - price_df["除权除息日股价"])
     / price_df["除权除息日股价"]
     * 100
@@ -107,12 +107,12 @@ columns_to_show = [
     "送转股份-送转总比例",
     "除权除息日股价",
     today_price_col,
-    "涨跌幅%",
+    "自除权出息日起涨跌幅%",
 ]
 print(result_display[columns_to_show].head(10))
 
-filter_price_change = result_display["涨跌幅%"] < 5
+filter_price_change = result_display["自除权出息日起涨跌幅%"] < 5
 df_final = result_display[filter_price_change]
-df_final = df_final.sort_values(by=["涨跌幅%"], ascending=True)
+df_final = df_final.sort_values(by=["自除权出息日起涨跌幅%"], ascending=True)
 
 df_final.to_csv("除权除息股票.csv", index=False)
