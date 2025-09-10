@@ -63,11 +63,18 @@ Above are the final file structures. You need to follow those structure to compl
 - Update `main.py` to make sure it can correctly output csv files to `output/today` with latest output
 - Make tests to ensure everthing works well
 
-### Update main.py with config
+### Update main.py and market_data_fetcher.py with config
+
+Target scripts:
+
+- `main.py`
+- `src/utilities/market_data_fetcher.py`
 
 Tasks:
 
-- Add config to main.py to better customize output
+- Scan `main.py` to see if it needs a config for better customize output
+- In `main.py`, in class `StockAnalysisPipeline` we no longer use data_dir to assign or receive any raw data source; instead, they should be configured in source data code, in this case, which are in `src/utilities/market_data_fetcher.py`
+- In `src/utilities/market_data_fetcher.py`, see if we need a config
 
 
 ### Develop fhps

@@ -31,11 +31,11 @@ from rich.progress import (
 from src.analyzers.watchlist_analyzer import WatchlistAnalyzer
 from src.filters.industry_filter import IndustryFilter
 from src.filters.stock_filter import StockFilter
-from src.utilities.get_stock_data import (
-    get_industry_stock_mapping_data,
-    get_stock_market_data,
-)
 from src.utilities.logger import get_logger, set_console_log_level
+from src.utilities.market_data_fetcher import (
+    get_industry_stock_mapping_data,
+    get_market_data,
+)
 
 # Initialize logger and Rich console for styled output
 # The logger provides file and console logging for the main pipeline
@@ -60,6 +60,7 @@ class StockAnalysisPipeline:
         Args:
             data_dir: Directory for storing cached data files
         """
+        # TODO: update data_dir with latest file structure
         self.data_dir = data_dir
         self.industry_stock_mapping_df = None
         self.stock_zh_a_spot_em_df = None
@@ -111,9 +112,9 @@ class StockAnalysisPipeline:
                 self.stock_zh_a_spot_em_df,
                 self.industry_stock_mapping_df,
             ) = await asyncio.gather(
-                get_stock_market_data(self.data_dir, progress=shared_progress),
+                get_market_data(self.data_dir, progress=shared_progress),
                 get_industry_stock_mapping_data(
-                    self.data_dir, progress=shared_progress
+                    f"{self.data_dir}/industry", progress=shared_progress
                 ),
             )
 

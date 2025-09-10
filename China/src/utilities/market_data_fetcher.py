@@ -41,7 +41,7 @@ logger = get_logger("market_data_fetcher")
 
 
 # @timer
-async def get_stock_market_data(
+async def get_market_data(
     data_dir: str = "data/market", progress: Progress = None
 ) -> pd.DataFrame:
     """
@@ -277,7 +277,7 @@ async def main():
         with Progress(console=console) as progress:
             industry_stock_mapping_df, stock_zh_a_spot_em_df = await asyncio.gather(
                 get_industry_stock_mapping_data(progress=progress),
-                get_stock_market_data(progress=progress),
+                get_market_data(progress=progress),
             )
 
         # Display basic statistics
