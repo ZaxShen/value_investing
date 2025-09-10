@@ -471,9 +471,19 @@ class FhpsFilter:
                 }
 
             row = stock_row.iloc[0]
+
+            # Convert market cap values to 亿 and round to 2 decimal places
+            total_market_cap = row.get("总市值", None)
+            if total_market_cap is not None:
+                total_market_cap = round(total_market_cap / 1e8, 2)
+
+            circulating_market_cap = row.get("流通市值", None)
+            if circulating_market_cap is not None:
+                circulating_market_cap = round(circulating_market_cap / 1e8, 2)
+
             return {
-                "总市值(亿)": row.get("总市值", None),
-                "流通市值(亿)": row.get("流通市值", None),
+                "总市值(亿)": total_market_cap,
+                "流通市值(亿)": circulating_market_cap,
                 "市盈率-动态": row.get("市盈率-动态", None),
                 "市净率": row.get("市净率", None),
                 "60日涨跌幅(%)": row.get("60日涨跌幅", None),
