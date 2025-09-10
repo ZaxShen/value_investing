@@ -1,5 +1,5 @@
-# Configuration for stock_filter.py
-# This file contains parameters for akshare APIs, StockFilter class, and file metadata
+# Configuration for fhps_filter.py - test
+# This file contains parameters for akshare APIs, FhpsFilter class, and file metadata
 
 # =============================================================================
 # akshare API Configuration - ak.stock_individual_fund_flow
@@ -17,34 +17,34 @@ akshare:
 
     # Date for fund flow data (format: YYYYMMDD)
     # If empty, will use the latest trading date
-    date: ""
+    date: "20250831"
 
     # Number of days for fund flow analysis
     # Used for calculating multiple periods (replaces single 'days' parameter)
     period_count: [1, 5, 29]
 
 # =============================================================================
-# StockFilter Class Configuration
+# FhpsFilter Class Configuration
 # =============================================================================
-stock_filter:
-  # Class constants for filtering criteria
-  target_period_count: 29      # Specific period from period_count list to use for filtering
-  max_market_cap_yi: 200       # Maximum market cap in 100 million RMB
-  min_pe_ratio: 0              # Minimum P/E ratio
-  max_pe_ratio: 50             # Maximum P/E ratio
-  min_main_net_inflow_yi: 1    # Minimum main net inflow in 100 million RMB
-  max_price_change_percent: 10 # Maximum price change percentage
-  batch_size: 3                # Batch size for concurrent processing
+fhps_filter:
+  # FHPS data configuration
+  fhps_date: "20241231"  # Date for FHPS data query (YYYYMMDD format), empty for default
+  min_transfer_ratio: 1.0  # Minimum transfer ratio to filter
+  max_price_change_percent: 5.0  # Maximum price change percentage for filtering (< 5%)
   
-  # Report directory
-  report_dir: "output/reports/filters/stock_filter"
+  # Processing configuration
+  batch_size: 5  # Batch size for concurrent processing (reduced for API rate limiting)
+  
+  # Output configuration
+  report_dir: "output/reports/filters/fhps_filter"
+  output_filename_template: "除权除息股票-{date}.csv"  # {date} will be replaced with YYYYMMDD
 
 # =============================================================================
 # File Configuration Metadata
 # =============================================================================
 file_config:
   # (Customized Arg) If this config for PROD or other purpose
-  config_name: "PROD"
-  description: "PROD configuration for refactored code."
+  config_name: "test"
+  description: "Test configuration for FHPS filter - stocks with dividend/split plans analysis"
   # Follow main branch's version
-  version: "1.8.0"
+  version: "1.9.0"
