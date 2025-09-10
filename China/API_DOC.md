@@ -52,5 +52,4 @@
 |[akshare](https://github.com/akfamily/akshare)|[stock_fhps_em](https://akshare.akfamily.xyz/data/stock/stock.html#id154)|分红配送-东财|
 |[akshare](https://github.com/akfamily/akshare)|[stock_zh_a_hist](https://akshare.akfamily.xyz/data/stock/stock.html#id171](https://akshare.akfamily.xyz/data_tips.html#stock-zh-a-hist))|股票数据|
 [stock_individual_fund_flow](https://akshare.akfamily.xyz/data/stock/stock.html#id165)|东方财富网-数据中心-个股资金流向|
-|[akshare](https://github.com/akfamily/akshare)|[stock_individual_fund_flow](https://akshare.akfamily.xyz/data/stock/stock.html#id165)|东方财富网-数据中心-个股资金流向|
-|[akshare](https://github.com/akfamily/akshare)|
+
