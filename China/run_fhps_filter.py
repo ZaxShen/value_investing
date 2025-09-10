@@ -23,10 +23,13 @@ async def run_fhps_filter():
     console.print("[bold green]🚀 Running FHPS Filter[/bold green]")
     
     try:
-        # Fetch market data first
+        # Fetch market data with shared progress context
         console.print("📊 Fetching market data...")
-        stock_zh_a_spot_em_df = await get_market_data()
-        industry_stock_mapping_df = await get_industry_stock_mapping_data()
+        with Progress(console=console) as data_progress:
+            stock_zh_a_spot_em_df, industry_stock_mapping_df = await asyncio.gather(
+                get_market_data(progress=data_progress),
+                get_industry_stock_mapping_data(progress=data_progress)
+            )
         
         console.print(f"✅ Market data: {len(stock_zh_a_spot_em_df)} stocks")
         console.print(f"✅ Industry mapping: {len(industry_stock_mapping_df)} mappings")
