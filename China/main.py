@@ -53,15 +53,12 @@ class StockAnalysisPipeline:
     industry analysis, and watchlist stock analysis.
     """
 
-    def __init__(self, data_dir: str = "data"):
+    def __init__(self):
         """
         Initialize the StockAnalysisPipeline.
-
-        Args:
-            data_dir: Directory for storing cached data files
+        
+        Data directories are now configured via config files in input/config/utilities/market_data_fetcher/
         """
-        # TODO: update data_dir with latest file structure
-        self.data_dir = data_dir
         self.industry_stock_mapping_df = None
         self.stock_zh_a_spot_em_df = None
         self.logger = get_logger("pipeline")
@@ -112,10 +109,8 @@ class StockAnalysisPipeline:
                 self.stock_zh_a_spot_em_df,
                 self.industry_stock_mapping_df,
             ) = await asyncio.gather(
-                get_market_data(self.data_dir, progress=shared_progress),
-                get_industry_stock_mapping_data(
-                    f"{self.data_dir}/industry", progress=shared_progress
-                ),
+                get_market_data(progress=shared_progress),
+                get_industry_stock_mapping_data(progress=shared_progress),
             )
 
             # Update progress after data is loaded

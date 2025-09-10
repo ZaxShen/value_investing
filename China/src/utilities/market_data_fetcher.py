@@ -11,7 +11,14 @@ import asyncio
 import glob
 import os
 from datetime import datetime
-from typing import List
+from pathlib import Path
+from typing import List, Optional
+
+import pandas as pd
+import yaml
+from pydantic import BaseModel
+from rich.console import Console
+from rich.progress import Progress
 
 from src.api.akshare import (
     fetch_beijing_spot_async,
@@ -27,11 +34,6 @@ from src.utilities.logger import get_logger
 
 configure_environment()  # Ensure tqdm is disabled
 
-# akshare imports now handled through centralized API modules
-import pandas as pd
-from rich.console import Console
-from rich.progress import Progress
-
 # Semaphore to control concurrent API requests
 REQUEST_SEMAPHORE = asyncio.Semaphore(10)
 console = Console()
@@ -40,20 +42,81 @@ console = Console()
 logger = get_logger("market_data_fetcher")
 
 
+class DataConfig(BaseModel):
+    """Configuration model for data directory paths."""
+    market_dir: str = "data/market"
+    industry_dir: str = "data/industry"
+    reference_dir: str = "data/reference"
+
+
+class CacheConfig(BaseModel):
+    """Configuration model for cache settings."""
+    enabled: bool = True
+    auto_cleanup: bool = True
+
+
+class FileConfig(BaseModel):
+    """Configuration model for file metadata."""
+    config_name: str = "PROD"
+    description: str = ""
+    version: str = ""
+
+
+class MarketDataFetcherConfig(BaseModel):
+    """Main configuration model for market data fetcher."""
+    data: DataConfig = DataConfig()
+    cache: CacheConfig = CacheConfig()
+    file_config: FileConfig = FileConfig()
+
+
+def load_market_data_fetcher_config(config_name: Optional[str] = None) -> MarketDataFetcherConfig:
+    """
+    Load configuration from YAML file for market data fetcher.
+    
+    Args:
+        config_name: Optional config name (currently only 'config' is supported)
+        
+    Returns:
+        MarketDataFetcherConfig instance with loaded configuration
+    """
+    # Default to 'config' if no name provided
+    config_name = config_name or "config"
+    
+    # Build config file path
+    config_dir = Path("input/config/utilities/market_data_fetcher")
+    config_path = config_dir / f"{config_name}.yml"
+    
+    if not config_path.exists():
+        logger.warning(f"Config file not found: {config_path}, using defaults")
+        return MarketDataFetcherConfig()
+    
+    # Load YAML config
+    with open(config_path, "r", encoding="utf-8") as f:
+        config_data = yaml.safe_load(f)
+    
+    return MarketDataFetcherConfig(**config_data)
+
+
+# Load configuration at module level
+_CONFIG = load_market_data_fetcher_config()
+
+
 # @timer
 async def get_market_data(
-    data_dir: str = "data/market", progress: Progress = None
+    progress: Progress = None
 ) -> pd.DataFrame:
     """
     Fetch stock market data with caching and progress tracking.
 
     Args:
-        data_dir: Directory to store cached data files
 
     Returns:
         DataFrame containing stock market data with columns including
         stock codes, names, prices, and financial metrics
     """
+    # Get data directory from config
+    data_dir = _CONFIG.data.market_dir
+    
     today = datetime.now().strftime("%Y%m%d")
     file_path = f"{data_dir}/stock_zh_a_spot_em_df-{today}.csv"
 
@@ -61,10 +124,11 @@ async def get_market_data(
         logger.info("Loading cached stock market data from %s", file_path)
         return pd.read_csv(file_path, dtype={"代码": str})
 
-    # Delete outdated files
-    logger.info("Removing outdated stock market data files")
-    for f in glob.glob(f"{data_dir}/stock_zh_a_spot_em_df-*.csv"):
-        os.remove(f)
+    # Delete outdated files if auto_cleanup is enabled
+    if _CONFIG.cache.auto_cleanup:
+        logger.info("Removing outdated stock market data files")
+        for f in glob.glob(f"{data_dir}/stock_zh_a_spot_em_df-*.csv"):
+            os.remove(f)
 
     # Fetch and save new data with retry mechanism and progress tracking
     use_own_progress = progress is None
@@ -160,18 +224,21 @@ async def _fetch_industry_stocks(industry_name: str) -> List[tuple]:
 
 # @timer
 async def get_industry_stock_mapping_data(
-    data_dir: str = "data/industry", progress: Progress = None
+    progress: Progress = None
 ) -> pd.DataFrame:
     """
     Fetch industry-stock mapping data with caching and optimized concurrent processing.
 
     Args:
-        data_dir: Directory to store cached data files
+        progress: Optional Progress instance for progress tracking
 
     Returns:
         DataFrame containing industry-stock mapping with columns for
         industry names and corresponding stock codes
     """
+    # Get data directory from config
+    data_dir = _CONFIG.data.industry_dir
+    
     today = datetime.now().strftime("%Y%m%d")
     file_path = f"{data_dir}/industry_stock_mapping_df-{today}.csv"
 
@@ -179,10 +246,11 @@ async def get_industry_stock_mapping_data(
         logger.info("Loading cached industry mapping data from %s", file_path)
         return pd.read_csv(file_path, dtype={"代码": str})
 
-    # Delete outdated files
-    logger.info("Removing outdated industry mapping data files")
-    for f in glob.glob(f"{data_dir}/industry_stock_mapping_df-*.csv"):
-        os.remove(f)
+    # Delete outdated files if auto_cleanup is enabled
+    if _CONFIG.cache.auto_cleanup:
+        logger.info("Removing outdated industry mapping data files")
+        for f in glob.glob(f"{data_dir}/industry_stock_mapping_df-*.csv"):
+            os.remove(f)
 
     # Fetch industry names with retry mechanism
     logger.info("Fetching industry names from akshare API")
