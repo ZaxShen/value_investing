@@ -2,6 +2,25 @@
 
 ## v1
 
+### v1.9.2
+
+- :tada: **New Features:**
+  - **Trading Calendar System**: Implemented intelligent Chinese stock market trading calendar with file-based caching
+    - Uses akshare API to fetch actual trading days and caches to `data/reference/trading_calendar_{year}.json`
+    - Eliminates hardcoded holiday dates and handles weekends/holidays automatically
+  - **Configurable Market Data Filters**: Added flexible early-stage filtering to reduce API costs
+
+- :zap: **Performance Improvements:**
+  - **Optimized API Usage**: Get previous trading day prices using intelligent trading calendar lookup
+  - **Early Filtering**: Market data filters applied before fund flow API calls, reducing unnecessary requests
+  - **Smart Fallback**: Robust date fallback mechanism for suspended stocks or missing price data
+  - **Enhanced Logging**: Filter statistics and performance metrics for monitoring
+
+- :heavy_check_mark: **Bug Fixes:**
+  - **Column Naming**: Fixed dynamic date columns, replaced with static "当前股价" for consistency
+  - **Fill-Right Logic**: Now correctly uses previous trading day prices instead of ex-dividend day prices
+  - **Trading Calendar**: Proper handling of Chinese holidays and non-trading days
+
 ### v1.9.1
 
 - :heavy_check_mark: **Bug Fix:**
