@@ -1,4 +1,4 @@
-# Configuration for fhps_filter.py - test
+# Configuration for fhps_filter.py
 # This file contains parameters for akshare APIs, FhpsFilter class, and file metadata
 
 # =============================================================================
@@ -17,7 +17,7 @@ akshare:
 
     # Date for fund flow data (format: YYYYMMDD)
     # If empty, will use the latest trading date
-    date: "20250831"
+    date: ""
 
     # Number of days for fund flow analysis
     # Used for calculating multiple periods (replaces single 'days' parameter)
@@ -32,6 +32,10 @@ fhps_filter:
   min_transfer_ratio: 1.0  # Minimum transfer ratio to filter
   max_price_change_percent: 5.0  # Maximum price change percentage for filtering (< 5%)
   
+  # Market data filters (applied early to save API costs)
+  max_circulating_market_cap_yi: 50.0  # Maximum circulating market cap in 亿 (< 50亿)
+  min_pe_ratio: 0.0  # Minimum P/E ratio (> 0, excludes negative P/E stocks)
+  
   # Processing configuration
   batch_size: 5  # Batch size for concurrent processing (reduced for API rate limiting)
   
@@ -44,7 +48,7 @@ fhps_filter:
 # =============================================================================
 file_config:
   # (Customized Arg) If this config for PROD or other purpose
-  config_name: "test"
-  description: "Test configuration for FHPS filter - stocks with dividend/split plans analysis"
+  config_name: "PROD"
+  description: "Configuration for FHPS filter - stocks with dividend/split plans analysis"
   # Follow main branch's version
-  version: "1.9.0"
+  version: "1.9.3"
