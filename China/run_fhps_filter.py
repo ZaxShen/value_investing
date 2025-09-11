@@ -52,6 +52,8 @@ async def run_fhps_filter():
         console.print(f"   - FHPS date: {fhps_filter.FHPS_DATE}")
         console.print(f"   - Max price change: {fhps_filter.MAX_PRICE_CHANGE_PERCENT}%")
         console.print(f"   - Min transfer ratio: {fhps_filter.MIN_TRANSFER_RATIO}")
+        console.print(f"   - Max circulating market cap: {fhps_filter.MAX_CIRCULATING_MARKET_CAP_YI}亿")
+        console.print(f"   - Min P/E ratio: > {fhps_filter.MIN_PE_RATIO}")
         console.print(f"   - Batch size: {fhps_filter.BATCH_SIZE}")
 
         # Run analysis with progress tracking

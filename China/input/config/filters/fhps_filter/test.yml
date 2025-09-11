@@ -32,6 +32,10 @@ fhps_filter:
   min_transfer_ratio: 1.0  # Minimum transfer ratio to filter
   max_price_change_percent: 5.0  # Maximum price change percentage for filtering (< 5%)
   
+  # Market data filters (applied early to save API costs)
+  max_circulating_market_cap_yi: 50.0  # Maximum circulating market cap in 亿 (< 50亿)
+  min_pe_ratio: 0.0  # Minimum P/E ratio (> 0, excludes negative P/E stocks)
+  
   # Processing configuration
   batch_size: 5  # Batch size for concurrent processing (reduced for API rate limiting)
   

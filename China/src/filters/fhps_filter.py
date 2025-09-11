@@ -69,6 +69,10 @@ class FhpsFilterConfig(BaseModel):
     max_price_change_percent: float = (
         10.0  # Maximum price change percentage for filtering
     )
+    
+    # Market data filters (applied early to save API costs)
+    max_circulating_market_cap_yi: float = 50.0  # Maximum circulating market cap in 亿
+    min_pe_ratio: float = 0.0  # Minimum P/E ratio (> 0, excludes negative P/E stocks)
 
     # Processing configuration
     batch_size: int = 10  # Batch size for concurrent processing
@@ -170,6 +174,8 @@ class FhpsFilter:
         self.FHPS_DATE = self.filter_config.fhps_date or "20241231"
         self.MIN_TRANSFER_RATIO = self.filter_config.min_transfer_ratio
         self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
+        self.MAX_CIRCULATING_MARKET_CAP_YI = self.filter_config.max_circulating_market_cap_yi
+        self.MIN_PE_RATIO = self.filter_config.min_pe_ratio
         self.BATCH_SIZE = self.filter_config.batch_size
         self.REPORT_DIR = self.filter_config.report_dir
         self.OUTPUT_FILENAME_TEMPLATE = self.filter_config.output_filename_template
@@ -256,7 +262,7 @@ class FhpsFilter:
         Caching: Get filtered FHPS data with pre-cached historical prices.
 
         Returns:
-            DataFrame with filtered FHPS data including 除权除息日股价 column, or None if not available
+            DataFrame with filtered FHPS data including 除权除息前日股价 column, or None if not available
         """
         # Define filtered cache paths
         cache_dir = "data/fhps"
@@ -330,7 +336,7 @@ class FhpsFilter:
         self.logger.info("💰 Pre-fetching historical prices for all filtered stocks...")
         print("💰 Pre-fetching historical prices for all filtered stocks...")
 
-        # Add 除权除息日股价 column
+        # Add 除权除息前日股价 column
         ex_prices = []
         for _, row in df_filtered.iterrows():
             stock_code = str(row["代码"]).zfill(6)
@@ -346,7 +352,7 @@ class FhpsFilter:
 
         # Add the historical prices column
         df_filtered = df_filtered.copy()
-        df_filtered.loc[:, "除权除息日股价"] = ex_prices
+        df_filtered.loc[:, "除权除息前日股价"] = ex_prices
 
         # Cache the filtered data with historical prices
         try:
@@ -380,10 +386,10 @@ class FhpsFilter:
             Stock price from previous trading day or None if not found
         """
         max_attempts = 5  # Prevent infinite loops
-        
+
         # Get the previous trading day before the ex-dividend date
         current_date = get_previous_trading_day(date)
-        
+
         for _ in range(max_attempts):
             try:
                 async with REQUEST_SEMAPHORE:
@@ -398,19 +404,27 @@ class FhpsFilter:
                     )
                     if not df_price.empty:
                         price = df_price["收盘"].iloc[0]  # Close price
-                        self.logger.debug(f"Found price for {stock_code} on {current_date.strftime('%Y-%m-%d')}: {price}")
+                        self.logger.debug(
+                            f"Found price for {stock_code} on {current_date.strftime('%Y-%m-%d')}: {price}"
+                        )
                         return price
-                    
+
                     # No data for this date, try previous trading day
-                    self.logger.debug(f"No price data for {stock_code} on {current_date.strftime('%Y-%m-%d')}, trying previous trading day")
+                    self.logger.debug(
+                        f"No price data for {stock_code} on {current_date.strftime('%Y-%m-%d')}, trying previous trading day"
+                    )
                     current_date = get_previous_trading_day(current_date)
-                    
+
             except Exception as e:
-                self.logger.error(f"Error fetching price for {stock_code} on {current_date}: {e}")
+                self.logger.error(
+                    f"Error fetching price for {stock_code} on {current_date}: {e}"
+                )
                 # Try previous trading day on API error too
                 current_date = get_previous_trading_day(current_date)
-        
-        self.logger.warning(f"Could not find price for {stock_code} after {max_attempts} attempts")
+
+        self.logger.warning(
+            f"Could not find price for {stock_code} after {max_attempts} attempts"
+        )
         return None
 
     async def get_fund_flow_data(self, stock_code: str) -> Dict[str, Optional[float]]:
@@ -673,8 +687,8 @@ class FhpsFilter:
 
             # Check if we're using cached prices for faster progress updates
             has_cached_prices = (
-                "除权除息日股价" in df_filtered.columns
-                and not df_filtered["除权除息日股价"].isna().all()
+                "除权除息前日股价" in df_filtered.columns
+                and not df_filtered["除权除息前日股价"].isna().all()
             )
 
             for batch_idx, batch in enumerate(price_batches):
@@ -713,8 +727,10 @@ class FhpsFilter:
                         # Get ex-dividend price from cache if available (filtered cache optimization)
                         ex_price = None
                         using_cached_price = False
-                        if "除权除息日股价" in row and pd.notna(row["除权除息日股价"]):
-                            ex_price = row["除权除息日股价"]
+                        if "除权除息前日股价" in row and pd.notna(
+                            row["除权除息前日股价"]
+                        ):
+                            ex_price = row["除权除息前日股价"]
                             using_cached_price = True
                             # print(f"🚀 Using cached ex-dividend price for {stock_code}: {ex_price}")
                         else:
@@ -825,6 +841,10 @@ class FhpsFilter:
                 )
 
             all_results = []
+            
+            # Counters for market data filters
+            market_cap_filtered = 0
+            pe_ratio_filtered = 0
 
             for i, stock_info in enumerate(filtered_stocks):
                 row = stock_info["row"]
@@ -851,11 +871,27 @@ class FhpsFilter:
                     )
 
                 try:
-                    # Get fund flow data
-                    fund_flow_data = await self.get_fund_flow_data(stock_code)
-
-                    # Get market data
+                    # Get market data first for early filtering
                     market_data = self.get_stock_market_data(stock_code)
+                    
+                    # Apply market data filters to save API costs
+                    # Filter by circulating market cap
+                    circulating_market_cap = market_data.get("流通市值(亿)", None)
+                    if (circulating_market_cap is not None and 
+                        circulating_market_cap >= self.MAX_CIRCULATING_MARKET_CAP_YI):
+                        market_cap_filtered += 1
+                        self.logger.debug(f"Filtered out {stock_code}: 流通市值 {circulating_market_cap}亿 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿")
+                        continue
+                    
+                    # Filter by P/E ratio
+                    pe_ratio = market_data.get("市盈率-动态", None)
+                    if pe_ratio is not None and pe_ratio <= self.MIN_PE_RATIO:
+                        pe_ratio_filtered += 1
+                        self.logger.debug(f"Filtered out {stock_code}: 市盈率-动态 {pe_ratio} <= {self.MIN_PE_RATIO}")
+                        continue
+
+                    # Get fund flow data (expensive API call) only for stocks that pass filters
+                    fund_flow_data = await self.get_fund_flow_data(stock_code)
 
                     # Get industry
                     industry = self.get_stock_industry(stock_code)
@@ -886,14 +922,12 @@ class FhpsFilter:
                         )
                         if isinstance(stock_info["row"]["除权除息日"], datetime)
                         else str(stock_info["row"]["除权除息日"]),
-                        # Column 11: 除权除息日股价
-                        "除权除息日股价": stock_info["ex_price"],
-                        # Column 12: {today}股价
-                        f"{datetime.now().strftime('%Y%m%d')}股价": stock_info[
-                            "today_price"
-                        ],
-                        # Column 13: 自除权出息日起涨跌幅(%)
-                        "自除权出息日起涨跌幅(%)": stock_info["price_change_pct"],
+                        # Column 11: 除权除息前日股价
+                        "除权除息前日股价": stock_info["ex_price"],
+                        # Column 12: 当前股价
+                        "当前股价": stock_info["today_price"],
+                        # Column 13: 自除权除息前日起涨跌幅(%)
+                        "自除权除息前日起涨跌幅(%)": stock_info["price_change_pct"],
                     }
 
                     # Add dynamic fund flow and price change columns based on configured periods
@@ -945,6 +979,14 @@ class FhpsFilter:
             if _progress and enrichment_progress_task:
                 await asyncio.sleep(0.5)  # Brief pause to show completion
                 _progress.remove_task(enrichment_progress_task)
+            
+            # Log filtering statistics
+            total_filtered = market_cap_filtered + pe_ratio_filtered
+            self.logger.info("Market data filters applied:")
+            self.logger.info(f"  - 流通市值 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿: {market_cap_filtered} stocks filtered")
+            self.logger.info(f"  - 市盈率-动态 <= {self.MIN_PE_RATIO}: {pe_ratio_filtered} stocks filtered")
+            self.logger.info(f"  - Total filtered by market data: {total_filtered} stocks")
+            self.logger.info(f"  - Remaining stocks processed: {len(all_results)} stocks")
 
             if _progress and _parent_task_id:
                 _progress.update(
@@ -957,7 +999,7 @@ class FhpsFilter:
 
                 # Sort by price change percentage
                 result_df = result_df.sort_values(
-                    by=["自除权出息日起涨跌幅(%)"], ascending=True
+                    by=["自除权除息前日起涨跌幅(%)"], ascending=True
                 )
 
                 # Reset the first column to sequential 0-based indexing after sorting
