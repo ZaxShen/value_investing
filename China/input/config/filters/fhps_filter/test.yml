@@ -51,4 +51,4 @@ file_config:
   config_name: "test"
   description: "Test configuration for FHPS filter - stocks with dividend/split plans analysis"
   # Follow main branch's version
-  version: "1.9.3"
+  version: "1.9.2"
