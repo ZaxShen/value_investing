@@ -26,6 +26,7 @@ from src.api.akshare import (
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
 from src.utilities.logger import get_logger
+from src.utilities.trading_calendar import get_previous_trading_day
 
 configure_environment()
 
@@ -368,32 +369,49 @@ class FhpsFilter:
         self, stock_code: str, date: datetime
     ) -> Optional[float]:
         """
-        Get stock price for a specific date using asyncio.to_thread.
+        Get stock price asynchronously for the previous trading day before the given date.
+        Uses trading calendar to find valid trading days and implements robust fallback.
 
         Args:
             stock_code: Stock code (6-digit format)
-            date: Date to get price for
+            date: Ex-dividend date (will get price from previous trading day)
 
         Returns:
-            Close price for the specified date, or None if not found
+            Stock price from previous trading day or None if not found
         """
-        try:
-            async with REQUEST_SEMAPHORE:
-                # Use asyncio.to_thread for non-blocking akshare calls
-                df_price = await asyncio.to_thread(
-                    ak.stock_zh_a_hist,
-                    stock_code,
-                    period="daily",
-                    start_date=date.strftime("%Y%m%d"),
-                    end_date=date.strftime("%Y%m%d"),
-                    adjust="qfq",
-                )
-                if not df_price.empty:
-                    return df_price["收盘"].iloc[0]  # Close price
-                return None
-        except Exception as e:
-            self.logger.error(f"Error fetching price for {stock_code} on {date}: {e}")
-            return None
+        max_attempts = 5  # Prevent infinite loops
+        
+        # Get the previous trading day before the ex-dividend date
+        current_date = get_previous_trading_day(date)
+        
+        for _ in range(max_attempts):
+            try:
+                async with REQUEST_SEMAPHORE:
+                    # Use asyncio.to_thread for non-blocking akshare calls
+                    df_price = await asyncio.to_thread(
+                        ak.stock_zh_a_hist,
+                        stock_code,
+                        period="daily",
+                        start_date=current_date.strftime("%Y%m%d"),
+                        end_date=current_date.strftime("%Y%m%d"),
+                        adjust="",  # 不复权 - for accurate fill-right analysis
+                    )
+                    if not df_price.empty:
+                        price = df_price["收盘"].iloc[0]  # Close price
+                        self.logger.debug(f"Found price for {stock_code} on {current_date.strftime('%Y-%m-%d')}: {price}")
+                        return price
+                    
+                    # No data for this date, try previous trading day
+                    self.logger.debug(f"No price data for {stock_code} on {current_date.strftime('%Y-%m-%d')}, trying previous trading day")
+                    current_date = get_previous_trading_day(current_date)
+                    
+            except Exception as e:
+                self.logger.error(f"Error fetching price for {stock_code} on {current_date}: {e}")
+                # Try previous trading day on API error too
+                current_date = get_previous_trading_day(current_date)
+        
+        self.logger.warning(f"Could not find price for {stock_code} after {max_attempts} attempts")
+        return None
 
     async def get_fund_flow_data(self, stock_code: str) -> Dict[str, Optional[float]]:
         """

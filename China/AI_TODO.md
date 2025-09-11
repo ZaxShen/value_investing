@@ -41,5 +41,15 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## v1.9.1 TODO
+## v1.9.2 TODO
 
+### Logic issue of fhps_filter.py
+
+Target:
+
+- `fhps_filter.py`
+
+Tasks:
+
+- We are looking for the stock price of one trading date before 除权除息日. Therefore, you need to first decide if 除权除息日 is weekend, and get the one trading date before it
+- Then try to call akshare API to get the price. Notice even we did above step, the date may be a holiday or no price. So you need to handle it to make sure we get the correct date's price
