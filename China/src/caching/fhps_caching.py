@@ -231,7 +231,7 @@ class FhpsCaching:
 
                 # Reset index and save to cache
                 df_filtered.reset_index(drop=True).to_csv(
-                    cache_path, index=False, encoding="utf-8-sig"
+                    cache_path, index=True, encoding="utf-8-sig"
                 )
 
                 self.logger.info(
@@ -342,7 +342,7 @@ class FhpsCaching:
 
                 # Reset index and save to cache
                 df_enriched.reset_index(drop=True).to_csv(
-                    cache_path, index=False, encoding="utf-8-sig"
+                    cache_path, index=True, encoding="utf-8-sig"
                 )
 
                 self.logger.info(
@@ -356,7 +356,7 @@ class FhpsCaching:
                 latest_filename = self.config.latest_file.stock_fhps_em_latest_filename
                 latest_path = os.path.join(cache_dir, latest_filename)
                 df_enriched.reset_index(drop=True).to_csv(
-                    latest_path, index=False, encoding="utf-8-sig"
+                    latest_path, index=True, encoding="utf-8-sig"
                 )
 
                 self.logger.info(f"✅ Created latest file: {latest_path}")

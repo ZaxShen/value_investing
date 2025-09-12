@@ -60,7 +60,7 @@ fhps_filter:
   
   # Output configuration
   report_dir: "output/reports/filters/fhps_filter"
-  output_filename_template: "除权除息股票-{date}.csv"  # {date} will be replaced with YYYYMMDD
+  output_filename: "除权除息股票-{date}.csv"  # {date} will be replaced with YYYYMMDD
 
 # =============================================================================
 # File Configuration Metadata

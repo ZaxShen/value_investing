@@ -60,7 +60,7 @@ class FhpsFilterConfig(BaseModel):
     min_pe_ratio: float = 0.0
     batch_size: int = 5
     report_dir: str = "output/reports/filters/fhps_filter"
-    output_filename_template: str = "除权除息股票-{date}.csv"
+    output_filename: str = "除权除息股票-{date}.csv"
 
 
 class FileConfig(BaseModel):
@@ -176,7 +176,7 @@ class FhpsFilter:
         self.MIN_PE_RATIO = self.filter_config.min_pe_ratio
         self.BATCH_SIZE = self.filter_config.batch_size
         self.REPORT_DIR = self.filter_config.report_dir
-        self.OUTPUT_FILENAME_TEMPLATE = self.filter_config.output_filename_template
+        self.OUTPUT_FILENAME = self.filter_config.output_filename
 
         self.logger = get_logger("fhps_filter")
 
@@ -750,7 +750,7 @@ class FhpsFilter:
 
                 # Generate output filename
                 today_str = datetime.now().strftime("%Y%m%d")
-                output_filename = self.OUTPUT_FILENAME_TEMPLATE.format(date=today_str)
+                output_filename = self.OUTPUT_FILENAME.format(date=today_str)
                 output_path = os.path.join(self.REPORT_DIR, output_filename)
 
                 # Save to CSV
