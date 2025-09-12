@@ -56,7 +56,6 @@ async def run_fhps_filter(config_name: str = "filter_config"):
         )
 
         console.print("✅ FHPS filter initialized with config:")
-        console.print(f"   - FHPS date: {fhps_filter.FHPS_DATE}")
         console.print(f"   - Max price change: {fhps_filter.MAX_PRICE_CHANGE_PERCENT}%")
         console.print(f"   - Min transfer ratio: {fhps_filter.MIN_TRANSFER_RATIO}")
         console.print(f"   - Max circulating market cap: {fhps_filter.MAX_CIRCULATING_MARKET_CAP_YI}亿")
@@ -85,8 +84,8 @@ async def run_fhps_filter(config_name: str = "filter_config"):
 
     except FileNotFoundError as e:
         console.print(f"[bold red]❌ Configuration file not found: {e}[/bold red]")
-        console.print("[yellow]Available configs in input/config/filters/fhps/:[/yellow]")
-        config_dir = Path("input/config/filters/fhps")
+        console.print("[yellow]Available configs in input/config/filters/fhps_filter/:[/yellow]")
+        config_dir = Path("input/config/filters/fhps_filter")
         if config_dir.exists():
             for config_file in config_dir.glob("*.yml"):
                 console.print(f"  - {config_file.stem}")

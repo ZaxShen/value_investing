@@ -1,25 +1,5 @@
-# Configuration for fhps_filter.py (filtering-only functionality)
-# This file contains parameters for filtering FHPS data using cached files
-
-# =============================================================================
-# Input File Configuration
-# =============================================================================
-input_files:
-  # Latest FHPS file for main filtering (variable name: stock_fhps_em_latest_filename)
-  stock_fhps_em_latest_filename: "stock_fhps_em-latest.csv"
-  
-  # Data directory for cached FHPS files
-  data_dir: "data/fhps"
-
-# =============================================================================
-# Historical Years Configuration for Multi-Year Filtering
-# =============================================================================
-historical_filter:
-  # Years to check for historical 除权 events (use these years to filter stocks)
-  previous_years: [2020, 2021, 2022, 2023]
-  
-  # A stock must appear in one of these previous years AND in latest file
-  require_historical_presence: true
+# Configuration for fhps_filter.py
+# This file contains parameters for akshare APIs, FhpsFilter class, and file metadata
 
 # =============================================================================
 # akshare API Configuration - ak.stock_individual_fund_flow
@@ -48,6 +28,7 @@ akshare:
 # =============================================================================
 fhps_filter:
   # FHPS data configuration
+  fhps_date: "20241231"  # Date for FHPS data query (YYYYMMDD format), empty for default
   min_transfer_ratio: 1.0  # Minimum transfer ratio to filter
   max_price_change_percent: 5.0  # Maximum price change percentage for filtering (< 5%)
   
@@ -67,7 +48,7 @@ fhps_filter:
 # =============================================================================
 file_config:
   # (Customized Arg) If this config for PROD or other purpose
-  config_name: "FHPS_FILTER_PROD"
-  description: "Configuration for FHPS filter - filtering-only functionality using cached data"
+  config_name: "PROD"
+  description: "Configuration for FHPS filter - stocks with dividend/split plans analysis"
   # Follow main branch's version
   version: "1.9.3"

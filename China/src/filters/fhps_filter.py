@@ -39,14 +39,14 @@ logger = get_logger("fhps_filter")
 
 class InputFilesConfig(BaseModel):
     """Configuration model for input files."""
-    
+
     stock_fhps_em_latest_filename: str = "stock_fhps_em-latest.csv"
     data_dir: str = "data/fhps"
 
 
 class HistoricalFilterConfig(BaseModel):
     """Configuration model for historical filtering."""
-    
+
     previous_years: List[int] = [2020, 2021, 2022, 2023]
     require_historical_presence: bool = True
 
@@ -66,7 +66,7 @@ class FhpsFilterConfig(BaseModel):
 class FileConfig(BaseModel):
     """Configuration model for file-related settings."""
 
-    config_name: str = "FHPS_FILTER_PROD"
+    config_name: str = "PROD"
     description: str = ""
     version: str = "1.9.3"
 
@@ -83,7 +83,13 @@ class Config(BaseModel):
 
 def load_config(
     config_name: Optional[str] = None,
-) -> Tuple[InputFilesConfig, HistoricalFilterConfig, StockIndividualFundFlowConfig, FhpsFilterConfig, FileConfig]:
+) -> Tuple[
+    InputFilesConfig,
+    HistoricalFilterConfig,
+    StockIndividualFundFlowConfig,
+    FhpsFilterConfig,
+    FileConfig,
+]:
     """
     Load nested configuration from YAML file.
 
@@ -97,7 +103,7 @@ def load_config(
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    config_dir = Path("input/config/filters/fhps/")
+    config_dir = Path("input/config/filters/fhps_filter/")
     config_name = config_name or "filter_config"
     config_path = config_dir / f"{config_name}.yml"
 
@@ -118,7 +124,13 @@ def load_config(
     fhps_filter_config = configs.fhps_filter
     file_config = configs.file_config
 
-    return input_files_config, historical_filter_config, akshare_config, fhps_filter_config, file_config
+    return (
+        input_files_config,
+        historical_filter_config,
+        akshare_config,
+        fhps_filter_config,
+        file_config,
+    )
 
 
 class FhpsFilter:
@@ -158,7 +170,9 @@ class FhpsFilter:
         # Apply class constants from config
         self.MIN_TRANSFER_RATIO = self.filter_config.min_transfer_ratio
         self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
-        self.MAX_CIRCULATING_MARKET_CAP_YI = self.filter_config.max_circulating_market_cap_yi
+        self.MAX_CIRCULATING_MARKET_CAP_YI = (
+            self.filter_config.max_circulating_market_cap_yi
+        )
         self.MIN_PE_RATIO = self.filter_config.min_pe_ratio
         self.BATCH_SIZE = self.filter_config.batch_size
         self.REPORT_DIR = self.filter_config.report_dir
@@ -188,15 +202,17 @@ class FhpsFilter:
             # Ensure stock codes are strings with proper 6-digit format
             if "代码" in df.columns:
                 df["代码"] = df["代码"].apply(lambda x: str(x).zfill(6))
-            
+
             # Convert date column back to datetime if it's a string
             if "除权除息日" in df.columns:
                 df["除权除息日"] = pd.to_datetime(df["除权除息日"])
-            
-            self.logger.info(f"✅ Loaded {len(df)} records from latest FHPS file: {latest_path}")
+
+            self.logger.info(
+                f"✅ Loaded {len(df)} records from latest FHPS file: {latest_path}"
+            )
             print(f"✅ Loaded {len(df)} records from latest FHPS file: {latest_path}")
             return df
-            
+
         except Exception as e:
             error_msg = f"Error loading latest FHPS file {latest_path}: {e}"
             self.logger.error(error_msg)
@@ -225,9 +241,13 @@ class FhpsFilter:
             try:
                 df = pd.read_csv(file_path, encoding="utf-8-sig")
                 if "代码" in df.columns:
-                    year_codes = set(df["代码"].apply(lambda x: str(x).zfill(6)).tolist())
+                    year_codes = set(
+                        df["代码"].apply(lambda x: str(x).zfill(6)).tolist()
+                    )
                     all_historical_codes.update(year_codes)
-                    self.logger.info(f"Loaded {len(year_codes)} stock codes from {year}")
+                    self.logger.info(
+                        f"Loaded {len(year_codes)} stock codes from {year}"
+                    )
                     print(f"📊 Loaded {len(year_codes)} stock codes from {year}")
 
             except Exception as e:
@@ -235,7 +255,9 @@ class FhpsFilter:
                 print(f"❌ Error loading historical file {file_path}: {e}")
                 continue
 
-        self.logger.info(f"Total unique historical stock codes: {len(all_historical_codes)}")
+        self.logger.info(
+            f"Total unique historical stock codes: {len(all_historical_codes)}"
+        )
         print(f"📈 Total unique historical stock codes: {len(all_historical_codes)}")
         return all_historical_codes
 
@@ -406,7 +428,7 @@ class FhpsFilter:
             _parent_task_id: Optional parent task ID
         """
         self.logger.info("Starting FHPS filter analysis (filtering-only mode)")
-        
+
         try:
             # Update progress
             if _progress and _parent_task_id:
@@ -439,8 +461,11 @@ class FhpsFilter:
                 )
 
             historical_codes = self._load_historical_stock_codes()
-            
-            if self.historical_filter_config.require_historical_presence and not historical_codes:
+
+            if (
+                self.historical_filter_config.require_historical_presence
+                and not historical_codes
+            ):
                 error_msg = "No historical stock codes found, but historical presence is required"
                 self.logger.error(error_msg)
                 print(f"❌ {error_msg}")
@@ -466,7 +491,7 @@ class FhpsFilter:
                 mask = df_latest["代码_str"].isin(historical_codes)
                 df_filtered = df_latest[mask].copy()
                 df_filtered.drop(columns=["代码_str"], inplace=True)
-                
+
                 self.logger.info(
                     f"Historical filtering: {len(df_latest)} → {len(df_filtered)} stocks (must appear in previous years)"
                 )
@@ -531,63 +556,85 @@ class FhpsFilter:
 
             for _, row in df_filtered.iterrows():
                 stock_code = str(row["代码"]).zfill(6)
-                
+
                 # Get market data first for early filtering
                 market_data = self.get_stock_market_data(stock_code)
-                
+
                 # Apply market data filters to save API costs
                 # Filter by circulating market cap
                 circulating_market_cap = market_data.get("流通市值(亿)", None)
-                if (circulating_market_cap is not None and 
-                    circulating_market_cap >= self.MAX_CIRCULATING_MARKET_CAP_YI):
+                if (
+                    circulating_market_cap is not None
+                    and circulating_market_cap >= self.MAX_CIRCULATING_MARKET_CAP_YI
+                ):
                     market_cap_filtered += 1
-                    self.logger.debug(f"Filtered out {stock_code}: 流通市值 {circulating_market_cap}亿 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿")
+                    self.logger.debug(
+                        f"Filtered out {stock_code}: 流通市值 {circulating_market_cap}亿 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿"
+                    )
                     continue
-                
+
                 # Filter by P/E ratio
                 pe_ratio = market_data.get("市盈率-动态", None)
                 if pe_ratio is not None and pe_ratio <= self.MIN_PE_RATIO:
                     pe_ratio_filtered += 1
-                    self.logger.debug(f"Filtered out {stock_code}: 市盈率-动态 {pe_ratio} <= {self.MIN_PE_RATIO}")
+                    self.logger.debug(
+                        f"Filtered out {stock_code}: 市盈率-动态 {pe_ratio} <= {self.MIN_PE_RATIO}"
+                    )
                     continue
 
                 # Calculate price change if we have the cached ex-dividend price
                 ex_price = row.get("除权除息前日股价", None)
                 today_price = self.get_today_stock_price(stock_code)
                 price_change_pct = None
-                
+
                 if ex_price is not None and today_price is not None and ex_price != 0:
-                    price_change_pct = round(((today_price - ex_price) / ex_price) * 100, 2)
-                    
+                    price_change_pct = round(
+                        ((today_price - ex_price) / ex_price) * 100, 2
+                    )
+
                     # Apply price change filter
                     if price_change_pct >= self.MAX_PRICE_CHANGE_PERCENT:
                         price_change_filtered += 1
-                        self.logger.debug(f"Filtered out {stock_code}: price change {price_change_pct}% >= {self.MAX_PRICE_CHANGE_PERCENT}%")
+                        self.logger.debug(
+                            f"Filtered out {stock_code}: price change {price_change_pct}% >= {self.MAX_PRICE_CHANGE_PERCENT}%"
+                        )
                         continue
 
                 # Stock passed all filters, add to valid list
-                valid_stocks.append({
-                    'row': row,
-                    'stock_code': stock_code,
-                    'market_data': market_data,
-                    'ex_price': ex_price,
-                    'today_price': today_price,
-                    'price_change_pct': price_change_pct
-                })
+                valid_stocks.append(
+                    {
+                        "row": row,
+                        "stock_code": stock_code,
+                        "market_data": market_data,
+                        "ex_price": ex_price,
+                        "today_price": today_price,
+                        "price_change_pct": price_change_pct,
+                    }
+                )
 
             # Log filtering statistics
             total_initial = len(df_filtered)
             total_valid = len(valid_stocks)
-            total_filtered_out = market_cap_filtered + pe_ratio_filtered + price_change_filtered
-            
+            total_filtered_out = (
+                market_cap_filtered + pe_ratio_filtered + price_change_filtered
+            )
+
             self.logger.info("Filtering statistics:")
-            self.logger.info(f"  - Initial stocks after transfer ratio filter: {total_initial}")
-            self.logger.info(f"  - 流通市值 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿: {market_cap_filtered} filtered")
-            self.logger.info(f"  - 市盈率-动态 <= {self.MIN_PE_RATIO}: {pe_ratio_filtered} filtered")
-            self.logger.info(f"  - Price change >= {self.MAX_PRICE_CHANGE_PERCENT}%: {price_change_filtered} filtered")
+            self.logger.info(
+                f"  - Initial stocks after transfer ratio filter: {total_initial}"
+            )
+            self.logger.info(
+                f"  - 流通市值 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿: {market_cap_filtered} filtered"
+            )
+            self.logger.info(
+                f"  - 市盈率-动态 <= {self.MIN_PE_RATIO}: {pe_ratio_filtered} filtered"
+            )
+            self.logger.info(
+                f"  - Price change >= {self.MAX_PRICE_CHANGE_PERCENT}%: {price_change_filtered} filtered"
+            )
             self.logger.info(f"  - Total filtered out: {total_filtered_out}")
             self.logger.info(f"  - Valid stocks for enrichment: {total_valid}")
-            
+
             print("📊 Filtering statistics:")
             print(f"  - Initial stocks: {total_initial}")
             print(f"  - Market cap filtered: {market_cap_filtered}")
@@ -616,22 +663,22 @@ class FhpsFilter:
 
             all_results = []
             for i, stock_info in enumerate(valid_stocks):
-                row = stock_info['row']
-                stock_code = stock_info['stock_code']
-                market_data = stock_info['market_data']
-                
+                row = stock_info["row"]
+                stock_code = stock_info["stock_code"]
+                market_data = stock_info["market_data"]
+
                 if _progress and _parent_task_id:
                     progress_pct = 60 + (i / len(valid_stocks)) * 30
                     _progress.update(
                         _parent_task_id,
                         completed=progress_pct,
-                        description=f"💰 Processing {i+1}/{len(valid_stocks)}: {stock_code}",
+                        description=f"💰 Processing {i + 1}/{len(valid_stocks)}: {stock_code}",
                     )
 
                 try:
                     # Get fund flow data
                     fund_flow_data = await self.get_fund_flow_data(stock_code)
-                    
+
                     # Get industry
                     industry = self.get_stock_industry(stock_code)
 
@@ -646,10 +693,12 @@ class FhpsFilter:
                         "市盈率-动态": market_data.get("市盈率-动态"),
                         "市净率": market_data.get("市净率"),
                         "送转股份-送转总比例": row.get("送转股份-送转总比例"),
-                        "除权除息日": row.get("除权除息日").strftime("%Y-%m-%d") if isinstance(row.get("除权除息日"), datetime) else str(row.get("除权除息日", "")),
-                        "除权除息前日股价": stock_info['ex_price'],
-                        "当前股价": stock_info['today_price'],
-                        "自除权除息前日起涨跌幅(%)": stock_info['price_change_pct'],
+                        "除权除息日": row.get("除权除息日").strftime("%Y-%m-%d")
+                        if isinstance(row.get("除权除息日"), datetime)
+                        else str(row.get("除权除息日", "")),
+                        "除权除息前日股价": stock_info["ex_price"],
+                        "当前股价": stock_info["today_price"],
+                        "自除权除息前日起涨跌幅(%)": stock_info["price_change_pct"],
                     }
 
                     # Add dynamic fund flow and price change columns
@@ -662,10 +711,12 @@ class FhpsFilter:
                         result[price_change_key] = fund_flow_data.get(price_change_key)
 
                     # Add final market data columns
-                    result.update({
-                        "60日涨跌幅(%)": market_data.get("60日涨跌幅(%)"),
-                        "年初至今涨跌幅(%)": market_data.get("年初至今涨跌幅(%)"),
-                    })
+                    result.update(
+                        {
+                            "60日涨跌幅(%)": market_data.get("60日涨跌幅(%)"),
+                            "年初至今涨跌幅(%)": market_data.get("年初至今涨跌幅(%)"),
+                        }
+                    )
 
                     all_results.append(result)
 
@@ -690,7 +741,9 @@ class FhpsFilter:
                 )
 
                 # Reset the first column to sequential 0-based indexing after sorting
-                result_df.iloc[:, 0] = pd.Series(range(len(result_df)), index=result_df.index)
+                result_df.iloc[:, 0] = pd.Series(
+                    range(len(result_df)), index=result_df.index
+                )
 
                 # Create output directory
                 os.makedirs(self.REPORT_DIR, exist_ok=True)
@@ -703,9 +756,13 @@ class FhpsFilter:
                 # Save to CSV
                 result_df.to_csv(output_path, index=False, encoding="utf-8-sig")
 
-                self.logger.info(f"FHPS filter analysis completed. Report saved to: {output_path}")
+                self.logger.info(
+                    f"FHPS filter analysis completed. Report saved to: {output_path}"
+                )
                 self.logger.info(f"Total stocks in report: {len(result_df)}")
-                print(f"✅ FHPS filter analysis completed. Report saved to: {output_path}")
+                print(
+                    f"✅ FHPS filter analysis completed. Report saved to: {output_path}"
+                )
                 print(f"📊 Total stocks in report: {len(result_df)}")
             else:
                 self.logger.warning("No results to save - all stock processing failed")
@@ -732,8 +789,12 @@ async def main():
     try:
         # Note: In actual usage, you would pass the required DataFrames
         # This is just a placeholder for testing the script structure
-        print("❌ Error: FhpsFilter requires industry_stock_mapping_df and stock_zh_a_spot_em_df")
-        print("Please run this through the main application that provides these DataFrames")
+        print(
+            "❌ Error: FhpsFilter requires industry_stock_mapping_df and stock_zh_a_spot_em_df"
+        )
+        print(
+            "Please run this through the main application that provides these DataFrames"
+        )
     except Exception as e:
         print(f"❌ FHPS filter analysis failed: {e}")
         raise

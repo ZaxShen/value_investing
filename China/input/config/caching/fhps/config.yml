@@ -6,7 +6,7 @@
 # =============================================================================
 phase1_caching:
   # Historical years for Phase 1 caching (stock_fhps_em data)
-  historical_years: [2020, 2021, 2022, 2023]
+  historical_years: [2018, 2019, 2020, 2021, 2022, 2023]
   
   # Output directory for cached FHPS data
   cache_dir: "data/fhps"
@@ -38,6 +38,6 @@ latest_file:
 # File Configuration Metadata
 # =============================================================================
 file_config:
-  config_name: "FHPS_CACHING_PROD"
+  config_name: "PROD"
   description: "Configuration for FHPS caching operations - Phase 1 (historical) and Phase 2 (target with prices)"
   version: "1.9.3"

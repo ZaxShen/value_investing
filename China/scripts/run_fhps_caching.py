@@ -85,8 +85,8 @@ async def run_fhps_caching(config_name: str = "config"):
         
     except FileNotFoundError as e:
         console.print(f"[bold red]❌ Configuration file not found: {e}[/bold red]")
-        console.print("[yellow]Available configs in input/config/filters/fhps/:[/yellow]")
-        config_dir = Path("input/config/filters/fhps")
+        console.print("[yellow]Available configs in input/config/caching/fhps/:[/yellow]")
+        config_dir = Path("input/config/caching/fhps")
         if config_dir.exists():
             for config_file in config_dir.glob("*.yml"):
                 console.print(f"  - {config_file.stem}")
