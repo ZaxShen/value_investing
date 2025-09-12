@@ -104,7 +104,7 @@ def load_config(
         ValueError: If config validation fails
     """
     config_dir = Path("input/config/filters/fhps_filter/")
-    config_name = config_name or "filter_config"
+    config_name = config_name or "config"
     config_path = config_dir / f"{config_name}.yml"
 
     if not config_path.exists():
@@ -163,20 +163,18 @@ class FhpsFilter:
             self.input_files_config,
             self.historical_filter_config,
             self.akshare_config,
-            self.filter_config,
+            self.config,
             self.file_config,
         ) = load_config(config_name)
 
         # Apply class constants from config
-        self.MIN_TRANSFER_RATIO = self.filter_config.min_transfer_ratio
-        self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
-        self.MAX_CIRCULATING_MARKET_CAP_YI = (
-            self.filter_config.max_circulating_market_cap_yi
-        )
-        self.MIN_PE_RATIO = self.filter_config.min_pe_ratio
-        self.BATCH_SIZE = self.filter_config.batch_size
-        self.REPORT_DIR = self.filter_config.report_dir
-        self.OUTPUT_FILENAME = self.filter_config.output_filename
+        self.MIN_TRANSFER_RATIO = self.config.min_transfer_ratio
+        self.MAX_PRICE_CHANGE_PERCENT = self.config.max_price_change_percent
+        self.MAX_CIRCULATING_MARKET_CAP_YI = self.config.max_circulating_market_cap_yi
+        self.MIN_PE_RATIO = self.config.min_pe_ratio
+        self.BATCH_SIZE = self.config.batch_size
+        self.REPORT_DIR = self.config.report_dir
+        self.OUTPUT_FILENAME = self.config.output_filename
 
         self.logger = get_logger("fhps_filter")
 
