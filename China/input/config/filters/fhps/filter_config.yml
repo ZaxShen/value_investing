@@ -1,0 +1,73 @@
+# Configuration for fhps_filter.py (filtering-only functionality)
+# This file contains parameters for filtering FHPS data using cached files
+
+# =============================================================================
+# Input File Configuration
+# =============================================================================
+input_files:
+  # Latest FHPS file for main filtering (variable name: stock_fhps_em_latest_filename)
+  stock_fhps_em_latest_filename: "stock_fhps_em-latest.csv"
+  
+  # Data directory for cached FHPS files
+  data_dir: "data/fhps"
+
+# =============================================================================
+# Historical Years Configuration for Multi-Year Filtering
+# =============================================================================
+historical_filter:
+  # Years to check for historical 除权 events (use these years to filter stocks)
+  previous_years: [2020, 2021, 2022, 2023]
+  
+  # A stock must appear in one of these previous years AND in latest file
+  require_historical_presence: true
+
+# =============================================================================
+# akshare API Configuration - ak.stock_individual_fund_flow
+# =============================================================================
+akshare:
+  stock_individual_fund_flow:
+    # Stock code (6-digit code without market prefix)
+    # Examples: "000001", "600000", "300001"
+    stock: ""
+
+    # Market identifier
+    # Options: "sh" (Shanghai), "sz" (Shenzhen), "bj" (Beijing)
+    # Note: This will be auto-determined from stock code if not specified
+    market: ""
+
+    # Date for fund flow data (format: YYYYMMDD)
+    # If empty, will use the latest trading date
+    date: ""
+
+    # Number of days for fund flow analysis
+    # Used for calculating multiple periods (replaces single 'days' parameter)
+    period_count: [1, 5, 29]
+
+# =============================================================================
+# FhpsFilter Class Configuration
+# =============================================================================
+fhps_filter:
+  # FHPS data configuration
+  min_transfer_ratio: 1.0  # Minimum transfer ratio to filter
+  max_price_change_percent: 5.0  # Maximum price change percentage for filtering (< 5%)
+  
+  # Market data filters (applied early to save API costs)
+  max_circulating_market_cap_yi: 50.0  # Maximum circulating market cap in 亿 (< 50亿)
+  min_pe_ratio: 0.0  # Minimum P/E ratio (> 0, excludes negative P/E stocks)
+  
+  # Processing configuration
+  batch_size: 5  # Batch size for concurrent processing (reduced for API rate limiting)
+  
+  # Output configuration
+  report_dir: "output/reports/filters/fhps_filter"
+  output_filename_template: "除权除息股票-{date}.csv"  # {date} will be replaced with YYYYMMDD
+
+# =============================================================================
+# File Configuration Metadata
+# =============================================================================
+file_config:
+  # (Customized Arg) If this config for PROD or other purpose
+  config_name: "FHPS_FILTER_PROD"
+  description: "Configuration for FHPS filter - filtering-only functionality using cached data"
+  # Follow main branch's version
+  version: "1.9.3"

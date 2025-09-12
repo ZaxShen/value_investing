@@ -1,17 +1,18 @@
 """
 FHPS (分红派息送股) filtering and analysis for Chinese equity markets.
 
-This module provides a FhpsFilter class that encapsulates asynchronous functions
-to filter and analyze Chinese stocks with dividend/split plans. It processes
-stocks with ex-dividend dates, calculates performance metrics, and adds fund flow
-data for comprehensive analysis.
+This module provides filtering-only functionality for FHPS data using pre-cached files.
+It processes stocks with ex-dividend dates, applies multi-year historical filtering,
+and enriches data with fund flow information for comprehensive analysis.
+
+Note: This script assumes data has already been cached by fhps_caching.py
 """
 
 import asyncio
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple
 
 import pandas as pd
 import yaml
@@ -26,12 +27,8 @@ from src.api.akshare import (
 # Import settings first to disable tqdm before akshare import
 from src.settings import configure_environment
 from src.utilities.logger import get_logger
-from src.utilities.trading_calendar import get_previous_trading_day
 
 configure_environment()
-
-# akshare imports now handled through centralized API modules
-import akshare as ak
 
 if TYPE_CHECKING:
     from rich.progress import Progress, TaskID
@@ -39,56 +36,46 @@ if TYPE_CHECKING:
 # Initialize logger for this module
 logger = get_logger("fhps_filter")
 
-# Create a semaphore to limit concurrent requests
-REQUEST_SEMAPHORE = asyncio.Semaphore(10)
+
+class InputFilesConfig(BaseModel):
+    """Configuration model for input files."""
+    
+    stock_fhps_em_latest_filename: str = "stock_fhps_em-latest.csv"
+    data_dir: str = "data/fhps"
 
 
-class FileConfig(BaseModel):
-    """
-    Configuration model for file-related settings.
-
-    This model handles file configuration metadata including config name,
-    version, and description.
-    """
-
-    config_name: str = "PROD"
-    description: str = ""
-    version: str = ""
+class HistoricalFilterConfig(BaseModel):
+    """Configuration model for historical filtering."""
+    
+    previous_years: List[int] = [2020, 2021, 2022, 2023]
+    require_historical_presence: bool = True
 
 
 class FhpsFilterConfig(BaseModel):
-    """
-    Configuration model for FhpsFilter class parameters.
+    """Configuration model for FhpsFilter class parameters."""
 
-    This model validates and provides default values for the FhpsFilter class constants.
-    """
-
-    # FHPS data configuration
-    fhps_date: str = ""  # Date for FHPS data query (YYYYMMDD format)
-    min_transfer_ratio: float = 1.0  # Minimum transfer ratio to filter
-    max_price_change_percent: float = (
-        10.0  # Maximum price change percentage for filtering
-    )
-    
-    # Market data filters (applied early to save API costs)
-    max_circulating_market_cap_yi: float = 50.0  # Maximum circulating market cap in 亿
-    min_pe_ratio: float = 0.0  # Minimum P/E ratio (> 0, excludes negative P/E stocks)
-
-    # Processing configuration
-    batch_size: int = 10  # Batch size for concurrent processing
-
-    # Output configuration
+    min_transfer_ratio: float = 1.0
+    max_price_change_percent: float = 5.0
+    max_circulating_market_cap_yi: float = 50.0
+    min_pe_ratio: float = 0.0
+    batch_size: int = 5
     report_dir: str = "output/reports/filters/fhps_filter"
     output_filename_template: str = "除权除息股票-{date}.csv"
 
 
+class FileConfig(BaseModel):
+    """Configuration model for file-related settings."""
+
+    config_name: str = "FHPS_FILTER_PROD"
+    description: str = ""
+    version: str = "1.9.3"
+
+
 class Config(BaseModel):
-    """
-    Configuration model for nested YAML structure supporting both akshare and FhpsFilter configs.
+    """Configuration model for nested YAML structure supporting input files, historical filtering, akshare and FhpsFilter configs."""
 
-    This model handles the nested structure from input/config/filters/fhps_filter.
-    """
-
+    input_files: InputFilesConfig = InputFilesConfig()
+    historical_filter: HistoricalFilterConfig = HistoricalFilterConfig()
     akshare: Dict[str, Dict[str, Any]] = {}
     fhps_filter: FhpsFilterConfig = FhpsFilterConfig()
     file_config: FileConfig = FileConfig()
@@ -96,7 +83,7 @@ class Config(BaseModel):
 
 def load_config(
     config_name: Optional[str] = None,
-) -> Tuple[StockIndividualFundFlowConfig, FhpsFilterConfig, FileConfig]:
+) -> Tuple[InputFilesConfig, HistoricalFilterConfig, StockIndividualFundFlowConfig, FhpsFilterConfig, FileConfig]:
     """
     Load nested configuration from YAML file.
 
@@ -104,14 +91,14 @@ def load_config(
         config_name: YAML config file name. If None, uses default config
 
     Returns:
-        tuple: (akshare_config, fhps_filter_config, file_config)
+        tuple: (input_files_config, historical_filter_config, akshare_config, fhps_filter_config, file_config)
 
     Raises:
         FileNotFoundError: If config file doesn't exist
         ValueError: If config validation fails
     """
-    config_dir = Path("input/config/filters/fhps_filter/")
-    config_name = config_name or "config"
+    config_dir = Path("input/config/filters/fhps/")
+    config_name = config_name or "filter_config"
     config_path = config_dir / f"{config_name}.yml"
 
     if not config_path.exists():
@@ -121,29 +108,24 @@ def load_config(
     with open(config_path, "r", encoding="utf-8") as f:
         config_data = yaml.safe_load(f)
 
-    # Check if it's nested format (has 'akshare' key) or flat format
-    if "akshare" in config_data:
-        # Nested format - extract each section
-        configs = Config(**config_data)
-        akshare_config = StockIndividualFundFlowConfig(
-            **configs.akshare.get("stock_individual_fund_flow", {})
-        )
-        fhps_filter_config = configs.fhps_filter
-        file_config = configs.file_config
-    else:
-        # Flat format - assume all config is for akshare
-        akshare_config = StockIndividualFundFlowConfig(**config_data)
-        fhps_filter_config = FhpsFilterConfig()
-        file_config = FileConfig()
+    # Extract each section
+    configs = Config(**config_data)
+    input_files_config = configs.input_files
+    historical_filter_config = configs.historical_filter
+    akshare_config = StockIndividualFundFlowConfig(
+        **configs.akshare.get("stock_individual_fund_flow", {})
+    )
+    fhps_filter_config = configs.fhps_filter
+    file_config = configs.file_config
 
-    return akshare_config, fhps_filter_config, file_config
+    return input_files_config, historical_filter_config, akshare_config, fhps_filter_config, file_config
 
 
 class FhpsFilter:
     """
-    Filter and analyze stocks with dividend/split plans (FHPS).
+    Filter and analyze stocks with dividend/split plans (FHPS) using cached data.
 
-    This class processes stocks with ex-dividend dates, calculates performance metrics,
+    This class processes pre-cached FHPS data, applies multi-year historical filtering,
     and enriches data with fund flow information for comprehensive analysis.
     """
 
@@ -165,13 +147,15 @@ class FhpsFilter:
         self.stock_zh_a_spot_em_df = stock_zh_a_spot_em_df
 
         # Load configuration
-        self.akshare_config, self.filter_config, self.file_config = load_config(
-            config_name
-        )
+        (
+            self.input_files_config,
+            self.historical_filter_config,
+            self.akshare_config,
+            self.filter_config,
+            self.file_config,
+        ) = load_config(config_name)
 
         # Apply class constants from config
-        # Default to end of year if no date specified (more likely to have FHPS data)
-        self.FHPS_DATE = self.filter_config.fhps_date or "20241231"
         self.MIN_TRANSFER_RATIO = self.filter_config.min_transfer_ratio
         self.MAX_PRICE_CHANGE_PERCENT = self.filter_config.max_price_change_percent
         self.MAX_CIRCULATING_MARKET_CAP_YI = self.filter_config.max_circulating_market_cap_yi
@@ -182,250 +166,78 @@ class FhpsFilter:
 
         self.logger = get_logger("fhps_filter")
 
-    async def _get_cached_fhps_data(self) -> Optional[pd.DataFrame]:
+    def _load_latest_fhps_data(self) -> Optional[pd.DataFrame]:
         """
-        Get FHPS data with caching support.
+        Load the latest FHPS data from cached file.
 
         Returns:
-            DataFrame with FHPS data or None if no data available
+            DataFrame with latest FHPS data or None if not available
         """
-        # Define cache paths
-        cache_dir = "data/fhps"
-        os.makedirs(cache_dir, exist_ok=True)
-        cache_filename = f"stock_fhps_em-{self.FHPS_DATE}.csv"
-        cache_path = os.path.join(cache_dir, cache_filename)
+        data_dir = self.input_files_config.data_dir
+        latest_filename = self.input_files_config.stock_fhps_em_latest_filename
+        latest_path = os.path.join(data_dir, latest_filename)
 
-        # Check if cached file exists
-        if os.path.exists(cache_path):
-            self.logger.info(
-                f"✅ CACHED DATA FOUND! Loading FHPS data from: {cache_path}"
-            )
-            print(f"✅ CACHED DATA FOUND! Loading FHPS data from: {cache_path}")
-            try:
-                df = pd.read_csv(cache_path, encoding="utf-8-sig")
-                # Ensure stock codes are strings with proper 6-digit format
-                if "代码" in df.columns:
-                    df["代码"] = df["代码"].apply(lambda x: str(x).zfill(6))
-                self.logger.info(
-                    f"✅ Successfully loaded {len(df)} FHPS records from cache"
-                )
-                print(f"✅ Successfully loaded {len(df)} FHPS records from cache")
-                return df
-            except Exception as e:
-                self.logger.error(f"❌ Error loading cached FHPS data: {e}")
-                print(f"❌ Error loading cached FHPS data: {e}")
-                self.logger.info("🔄 Falling back to API fetch...")
-                print("🔄 Falling back to API fetch...")
-                # Fall through to fetch fresh data
-
-        # Fetch fresh data from API
-        self.logger.info(
-            f"🌐 NO CACHE FOUND - Fetching fresh FHPS data from API for date: {self.FHPS_DATE}"
-        )
-        print(
-            f"🌐 NO CACHE FOUND - Fetching fresh FHPS data from API for date: {self.FHPS_DATE}"
-        )
-        try:
-            stock_fhps_em_df = await asyncio.to_thread(
-                ak.stock_fhps_em, date=self.FHPS_DATE
-            )
-
-            if stock_fhps_em_df is not None and not stock_fhps_em_df.empty:
-                # Ensure stock codes are strings with proper 6-digit format
-                if "代码" in stock_fhps_em_df.columns:
-                    stock_fhps_em_df["代码"] = stock_fhps_em_df["代码"].apply(
-                        lambda x: str(x).zfill(6)
-                    )
-
-                # Cache the data
-                self.logger.info(
-                    f"💾 Caching {len(stock_fhps_em_df)} FHPS records to: {cache_path}"
-                )
-                print(
-                    f"💾 Caching {len(stock_fhps_em_df)} FHPS records to: {cache_path}"
-                )
-                stock_fhps_em_df.to_csv(cache_path, index=False, encoding="utf-8-sig")
-                self.logger.info("✅ FHPS data successfully cached for future use")
-                print("✅ FHPS data successfully cached for future use")
-
-            return stock_fhps_em_df
-
-        except Exception as api_error:
-            error_msg = (
-                f"Failed to fetch FHPS data for date {self.FHPS_DATE}: {str(api_error)}"
-            )
+        if not os.path.exists(latest_path):
+            error_msg = f"Latest FHPS file not found: {latest_path}"
             self.logger.error(error_msg)
-            return None
+            print(f"❌ {error_msg}")
+            raise FileNotFoundError(error_msg)
 
-    async def _get_cached_filtered_fhps_data(self) -> Optional[pd.DataFrame]:
-        """
-        Caching: Get filtered FHPS data with pre-cached historical prices.
-
-        Returns:
-            DataFrame with filtered FHPS data including 除权除息前日股价 column, or None if not available
-        """
-        # Define filtered cache paths
-        cache_dir = "data/fhps"
-        os.makedirs(cache_dir, exist_ok=True)
-        filtered_cache_filename = f"stock_fhps_em_filtered-{self.FHPS_DATE}.csv"
-        filtered_cache_path = os.path.join(cache_dir, filtered_cache_filename)
-
-        # Check if filtered cache exists
-        if os.path.exists(filtered_cache_path):
-            self.logger.info(
-                f"🚀 FILTERED CACHE FOUND! Loading filtered FHPS data from: {filtered_cache_path}"
-            )
-            print(
-                f"🚀 FILTERED CACHE FOUND! Loading filtered FHPS data from: {filtered_cache_path}"
-            )
-            try:
-                # Load as CSV
-                df = pd.read_csv(filtered_cache_path, encoding="utf-8-sig")
-                # Ensure stock codes are strings with proper 6-digit format
-                if "代码" in df.columns:
-                    df["代码"] = df["代码"].apply(lambda x: str(x).zfill(6))
-                # Convert date column back to datetime
-                if "除权除息日" in df.columns:
-                    df["除权除息日"] = pd.to_datetime(df["除权除息日"])
-                self.logger.info(
-                    f"🚀 Successfully loaded {len(df)} filtered FHPS records with cached prices"
-                )
-                print(
-                    f"🚀 Successfully loaded {len(df)} filtered FHPS records with cached prices"
-                )
-                return df
-            except Exception as e:
-                self.logger.error(f"❌ Error loading filtered FHPS cache: {e}")
-                print(f"❌ Error loading filtered FHPS cache: {e}")
-                # Fall through to create filtered cache
-
-        # No filtered cache found, need to create it
-        self.logger.info("📦 Creating filtered cache with historical prices...")
-        print("📦 Creating filtered cache with historical prices...")
-
-        # Get raw FHPS data first
-        stock_fhps_em_df = await self._get_cached_fhps_data()
-        if stock_fhps_em_df is None or stock_fhps_em_df.empty:
-            return None
-
-        # Filter stocks with transfer ratios (remove NaN values)
-        df = stock_fhps_em_df.dropna(subset=["送转股份-送转总比例"])
-        self.logger.info(
-            f"📊 After filtering: {len(df)} stocks with valid transfer ratios"
-        )
-        print(f"📊 After filtering: {len(df)} stocks with valid transfer ratios")
-
-        # Convert ex-dividend date to datetime if not already
-        if "除权除息日" in df.columns:
-            df.loc[:, "除权除息日"] = pd.to_datetime(
-                df["除权除息日"], format="%Y-%m-%d"
-            )
-
-        # Filter stocks with ex-dividend dates before today
-        today = datetime.today()
-        filter_past = df.loc[:, "除权除息日"] < today
-        df_filtered = df[filter_past]
-        self.logger.info(
-            f"📊 After date filtering: {len(df_filtered)} stocks with past ex-dividend dates"
-        )
-        print(
-            f"📊 After date filtering: {len(df_filtered)} stocks with past ex-dividend dates"
-        )
-
-        # Pre-fetch historical prices for all filtered stocks
-        self.logger.info("💰 Pre-fetching historical prices for all filtered stocks...")
-        print("💰 Pre-fetching historical prices for all filtered stocks...")
-
-        # Add 除权除息前日股价 column
-        ex_prices = []
-        for _, row in df_filtered.iterrows():
-            stock_code = str(row["代码"]).zfill(6)
-            ex_date = row["除权除息日"]
-            try:
-                ex_price = await self.get_stock_price_async(stock_code, ex_date)
-                ex_prices.append(ex_price)
-            except Exception as e:
-                self.logger.warning(
-                    f"Failed to get price for {stock_code} on {ex_date}: {e}"
-                )
-                ex_prices.append(None)
-
-        # Add the historical prices column
-        df_filtered = df_filtered.copy()
-        df_filtered.loc[:, "除权除息前日股价"] = ex_prices
-
-        # Cache the filtered data with historical prices
         try:
-            self.logger.info(
-                f"💾 Caching {len(df_filtered)} filtered FHPS records with historical prices to: {filtered_cache_path}"
-            )
-            print(
-                f"💾 Caching {len(df_filtered)} filtered FHPS records with historical prices to: {filtered_cache_path}"
-            )
-            df_filtered.to_csv(filtered_cache_path, index=False, encoding="utf-8-sig")
-            self.logger.info("✅ Filtered cache created successfully!")
-            print("✅ Filtered cache created successfully!")
+            df = pd.read_csv(latest_path, encoding="utf-8-sig")
+            # Ensure stock codes are strings with proper 6-digit format
+            if "代码" in df.columns:
+                df["代码"] = df["代码"].apply(lambda x: str(x).zfill(6))
+            
+            # Convert date column back to datetime if it's a string
+            if "除权除息日" in df.columns:
+                df["除权除息日"] = pd.to_datetime(df["除权除息日"])
+            
+            self.logger.info(f"✅ Loaded {len(df)} records from latest FHPS file: {latest_path}")
+            print(f"✅ Loaded {len(df)} records from latest FHPS file: {latest_path}")
+            return df
+            
         except Exception as e:
-            self.logger.error(f"❌ Error creating filtered cache: {e}")
-            print(f"❌ Error creating filtered cache: {e}")
+            error_msg = f"Error loading latest FHPS file {latest_path}: {e}"
+            self.logger.error(error_msg)
+            print(f"❌ {error_msg}")
+            raise RuntimeError(error_msg)
 
-        return df_filtered
-
-    async def get_stock_price_async(
-        self, stock_code: str, date: datetime
-    ) -> Optional[float]:
+    def _load_historical_stock_codes(self) -> Set[str]:
         """
-        Get stock price asynchronously for the previous trading day before the given date.
-        Uses trading calendar to find valid trading days and implements robust fallback.
-
-        Args:
-            stock_code: Stock code (6-digit format)
-            date: Ex-dividend date (will get price from previous trading day)
+        Load stock codes from historical years for multi-year filtering.
 
         Returns:
-            Stock price from previous trading day or None if not found
+            Set of stock codes that appeared in previous years
         """
-        max_attempts = 5  # Prevent infinite loops
+        all_historical_codes = set()
+        data_dir = self.input_files_config.data_dir
 
-        # Get the previous trading day before the ex-dividend date
-        current_date = get_previous_trading_day(date)
+        for year in self.historical_filter_config.previous_years:
+            filename = f"stock_fhps_em-{year}.csv"
+            file_path = os.path.join(data_dir, filename)
 
-        for _ in range(max_attempts):
+            if not os.path.exists(file_path):
+                self.logger.warning(f"Historical file not found: {file_path}")
+                print(f"⚠️ Historical file not found: {file_path}")
+                continue
+
             try:
-                async with REQUEST_SEMAPHORE:
-                    # Use asyncio.to_thread for non-blocking akshare calls
-                    df_price = await asyncio.to_thread(
-                        ak.stock_zh_a_hist,
-                        stock_code,
-                        period="daily",
-                        start_date=current_date.strftime("%Y%m%d"),
-                        end_date=current_date.strftime("%Y%m%d"),
-                        adjust="",  # 不复权 - for accurate fill-right analysis
-                    )
-                    if not df_price.empty:
-                        price = df_price["收盘"].iloc[0]  # Close price
-                        self.logger.debug(
-                            f"Found price for {stock_code} on {current_date.strftime('%Y-%m-%d')}: {price}"
-                        )
-                        return price
-
-                    # No data for this date, try previous trading day
-                    self.logger.debug(
-                        f"No price data for {stock_code} on {current_date.strftime('%Y-%m-%d')}, trying previous trading day"
-                    )
-                    current_date = get_previous_trading_day(current_date)
+                df = pd.read_csv(file_path, encoding="utf-8-sig")
+                if "代码" in df.columns:
+                    year_codes = set(df["代码"].apply(lambda x: str(x).zfill(6)).tolist())
+                    all_historical_codes.update(year_codes)
+                    self.logger.info(f"Loaded {len(year_codes)} stock codes from {year}")
+                    print(f"📊 Loaded {len(year_codes)} stock codes from {year}")
 
             except Exception as e:
-                self.logger.error(
-                    f"Error fetching price for {stock_code} on {current_date}: {e}"
-                )
-                # Try previous trading day on API error too
-                current_date = get_previous_trading_day(current_date)
+                self.logger.error(f"Error loading historical file {file_path}: {e}")
+                print(f"❌ Error loading historical file {file_path}: {e}")
+                continue
 
-        self.logger.warning(
-            f"Could not find price for {stock_code} after {max_attempts} attempts"
-        )
-        return None
+        self.logger.info(f"Total unique historical stock codes: {len(all_historical_codes)}")
+        print(f"📈 Total unique historical stock codes: {len(all_historical_codes)}")
+        return all_historical_codes
 
     async def get_fund_flow_data(self, stock_code: str) -> Dict[str, Optional[float]]:
         """
@@ -587,413 +399,288 @@ class FhpsFilter:
         _parent_task_id: Optional["TaskID"] = None,
     ) -> None:
         """
-        Run the complete FHPS filter analysis.
+        Run the complete FHPS filter analysis using cached data.
 
         Args:
             _progress: Optional Progress instance for tracking
             _parent_task_id: Optional parent task ID
         """
-        self.logger.info("Starting FHPS filter analysis")
-        self.logger.info(
-            f"Progress params: _progress={_progress is not None}, _parent_task_id={_parent_task_id}"
-        )
-        self.logger.info("About to enter try block")
-
+        self.logger.info("Starting FHPS filter analysis (filtering-only mode)")
+        
         try:
             # Update progress
             if _progress and _parent_task_id:
-                try:
-                    _progress.update(
-                        _parent_task_id,
-                        completed=10,
-                        description="📊 Fetching FHPS data...",
-                    )
-                    self.logger.info("Progress updated to 10%")
-                except Exception as e:
-                    self.logger.error(f"Failed to update progress to 10%: {e}")
-
-            # Fetch filtered FHPS data with cached historical prices
-            df_filtered = await self._get_cached_filtered_fhps_data()
-
-            if df_filtered is None or df_filtered.empty:
-                self.logger.warning(
-                    f"No filtered FHPS data found for date {self.FHPS_DATE}"
+                _progress.update(
+                    _parent_task_id,
+                    completed=10,
+                    description="📂 Loading cached FHPS data...",
                 )
+
+            # Load latest FHPS data
+            df_latest = self._load_latest_fhps_data()
+            if df_latest is None or df_latest.empty:
+                error_msg = "No latest FHPS data available"
+                self.logger.error(error_msg)
+                print(f"❌ {error_msg}")
                 if _progress and _parent_task_id:
                     _progress.update(
                         _parent_task_id,
                         completed=100,
-                        description="⚠️ No FHPS data available for the specified date",
+                        description="❌ No latest FHPS data available",
+                    )
+                raise RuntimeError(error_msg)
+
+            # Load historical stock codes for multi-year filtering
+            if _progress and _parent_task_id:
+                _progress.update(
+                    _parent_task_id,
+                    completed=20,
+                    description="📊 Loading historical stock codes...",
+                )
+
+            historical_codes = self._load_historical_stock_codes()
+            
+            if self.historical_filter_config.require_historical_presence and not historical_codes:
+                error_msg = "No historical stock codes found, but historical presence is required"
+                self.logger.error(error_msg)
+                print(f"❌ {error_msg}")
+                if _progress and _parent_task_id:
+                    _progress.update(
+                        _parent_task_id,
+                        completed=100,
+                        description="❌ No historical data for filtering",
+                    )
+                raise RuntimeError(error_msg)
+
+            # Apply historical filtering if required
+            if _progress and _parent_task_id:
+                _progress.update(
+                    _parent_task_id,
+                    completed=30,
+                    description="🔍 Applying historical presence filter...",
+                )
+
+            if self.historical_filter_config.require_historical_presence:
+                # Filter stocks that appear in both latest and historical data
+                df_latest["代码_str"] = df_latest["代码"].astype(str).str.zfill(6)
+                mask = df_latest["代码_str"].isin(historical_codes)
+                df_filtered = df_latest[mask].copy()
+                df_filtered.drop(columns=["代码_str"], inplace=True)
+                
+                self.logger.info(
+                    f"Historical filtering: {len(df_latest)} → {len(df_filtered)} stocks (must appear in previous years)"
+                )
+                print(
+                    f"📊 Historical filtering: {len(df_latest)} → {len(df_filtered)} stocks (must appear in previous years)"
+                )
+            else:
+                df_filtered = df_latest.copy()
+
+            if df_filtered.empty:
+                self.logger.warning("No stocks passed the historical filtering")
+                print("⚠️ No stocks passed the historical filtering")
+                if _progress and _parent_task_id:
+                    _progress.update(
+                        _parent_task_id,
+                        completed=100,
+                        description="⚠️ No stocks passed historical filtering",
                     )
                 return
 
-            self.logger.info(
-                f"✅ Using filtered FHPS data with {len(df_filtered)} pre-processed records"
-            )
-
-            # Update progress immediately when cached data is found
-            if _progress and _parent_task_id:
-                try:
-                    _progress.update(
-                        _parent_task_id,
-                        completed=50,
-                        description="🚀 Using cached FHPS data, applying filters...",
-                    )
-                    self.logger.info("Progress updated to 50% - using cached data")
-                except Exception as e:
-                    self.logger.error(f"Failed to update progress to 50%: {e}")
-
-            self.logger.info(
-                f"After ex-dividend date filter (< today): {len(df_filtered)} stocks"
-            )
-
             # Apply minimum transfer ratio filter
+            if _progress and _parent_task_id:
+                _progress.update(
+                    _parent_task_id,
+                    completed=40,
+                    description="📈 Applying transfer ratio filter...",
+                )
+
             df_filtered = df_filtered[
                 df_filtered["送转股份-送转总比例"] >= self.MIN_TRANSFER_RATIO
             ]
             self.logger.info(
                 f"After transfer ratio filter (>= {self.MIN_TRANSFER_RATIO}): {len(df_filtered)} stocks"
             )
-
-            if _progress and _parent_task_id:
-                _progress.update(
-                    _parent_task_id,
-                    completed=30,
-                    description=f"📈 Getting prices for {len(df_filtered)} filtered FHPS stocks...",
-                )
-
-            # First, get basic price data for all FHPS stocks to apply price change filter
-            price_results = []
-
-            # Process stocks in smaller batches for price data only
-            stock_list = list(df_filtered.iterrows())
-            price_batches = [
-                stock_list[i : i + self.BATCH_SIZE]
-                for i in range(0, len(stock_list), self.BATCH_SIZE)
-            ]
-
-            self.logger.info(
-                f"Getting prices for {len(df_filtered)} FHPS stocks in {len(price_batches)} batches"
+            print(
+                f"📈 After transfer ratio filter (>= {self.MIN_TRANSFER_RATIO}): {len(df_filtered)} stocks"
             )
 
-            # Create a nested progress bar for detailed batch tracking if available
-            batch_progress_task = None
-            if _progress:
-                batch_progress_task = _progress.add_task(
-                    "    📊 Processing FHPS price batches",
-                    total=len(price_batches),
-                    visible=True,
-                )
-
-            # Check if we're using cached prices for faster progress updates
-            has_cached_prices = (
-                "除权除息前日股价" in df_filtered.columns
-                and not df_filtered["除权除息前日股价"].isna().all()
-            )
-
-            for batch_idx, batch in enumerate(price_batches):
-                if _progress and _parent_task_id:
-                    progress_pct = 30 + (batch_idx / len(price_batches)) * 40
-                    cache_indicator = " 🚀" if has_cached_prices else ""
-                    _progress.update(
-                        _parent_task_id,
-                        completed=progress_pct,
-                        description=f"📈 Processing price batch {batch_idx + 1}/{len(price_batches)}{cache_indicator}...",
-                    )
-
-                # Update batch progress
-                if _progress and batch_progress_task:
-                    _progress.update(
-                        batch_progress_task,
-                        completed=batch_idx,
-                        description=f"Batch {batch_idx + 1}/{len(price_batches)}: {len(batch)} stocks",
-                    )
-
-                # Get basic price data for this batch
-                for stock_idx, (original_idx, row) in enumerate(batch):
-                    stock_code = str(row["代码"]).zfill(
-                        6
-                    )  # Convert to string and pad to 6 digits
-                    ex_date = row["除权除息日"]
-
-                    # Update batch progress with current stock
-                    if _progress and batch_progress_task:
-                        _progress.update(
-                            batch_progress_task,
-                            description=f"Batch {batch_idx + 1}/{len(price_batches)}: {stock_code} ({stock_idx + 1}/{len(batch)})",
-                        )
-
-                    try:
-                        # Get ex-dividend price from cache if available (filtered cache optimization)
-                        ex_price = None
-                        using_cached_price = False
-                        if "除权除息前日股价" in row and pd.notna(
-                            row["除权除息前日股价"]
-                        ):
-                            ex_price = row["除权除息前日股价"]
-                            using_cached_price = True
-                            # print(f"🚀 Using cached ex-dividend price for {stock_code}: {ex_price}")
-                        else:
-                            # Fallback to API if not cached
-                            ex_price = await self.get_stock_price_async(
-                                stock_code, ex_date
-                            )
-                            # print(f"🌐 Fetched ex-dividend price from API for {stock_code}: {ex_price}")
-
-                        # Update progress more frequently when using cached prices
-                        if (
-                            using_cached_price
-                            and _progress
-                            and batch_progress_task
-                            and stock_idx % 5 == 0
-                        ):
-                            _progress.update(
-                                batch_progress_task,
-                                description=f"Batch {batch_idx + 1}/{len(price_batches)}: {stock_code} ({stock_idx + 1}/{len(batch)}) [CACHED]",
-                            )
-
-                        # Get today's price from cached market data (much faster)
-                        today_price = self.get_today_stock_price(stock_code)
-
-                        # Calculate price change
-                        price_change_pct = None
-                        if (
-                            ex_price is not None
-                            and today_price is not None
-                            and ex_price != 0
-                        ):
-                            price_change_pct = round(
-                                ((today_price - ex_price) / ex_price) * 100, 2
-                            )
-
-                        if price_change_pct is not None:
-                            price_results.append(
-                                {
-                                    "original_idx": original_idx,
-                                    "row": row,
-                                    "ex_price": ex_price,
-                                    "today_price": today_price,
-                                    "price_change_pct": price_change_pct,
-                                }
-                            )
-
-                    except Exception as e:
-                        self.logger.error(f"Error getting prices for {stock_code}: {e}")
-                        continue
-
-                # Complete this batch
-                if _progress and batch_progress_task:
-                    _progress.update(
-                        batch_progress_task,
-                        completed=batch_idx + 1,
-                        description=f"✅ Batch {batch_idx + 1} completed ({len([r for r in price_results if r['original_idx'] in [idx for idx, _ in batch]])} prices fetched)",
-                    )
-
-            # Remove batch progress bar when done
-            if _progress and batch_progress_task:
-                await asyncio.sleep(0.5)  # Brief pause to show completion
-                _progress.remove_task(batch_progress_task)
-
-            # Apply price change filter
-            if _progress and _parent_task_id:
-                _progress.update(
-                    _parent_task_id,
-                    completed=70,
-                    description="🔍 Applying price change filters...",
-                )
-
-            # Filter by price change percentage (< max_price_change_percent)
-            filtered_stocks = [
-                stock
-                for stock in price_results
-                if stock["price_change_pct"] < self.MAX_PRICE_CHANGE_PERCENT
-            ]
-
-            self.logger.info(
-                f"After price change filter (<{self.MAX_PRICE_CHANGE_PERCENT}%): {len(filtered_stocks)} stocks"
-            )
-
-            if not filtered_stocks:
-                self.logger.warning("No stocks passed the price change filter")
+            if df_filtered.empty:
+                self.logger.warning("No stocks passed the transfer ratio filter")
+                print("⚠️ No stocks passed the transfer ratio filter")
                 if _progress and _parent_task_id:
                     _progress.update(
                         _parent_task_id,
                         completed=100,
-                        description="⚠️ No stocks passed the price change filter",
+                        description="⚠️ No stocks passed transfer ratio filter",
                     )
                 return
 
-            # Now enrich the filtered stocks with full data (industry + fund flow)
+            # Apply price change filtering and enrich with market data
             if _progress and _parent_task_id:
                 _progress.update(
                     _parent_task_id,
-                    completed=75,
-                    description=f"📊 Enriching {len(filtered_stocks)} filtered stocks with fund flow data...",
+                    completed=50,
+                    description=f"💰 Processing {len(df_filtered)} stocks...",
                 )
 
-            # Create a nested progress bar for enrichment tracking
-            enrichment_progress_task = None
-            if _progress:
-                enrichment_progress_task = _progress.add_task(
-                    "    💰 Enriching with fund flow data",
-                    total=len(filtered_stocks),
-                    visible=True,
+            valid_stocks = []
+            market_cap_filtered = 0
+            pe_ratio_filtered = 0
+            price_change_filtered = 0
+
+            for _, row in df_filtered.iterrows():
+                stock_code = str(row["代码"]).zfill(6)
+                
+                # Get market data first for early filtering
+                market_data = self.get_stock_market_data(stock_code)
+                
+                # Apply market data filters to save API costs
+                # Filter by circulating market cap
+                circulating_market_cap = market_data.get("流通市值(亿)", None)
+                if (circulating_market_cap is not None and 
+                    circulating_market_cap >= self.MAX_CIRCULATING_MARKET_CAP_YI):
+                    market_cap_filtered += 1
+                    self.logger.debug(f"Filtered out {stock_code}: 流通市值 {circulating_market_cap}亿 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿")
+                    continue
+                
+                # Filter by P/E ratio
+                pe_ratio = market_data.get("市盈率-动态", None)
+                if pe_ratio is not None and pe_ratio <= self.MIN_PE_RATIO:
+                    pe_ratio_filtered += 1
+                    self.logger.debug(f"Filtered out {stock_code}: 市盈率-动态 {pe_ratio} <= {self.MIN_PE_RATIO}")
+                    continue
+
+                # Calculate price change if we have the cached ex-dividend price
+                ex_price = row.get("除权除息前日股价", None)
+                today_price = self.get_today_stock_price(stock_code)
+                price_change_pct = None
+                
+                if ex_price is not None and today_price is not None and ex_price != 0:
+                    price_change_pct = round(((today_price - ex_price) / ex_price) * 100, 2)
+                    
+                    # Apply price change filter
+                    if price_change_pct >= self.MAX_PRICE_CHANGE_PERCENT:
+                        price_change_filtered += 1
+                        self.logger.debug(f"Filtered out {stock_code}: price change {price_change_pct}% >= {self.MAX_PRICE_CHANGE_PERCENT}%")
+                        continue
+
+                # Stock passed all filters, add to valid list
+                valid_stocks.append({
+                    'row': row,
+                    'stock_code': stock_code,
+                    'market_data': market_data,
+                    'ex_price': ex_price,
+                    'today_price': today_price,
+                    'price_change_pct': price_change_pct
+                })
+
+            # Log filtering statistics
+            total_initial = len(df_filtered)
+            total_valid = len(valid_stocks)
+            total_filtered_out = market_cap_filtered + pe_ratio_filtered + price_change_filtered
+            
+            self.logger.info("Filtering statistics:")
+            self.logger.info(f"  - Initial stocks after transfer ratio filter: {total_initial}")
+            self.logger.info(f"  - 流通市值 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿: {market_cap_filtered} filtered")
+            self.logger.info(f"  - 市盈率-动态 <= {self.MIN_PE_RATIO}: {pe_ratio_filtered} filtered")
+            self.logger.info(f"  - Price change >= {self.MAX_PRICE_CHANGE_PERCENT}%: {price_change_filtered} filtered")
+            self.logger.info(f"  - Total filtered out: {total_filtered_out}")
+            self.logger.info(f"  - Valid stocks for enrichment: {total_valid}")
+            
+            print("📊 Filtering statistics:")
+            print(f"  - Initial stocks: {total_initial}")
+            print(f"  - Market cap filtered: {market_cap_filtered}")
+            print(f"  - P/E ratio filtered: {pe_ratio_filtered}")
+            print(f"  - Price change filtered: {price_change_filtered}")
+            print(f"  - Valid stocks: {total_valid}")
+
+            if not valid_stocks:
+                self.logger.warning("No stocks passed all filters")
+                print("⚠️ No stocks passed all filters")
+                if _progress and _parent_task_id:
+                    _progress.update(
+                        _parent_task_id,
+                        completed=100,
+                        description="⚠️ No stocks passed all filters",
+                    )
+                return
+
+            # Enrich valid stocks with fund flow data
+            if _progress and _parent_task_id:
+                _progress.update(
+                    _parent_task_id,
+                    completed=60,
+                    description=f"💰 Enriching {len(valid_stocks)} stocks with fund flow...",
                 )
 
             all_results = []
-            
-            # Counters for market data filters
-            market_cap_filtered = 0
-            pe_ratio_filtered = 0
-
-            for i, stock_info in enumerate(filtered_stocks):
-                row = stock_info["row"]
-                stock_code = str(row["代码"]).zfill(
-                    6
-                )  # Convert to string and pad to 6 digits
-                stock_name = row["名称"]
-
-                # Update main progress
+            for i, stock_info in enumerate(valid_stocks):
+                row = stock_info['row']
+                stock_code = stock_info['stock_code']
+                market_data = stock_info['market_data']
+                
                 if _progress and _parent_task_id:
-                    progress_pct = 75 + (i / len(filtered_stocks)) * 15
+                    progress_pct = 60 + (i / len(valid_stocks)) * 30
                     _progress.update(
                         _parent_task_id,
                         completed=progress_pct,
-                        description=f"📊 Enriching stock {i + 1}/{len(filtered_stocks)}: {stock_code}",
-                    )
-
-                # Update enrichment progress
-                if _progress and enrichment_progress_task:
-                    _progress.update(
-                        enrichment_progress_task,
-                        completed=i,
-                        description=f"Processing {stock_code} - {stock_name}",
+                        description=f"💰 Processing {i+1}/{len(valid_stocks)}: {stock_code}",
                     )
 
                 try:
-                    # Get market data first for early filtering
-                    market_data = self.get_stock_market_data(stock_code)
-                    
-                    # Apply market data filters to save API costs
-                    # Filter by circulating market cap
-                    circulating_market_cap = market_data.get("流通市值(亿)", None)
-                    if (circulating_market_cap is not None and 
-                        circulating_market_cap >= self.MAX_CIRCULATING_MARKET_CAP_YI):
-                        market_cap_filtered += 1
-                        self.logger.debug(f"Filtered out {stock_code}: 流通市值 {circulating_market_cap}亿 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿")
-                        continue
-                    
-                    # Filter by P/E ratio
-                    pe_ratio = market_data.get("市盈率-动态", None)
-                    if pe_ratio is not None and pe_ratio <= self.MIN_PE_RATIO:
-                        pe_ratio_filtered += 1
-                        self.logger.debug(f"Filtered out {stock_code}: 市盈率-动态 {pe_ratio} <= {self.MIN_PE_RATIO}")
-                        continue
-
-                    # Get fund flow data (expensive API call) only for stocks that pass filters
+                    # Get fund flow data
                     fund_flow_data = await self.get_fund_flow_data(stock_code)
-
+                    
                     # Get industry
                     industry = self.get_stock_industry(stock_code)
 
-                    # Build complete result following strict column sequence
+                    # Build complete result
                     result = {
-                        # Column 1: Row number starting from 0 (blank column name)
-                        "": i,
-                        # Column 2: 行业
+                        "": i,  # Row number
                         "行业": industry,
-                        # Column 3: 代码
                         "代码": stock_code,
-                        # Column 4: 名称
-                        "名称": stock_name,
-                        # Column 5: 总市值(亿)
+                        "名称": row.get("名称", ""),
                         "总市值(亿)": market_data.get("总市值(亿)"),
-                        # Column 6: 流通市值(亿)
                         "流通市值(亿)": market_data.get("流通市值(亿)"),
-                        # Column 7: 市盈率-动态
                         "市盈率-动态": market_data.get("市盈率-动态"),
-                        # Column 8: 市净率
                         "市净率": market_data.get("市净率"),
-                        # Column 9: 送转股份-送转总比例
-                        "送转股份-送转总比例": row["送转股份-送转总比例"],
-                        # Column 10: 除权除息日
-                        "除权除息日": stock_info["row"]["除权除息日"].strftime(
-                            "%Y-%m-%d"
-                        )
-                        if isinstance(stock_info["row"]["除权除息日"], datetime)
-                        else str(stock_info["row"]["除权除息日"]),
-                        # Column 11: 除权除息前日股价
-                        "除权除息前日股价": stock_info["ex_price"],
-                        # Column 12: 当前股价
-                        "当前股价": stock_info["today_price"],
-                        # Column 13: 自除权除息前日起涨跌幅(%)
-                        "自除权除息前日起涨跌幅(%)": stock_info["price_change_pct"],
+                        "送转股份-送转总比例": row.get("送转股份-送转总比例"),
+                        "除权除息日": row.get("除权除息日").strftime("%Y-%m-%d") if isinstance(row.get("除权除息日"), datetime) else str(row.get("除权除息日", "")),
+                        "除权除息前日股价": stock_info['ex_price'],
+                        "当前股价": stock_info['today_price'],
+                        "自除权除息前日起涨跌幅(%)": stock_info['price_change_pct'],
                     }
 
-                    # Add dynamic fund flow and price change columns based on configured periods
-                    column_index = 14  # Start from column 14
+                    # Add dynamic fund flow and price change columns
                     for period in self.akshare_config.period_count:
-                        # Fund flow columns
                         fund_flow_key = f"{period}日主力净流入-总净额(亿)"
                         result[fund_flow_key] = fund_flow_data.get(fund_flow_key)
-                        column_index += 1
 
                     for period in self.akshare_config.period_count:
-                        # Price change columns
                         price_change_key = f"{period}日涨跌幅(%)"
                         result[price_change_key] = fund_flow_data.get(price_change_key)
-                        column_index += 1
 
                     # Add final market data columns
-                    result.update(
-                        {
-                            # 60日涨跌幅(%)
-                            "60日涨跌幅(%)": market_data.get("60日涨跌幅(%)"),
-                            # 年初至今涨跌幅(%)
-                            "年初至今涨跌幅(%)": market_data.get("年初至今涨跌幅(%)"),
-                        }
-                    )
+                    result.update({
+                        "60日涨跌幅(%)": market_data.get("60日涨跌幅(%)"),
+                        "年初至今涨跌幅(%)": market_data.get("年初至今涨跌幅(%)"),
+                    })
 
                     all_results.append(result)
 
-                    # Update enrichment progress with success
-                    if _progress and enrichment_progress_task:
-                        _progress.update(
-                            enrichment_progress_task,
-                            completed=i + 1,
-                            description=f"✅ {stock_code} - {stock_name} completed",
-                        )
-
                 except Exception as e:
                     self.logger.error(f"Error enriching stock {stock_code}: {e}")
-                    # Update enrichment progress with error
-                    if _progress and enrichment_progress_task:
-                        _progress.update(
-                            enrichment_progress_task,
-                            completed=i + 1,
-                            description=f"❌ {stock_code} - {stock_name} failed",
-                        )
                     continue
 
-            # Remove enrichment progress bar when done
-            if _progress and enrichment_progress_task:
-                await asyncio.sleep(0.5)  # Brief pause to show completion
-                _progress.remove_task(enrichment_progress_task)
-            
-            # Log filtering statistics
-            total_filtered = market_cap_filtered + pe_ratio_filtered
-            self.logger.info("Market data filters applied:")
-            self.logger.info(f"  - 流通市值 >= {self.MAX_CIRCULATING_MARKET_CAP_YI}亿: {market_cap_filtered} stocks filtered")
-            self.logger.info(f"  - 市盈率-动态 <= {self.MIN_PE_RATIO}: {pe_ratio_filtered} stocks filtered")
-            self.logger.info(f"  - Total filtered by market data: {total_filtered} stocks")
-            self.logger.info(f"  - Remaining stocks processed: {len(all_results)} stocks")
-
+            # Generate report
             if _progress and _parent_task_id:
                 _progress.update(
-                    _parent_task_id, completed=90, description="📝 Generating report..."
+                    _parent_task_id,
+                    completed=90,
+                    description="📝 Generating report...",
                 )
 
-            # Create DataFrame and save report
             if all_results:
                 result_df = pd.DataFrame(all_results)
 
@@ -1003,9 +690,7 @@ class FhpsFilter:
                 )
 
                 # Reset the first column to sequential 0-based indexing after sorting
-                result_df.iloc[:, 0] = pd.Series(
-                    range(len(result_df)), index=result_df.index
-                )
+                result_df.iloc[:, 0] = pd.Series(range(len(result_df)), index=result_df.index)
 
                 # Create output directory
                 os.makedirs(self.REPORT_DIR, exist_ok=True)
@@ -1018,24 +703,41 @@ class FhpsFilter:
                 # Save to CSV
                 result_df.to_csv(output_path, index=False, encoding="utf-8-sig")
 
-                self.logger.info(
-                    f"FHPS analysis completed. Report saved to: {output_path}"
-                )
-                self.logger.info(f"Total stocks processed: {len(result_df)}")
+                self.logger.info(f"FHPS filter analysis completed. Report saved to: {output_path}")
+                self.logger.info(f"Total stocks in report: {len(result_df)}")
+                print(f"✅ FHPS filter analysis completed. Report saved to: {output_path}")
+                print(f"📊 Total stocks in report: {len(result_df)}")
             else:
                 self.logger.warning("No results to save - all stock processing failed")
+                print("⚠️ No results to save - all stock processing failed")
 
             if _progress and _parent_task_id:
                 _progress.update(
                     _parent_task_id,
                     completed=100,
-                    description="✅ FHPS analysis completed",
+                    description="✅ FHPS filter analysis completed",
                 )
-                self.logger.info("Progress updated to 100% - Analysis completed")
 
         except Exception as e:
             error_msg = f"FHPS filter analysis failed: {str(e)}"
             self.logger.error(error_msg)
+            print(f"❌ {error_msg}")
             if _progress and _parent_task_id:
                 _progress.update(_parent_task_id, description=f"❌ {error_msg}")
             raise
+
+
+async def main():
+    """Main entry point for running FHPS filter analysis."""
+    try:
+        # Note: In actual usage, you would pass the required DataFrames
+        # This is just a placeholder for testing the script structure
+        print("❌ Error: FhpsFilter requires industry_stock_mapping_df and stock_zh_a_spot_em_df")
+        print("Please run this through the main application that provides these DataFrames")
+    except Exception as e:
+        print(f"❌ FHPS filter analysis failed: {e}")
+        raise
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

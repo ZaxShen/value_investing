@@ -1,0 +1,43 @@
+# Configuration for fhps_caching.py
+# This file contains parameters for FHPS data caching operations
+
+# =============================================================================
+# Phase 1 Caching Configuration - Historical FHPS Data
+# =============================================================================
+phase1_caching:
+  # Historical years for Phase 1 caching (stock_fhps_em data)
+  historical_years: [2020, 2021, 2022, 2023]
+  
+  # Output directory for cached FHPS data
+  cache_dir: "data/fhps"
+  
+  # Skip existing cached files
+  skip_existing: true
+
+# =============================================================================  
+# Phase 2 Caching Configuration - Target Year with Prices
+# =============================================================================
+phase2_caching:
+  # Target years for Phase 2 caching (stock_fhps_em data with prices)
+  target_years: [2024]
+  
+  # Output directory for cached FHPS data  
+  cache_dir: "data/fhps"
+  
+  # Skip existing cached files
+  skip_existing: true
+
+# =============================================================================
+# Latest File Configuration
+# =============================================================================
+latest_file:
+  # Latest FHPS file name (variable name for filtering script)
+  stock_fhps_em_latest_filename: "stock_fhps_em-latest.csv"
+
+# =============================================================================
+# File Configuration Metadata
+# =============================================================================
+file_config:
+  config_name: "FHPS_CACHING_PROD"
+  description: "Configuration for FHPS caching operations - Phase 1 (historical) and Phase 2 (target with prices)"
+  version: "1.9.3"

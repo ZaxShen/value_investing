@@ -1,0 +1,43 @@
+# Test configuration for fhps_caching.py - Limited data for testing
+# This file contains parameters for testing FHPS data caching operations
+
+# =============================================================================
+# Phase 1 Caching Configuration - Historical FHPS Data (Limited for Testing)
+# =============================================================================
+phase1_caching:
+  # Historical years for Phase 1 caching (stock_fhps_em data) - Limited for testing
+  historical_years: [2024]  # Only test with 2024 since it exists
+  
+  # Output directory for cached FHPS data
+  cache_dir: "data/fhps"
+  
+  # Skip existing cached files
+  skip_existing: true
+
+# =============================================================================  
+# Phase 2 Caching Configuration - Target Year with Prices (Limited for Testing)
+# =============================================================================
+phase2_caching:
+  # Target years for Phase 2 caching (stock_fhps_em data with prices) - Skip for testing
+  target_years: []  # Skip phase 2 for now to avoid timeout
+  
+  # Output directory for cached FHPS data  
+  cache_dir: "data/fhps"
+  
+  # Skip existing cached files
+  skip_existing: true
+
+# =============================================================================
+# Latest File Configuration
+# =============================================================================
+latest_file:
+  # Latest FHPS file name (variable name for filtering script)
+  stock_fhps_em_latest_filename: "stock_fhps_em-latest.csv"
+
+# =============================================================================
+# File Configuration Metadata
+# =============================================================================
+file_config:
+  config_name: "FHPS_CACHING_TEST"
+  description: "Test configuration for FHPS caching operations"
+  version: "1.9.3"
