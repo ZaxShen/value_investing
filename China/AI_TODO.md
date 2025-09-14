@@ -41,15 +41,32 @@ Any AI assistant working with this repository MUST strictly adhere to the follow
 
 ---
 
-## v1.9.2 TODO
+## v1.9.3 TODO
 
-### Logic issue of fhps_filter.py
+Target script:
 
-Target:
+- `src/fhps_caching.py`
 
-- `fhps_filter.py`
+Reference script:
+
+- `src/fhps_filter.py`
+
+Description:
+
+- In `src/fhps_filter.py`, currently we have caching and filtering functionalities together. Now I want to split into two scripts, `src/fhps_caching.py` and `src/fhps_filter.py`
 
 Tasks:
 
-- We are looking for the stock price of one trading date before 除权除息日. Therefore, you need to first decide if 除权除息日 is weekend, and get the one trading date before it
-- Then try to call akshare API to get the price. Notice even we did above step, the date may be a holiday or no price. So you need to handle it to make sure we get the correct date's price
+- Make `src/fhps_caching.py` for caching only. The output csv should be named (use variable value `stock_fhps_em-latest.csv`) in the config file. You name the variable name. config file should be store in and load from`input/filters/fhps`.
+- In `src/fhps_caching.py`'s config, specifiy the phase 1 caching, which are years in list, for example, [2020, 2021, 2022, 2023, 2024], then it should run logic like below pesudo code:
+```python
+years = [2020, 2021, 2022, 2023, 2024]  # notice dates is tmp variable name, you should make it more readable in config file
+for year in years:
+  stock_fhps_em_df = ak.stock_fhps_em(date=f'{year}1231')
+  df = stock_fhps_em_df.dropna(subset=["送转股份-送转总比例"])
+  df.reset_index(drop=True).to_csv(f"data/fhps/stock_fhps_em-{year}.csv")
+```
+- In `src/fhps_caching.py`'s config, specifiy the phase 2 caching, which is to fetch the 除权除息前日股价, like above, user should define years in list
+- Notice for either phase 1 or phase 2 caching, it should first check if there are cached files already, if so, skip.
+- Make `src/fhps_filter.py` run the filter functionality only, the input csv file name should be specified in the config file (use variable of `stock_fhps_em-latest.csv`). You name the variable name.
+- In `src/fhps_filter.py`'s config there also should be variable like years, but you can name it. Then load the `stock_fhps_em-{year}.csv` one by one. Temperary store their 代码 in a set. Use `stock_fhps_em-latest.csv`'s 代码 to check if it apears in previous years. Becuase I want to filter a stock previous 除权 logic. So a stock must has 除权 in one of previous years and in `stock_fhps_em-latest.csv`
