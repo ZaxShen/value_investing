@@ -32,6 +32,8 @@ dependencies = [
 # FHPS (分红派息送股) data management scripts
 fhps-cache = "scripts.run_fhps_caching:main"
 fhps-filter = "scripts.run_fhps_filter:main"
+# Watchlist analyzer script
+watchlist-analyzer = "scripts.run_watchlist_analyzer:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

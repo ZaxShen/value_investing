@@ -35,6 +35,12 @@ watchlist_analyzer:
   watchlist_dir: "input/watchlists/"
   # Report directory
   report_dir: "output/reports/analyzers/watchlist_analyzer"
+  
+  # File selection: "*" = scan all JSON files, or list specific files
+  # Examples:
+  # watchlist_files: "*"                           # Scan all files (default)
+  # watchlist_files: ["watchlist.json", "watchlist.json"]  # Only specific files
+  watchlist_files: "*"
 
 # =============================================================================
 # File Configuration Metadata
