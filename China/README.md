@@ -2,6 +2,32 @@
 
 ## v1
 
+### v1.9.3
+
+- :tada: **New Features:**
+  - **Watchlist Analyzer Runner Script**: Added `scripts/run_watchlist_analyzer.py` for standalone execution
+    - Command-line argument support with `--config` parameter for config selection
+    - Rich progress bars with real-time percentage tracking (0% → 100%)
+    - Market data fetching integration with progress visualization
+    - Comprehensive error handling and config validation
+  - **Config-based File Selection**: Enhanced watchlist analyzer with flexible file scanning
+    - `"*"` wildcard for scanning all JSON files (maintains privacy, default behavior)
+    - Explicit file lists for processing specific watchlists only
+    - Config-only approach without command-line complexity
+  - **Entry Point Integration**: Added `watchlist-analyzer` to pyproject.toml scripts
+
+- :zap: **Performance Improvements:**
+  - **Real-time Progress Tracking**: Fixed progress bar implementation in `run_analysis` method
+    - Accurate stock-by-stock progress updates using `advance` parameter
+    - Progress calculated based on total stocks across all watchlist files
+    - Proper error handling ensuring progress updates even on failures
+
+- :heavy_check_mark: **Implementation Details:**
+  - Modified `WatchlistAnalyzerConfig` with `watchlist_files: Union[str, List[str]] = "*"`
+  - Updated `load_watchlist_from_files()` method with conditional logic for file scanning modes
+  - Enhanced logging to display file selection mode and count information
+  - Backward compatibility maintained with existing behavior as default
+
 ### v1.9.2
 
 - :tada: **New Features:**

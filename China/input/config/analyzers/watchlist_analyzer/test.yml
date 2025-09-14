@@ -35,6 +35,9 @@ watchlist_analyzer:
   watchlist_dir: "input/watchlists/"
   # Report directory
   report_dir: "output/reports/analyzers/watchlist_analyzer"
+  
+  # File selection: Test config with specific files only
+  watchlist_files: ["自选股.json"]
 
 # =============================================================================
 # File Configuration Metadata
@@ -44,4 +47,4 @@ file_config:
   config_name: "test"
   description: "Test configuration for refactored code"
   # Follow main branch's version
-  version: "1.9.0"
+  version: "1.9.3"

@@ -13,7 +13,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import pandas as pd
 import yaml
@@ -67,6 +67,10 @@ class WatchlistAnalyzerConfig(BaseModel):
     days_lookback_period: int = 100  # Days to look back for sufficient trading data
     watchlist_dir: str = ""  # Source data directory
     report_dir: str = ""  # Report directory
+    
+    # File selection configuration
+    # Use "*" to scan all JSON files, or list specific filenames
+    watchlist_files: Union[str, List[str]] = "*"  # "*" or ["file1.json", "file2.json"]
 
 
 class Config(BaseModel):
@@ -435,10 +439,27 @@ class WatchlistAnalyzer:
             raise FileNotFoundError(f"Watchlist stocks directory not found: {dir_path}")
 
         watchlist_data = {}
-        json_files = glob.glob(os.path.join(dir_path, "*.json"))
+        
+        # Get file list based on configuration
+        if self.analyzer_config.watchlist_files == "*":
+            # Scan all JSON files (current behavior)
+            json_files = glob.glob(os.path.join(dir_path, "*.json"))
+        else:
+            # Use specific files from config
+            json_files = []
+            for filename in self.analyzer_config.watchlist_files:
+                file_path = os.path.join(dir_path, filename)
+                if os.path.exists(file_path) and filename.endswith('.json'):
+                    json_files.append(file_path)
+                else:
+                    logger.warning(f"Configured watchlist file not found or invalid: {filename}")
 
         if not json_files:
-            logger.warning("No JSON files found in directory: %s", dir_path)
+            if self.analyzer_config.watchlist_files == "*":
+                logger.warning("No JSON files found in directory: %s", dir_path)
+            else:
+                logger.warning("None of the configured watchlist files were found: %s", 
+                             self.analyzer_config.watchlist_files)
             return watchlist_data
 
         for file_path in json_files:
@@ -675,6 +696,10 @@ class WatchlistAnalyzer:
         columns = self._get_analysis_columns()
         df = pd.DataFrame(columns=columns)
 
+        # Calculate total stocks for progress tracking
+        total_stocks = sum(len(watchlist) for watchlist in watchlist_data.values())
+        processed_stocks = 0
+
         # Process each watchlist
         for account_name, watchlist in watchlist_data.items():
             for stock_code, stock_name in watchlist.items():
@@ -709,7 +734,13 @@ class WatchlistAnalyzer:
                         account_name,
                         str(e),
                     )
-                    continue
+                finally:
+                    # Update progress after processing each stock (success or failure)
+                    processed_stocks += 1
+                    if _progress and _parent_task_id is not None:
+                        # Use advance parameter to increment progress by 1 step
+                        # Rich calculates percentage based on total=100 from the task creation
+                        _progress.update(_parent_task_id, advance=100/total_stocks)
 
         # Use the pre-determined last_date from initialization
         # This ensures consistency across all analysis methods
