@@ -62,7 +62,7 @@ output/analytics/
 cache/api/
 
 # Watchlist stock data except 自选股.json (JSON files)
-input/watchlists/
+input/watchlists/*.json
 !input/watchlists/自选股.json
 
 # Legacy directory patterns (for safety)
