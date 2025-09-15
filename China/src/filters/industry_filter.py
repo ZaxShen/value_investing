@@ -231,26 +231,58 @@ class IndustryFilter:
 
         # Set start_date & end_date
         # Use the maximum period_count for date calculations when needed
+        # Include 60-day lookback and YTD requirements for fixed period calculations
         max_period_count = max(config.period_count) if config.period_count else 29
+        # Ensure we have enough data for 60-day and YTD calculations
+        required_period_count = max(max_period_count, self.filter_config.trading_days_60, 300)  # 300 days for YTD
 
         if config.start_date and config.end_date:
-            # Both dates provided - use as is
-            pass
+            # Both dates provided - check if range is sufficient for fixed period calculations
+            from datetime import datetime
+            start_date_obj = datetime.strptime(config.start_date, "%Y%m%d")
+            end_date_obj = datetime.strptime(config.end_date, "%Y%m%d")
+            date_range_days = (end_date_obj - start_date_obj).days
+            
+            logger.debug(f"Date range check: {date_range_days} days vs {required_period_count} required")
+            
+            if date_range_days < required_period_count:
+                # Extend start_date to ensure sufficient data for calculations
+                old_start_date = config.start_date
+                config.start_date = self._date_converter(
+                    config.end_date, config.period, -required_period_count
+                )
+                logger.info(f"Extended date range: {old_start_date} -> {config.start_date} (for 60-day/YTD calculations)")
         elif config.start_date and not config.end_date:
-            # Only start_date provided - calculate end_date using max period
+            # Only start_date provided - calculate end_date using required period
             config.end_date = self._date_converter(
-                config.start_date, config.period, max_period_count
+                config.start_date, config.period, required_period_count
             )
         elif not config.start_date and config.end_date:
-            # Only end_date provided - calculate start_date using max period
+            # Only end_date provided - calculate start_date using required period
             config.start_date = self._date_converter(
-                config.end_date, config.period, -max_period_count
+                config.end_date, config.period, -required_period_count
             )
         else:
             # Both dates empty - use centralized date resolution
             start_date, end_date = resolve_date_range(config)
             config.start_date = start_date
             config.end_date = end_date
+            
+            # Check if the resolved range is sufficient for 60-day/YTD calculations
+            from datetime import datetime
+            start_date_obj = datetime.strptime(config.start_date, "%Y%m%d")
+            end_date_obj = datetime.strptime(config.end_date, "%Y%m%d")
+            date_range_days = (end_date_obj - start_date_obj).days
+            
+            logger.debug(f"Resolved date range check: {date_range_days} days vs {required_period_count} required")
+            
+            if date_range_days < required_period_count:
+                # Extend start_date to ensure sufficient data for calculations
+                old_start_date = config.start_date
+                config.start_date = self._date_converter(
+                    config.end_date, config.period, -required_period_count
+                )
+                logger.info(f"Extended resolved date range: {old_start_date} -> {config.start_date} (for 60-day/YTD calculations)")
 
     def _initialize_end_date(self) -> None:
         """
@@ -402,7 +434,13 @@ class IndustryFilter:
         Returns:
             DataFrame containing historical index data for the industry
         """
-        return self.industry_api.fetch_hist_sync(symbol=industry_name)
+        return self.industry_api.fetch_hist_sync(
+            symbol=industry_name,
+            start_date=self.akshare_config.start_date,
+            end_date=self.akshare_config.end_date,
+            period=self.akshare_config.period,
+            adjust=self.akshare_config.adjust
+        )
 
     async def process_single_industry_async(
         self,
