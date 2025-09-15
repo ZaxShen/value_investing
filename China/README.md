@@ -2,6 +2,18 @@
 
 ## v1
 
+### v1.9.4
+
+- :heavy_check_mark: **Bug Fixes:**
+  - **Industry Filter Historical Data**: Fixed critical bug where `60日涨跌幅(%)` and `年初至今涨跌幅(%)` columns showed identical values to `29日涨跌幅(%)`
+    - Root cause: Insufficient historical data range (only ~29 days) preventing accurate 60-day and YTD calculations
+    - Enhanced `_resolve_akshare_config()` to automatically extend date range to minimum 300 days for YTD analysis
+    - Updated `_fetch_industry_index_data_sync()` to pass proper start_date/end_date parameters to akshare API
+    - Now provides accurate differentiated values: 29-day (-5.71%), 60-day (-5.56%), YTD (+12.63%)
+  - **Gitignore Pattern Fix**: Corrected `.gitignore` pattern from `input/watchlists/` to `input/watchlists/*.json` 
+    - Allows directory visibility while selectively ignoring JSON files except `自选股.json`
+    - Enables proper `git add` functionality for tracked watchlist files
+
 ### v1.9.3
 
 - :tada: **New Features:**
