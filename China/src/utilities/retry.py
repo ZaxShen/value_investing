@@ -249,11 +249,11 @@ class RetryConfig:
 
 # Pre-configured retry configurations for common use cases
 API_RETRY_CONFIG = RetryConfig(
-    max_retries=3,
-    initial_delay=1.0,
+    max_retries=5,
+    initial_delay=2.0,
     backoff_multiplier=2.0,
     exceptions=(ConnectionError, TimeoutError, Exception),
-    timeout=45.0  # 45 second timeout for API calls
+    timeout=60.0  # 60 second timeout for API calls
 )
 
 NETWORK_RETRY_CONFIG = RetryConfig(

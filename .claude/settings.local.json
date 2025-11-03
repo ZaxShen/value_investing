@@ -25,7 +25,26 @@
       "Bash(cp:*)",
       "Bash(echo $PATH)",
       "Bash(rm:*)",
-      "Bash(unset:*)"
+      "Bash(unset:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+      "Bash(pnpm update:*)",
+      "Bash(echo:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(uv sync:*)",
+      "Bash(scutil --proxy:*)",
+      "Bash(uv python install:*)",
+      "Bash(uv --version:*)",
+      "Bash(/opt/homebrew/bin/uv:*)",
+      "Bash(brew install:*)",
+      "Bash(/opt/homebrew/bin/brew install:*)",
+      "Bash(PATH=\"/opt/homebrew/bin:$PATH\" /opt/homebrew/bin/uv sync:*)",
+      "Bash(PATH=\"/opt/homebrew/bin:$PATH\" PKG_CONFIG_PATH=\"/opt/homebrew/opt/openblas/lib/pkgconfig:$PKG_CONFIG_PATH\" /opt/homebrew/bin/uv sync:*)",
+      "Bash(PATH=\"/opt/homebrew/bin:$PATH\" PKG_CONFIG_PATH=\"/opt/homebrew/opt/openblas/lib/pkgconfig:$PKG_CONFIG_PATH\" LDFLAGS=\"-L/opt/homebrew/opt/libomp/lib\" CPPFLAGS=\"-I/opt/homebrew/opt/libomp/include\" /opt/homebrew/bin/uv sync:*)",
+      "Bash(curl:*)",
+      "Bash(git rm:*)",
+      "Bash(awk:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": []
   }

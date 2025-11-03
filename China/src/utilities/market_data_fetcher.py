@@ -35,7 +35,7 @@ from src.utilities.logger import get_logger
 configure_environment()  # Ensure tqdm is disabled
 
 # Semaphore to control concurrent API requests
-REQUEST_SEMAPHORE = asyncio.Semaphore(10)
+REQUEST_SEMAPHORE = asyncio.Semaphore(3)
 console = Console()
 
 # Initialize logger for this module

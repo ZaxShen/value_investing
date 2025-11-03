@@ -93,9 +93,15 @@ logs/*.log
 .vscode/
 .idea/
 
+# VS Code workspace files
+*.code-workspace
+
 # Editor temporary files
 *.swp
 *.swo
+
+# Database session files
+*.session.sql
 
 # Claude AI tool settings
 .claude/settings.local.json
